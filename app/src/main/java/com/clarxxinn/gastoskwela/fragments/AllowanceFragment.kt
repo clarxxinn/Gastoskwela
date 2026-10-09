@@ -15,22 +15,33 @@ import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.Allowance
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDate
 
 class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
-    private val allowanceDao by lazy {
-        GastoskwelaDatabase.getDatabase(requireContext()).allowanceDao()
+    private val database by lazy {
+        GastoskwelaDatabase.getDatabase(requireContext())
     }
 
-    private fun formatMoney(centavos: Long): String {
-        return MoneyUtils.format(centavos)
+    private val allowanceDao by lazy {
+        database.allowanceDao()
     }
+
+    private val expenseDao by lazy {
+        database.expenseDao()
+    }
+
+    private val frequencies = arrayOf(
+        "Daily",
+        "Weekly",
+        "Monthly",
+        "Custom"
+    )
 
     override fun onViewCreated(
         view: View,
@@ -38,24 +49,18 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val totalText = view.findViewById<TextView>(
-            R.id.tvTotalAllowance
-        )
+        updateFrequencyLabel(view)
 
-        val emptyText = view.findViewById<TextView>(
-            R.id.tvEmptyAllowance
-        )
-
-        val listContainer = view.findViewById<LinearLayout>(
-            R.id.allowanceListContainer
-        )
-
-        val addButton = view.findViewById<MaterialButton>(
+        view.findViewById<View>(
             R.id.btnAddAllowance
-        )
-
-        addButton.setOnClickListener {
+        ).setOnClickListener {
             showAllowanceDialog()
+        }
+
+        view.findViewById<View>(
+            R.id.btnChangeAllowanceFrequency
+        ).setOnClickListener {
+            showFrequencyDialog(view)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -64,37 +69,143 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             ) {
                 launch {
                     allowanceDao.getAllAllowances().collect { allowances ->
-                        renderAllowances(
-                            listContainer,
-                            emptyText,
-                            allowances
-                        )
+                        renderAllowances(view, allowances)
                     }
                 }
 
                 launch {
-                    allowanceDao.getTotalAllowance().collect { total ->
-                        totalText.text = formatMoney(total)
+                    combine(
+                        allowanceDao.getTotalAllowance(),
+                        expenseDao.getTotalExpenses()
+                    ) { allowance, expenses ->
+                        allowance to expenses
+                    }.collect { (allowance, expenses) ->
+
+                        val balance = allowance - expenses
+
+                        view.findViewById<TextView>(
+                            R.id.tvTotalAllowance
+                        ).text = MoneyUtils.format(allowance)
+
+                        view.findViewById<TextView>(
+                            R.id.tvAllowanceBalance
+                        ).text = MoneyUtils.format(balance)
+
+                        view.findViewById<TextView>(
+                            R.id.tvAllowanceSummary
+                        ).text = when {
+                            allowance <= 0L ->
+                                "Add your first allowance to get started."
+
+                            balance < 0L ->
+                                "Your expenses have exceeded your allowance."
+
+                            balance == 0L ->
+                                "You have used your available allowance."
+
+                            else ->
+                                "Keep tracking your baon and gastos!"
+                        }
                     }
                 }
             }
         }
     }
 
+    private fun updateFrequencyLabel(view: View) {
+        val preferences = requireContext().getSharedPreferences(
+            "gastoskwela_preferences",
+            android.content.Context.MODE_PRIVATE
+        )
+
+        val frequency = preferences.getString(
+            "allowance_frequency",
+            "Daily"
+        ) ?: "Daily"
+
+        view.findViewById<TextView>(
+            R.id.tvAllowanceFrequency
+        ).text = frequency
+    }
+
+    private fun showFrequencyDialog(view: View) {
+        val preferences = requireContext().getSharedPreferences(
+            "gastoskwela_preferences",
+            android.content.Context.MODE_PRIVATE
+        )
+
+        val currentFrequency = preferences.getString(
+            "allowance_frequency",
+            "Daily"
+        ) ?: "Daily"
+
+        val selectedIndex = frequencies.indexOf(
+            currentFrequency
+        ).coerceAtLeast(0)
+
+        var selected = selectedIndex
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Allowance Frequency")
+            .setSingleChoiceItems(
+                frequencies,
+                selectedIndex
+            ) { _, which ->
+                selected = which
+            }
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Save") { _, _ ->
+                preferences.edit()
+                    .putString(
+                        "allowance_frequency",
+                        frequencies[selected]
+                    )
+                    .apply()
+
+                updateFrequencyLabel(view)
+            }
+            .show()
+    }
+
     private fun renderAllowances(
-        container: LinearLayout,
-        emptyText: TextView,
+        view: View,
         allowances: List<Allowance>
     ) {
+        val container = view.findViewById<LinearLayout>(
+            R.id.allowanceListContainer
+        )
+
+        val emptyText = view.findViewById<TextView>(
+            R.id.tvEmptyAllowance
+        )
+
+        val countText = view.findViewById<TextView>(
+            R.id.tvAllowanceCount
+        )
+
         container.removeAllViews()
 
-        emptyText.visibility = if (allowances.isEmpty()) {
+        val sorted = allowances.sortedWith(
+            compareByDescending<Allowance> { it.date }
+                .thenByDescending { it.id }
+        )
+
+        countText.text = if (sorted.size == 1) {
+            "1 record"
+        } else {
+            "${sorted.size} records"
+        }
+
+        emptyText.visibility = if (sorted.isEmpty()) {
             View.VISIBLE
         } else {
             View.GONE
         }
 
-        allowances.forEach { allowance ->
+        emptyText.text =
+            "No allowance records yet. Tap Add Allowance to begin."
+
+        sorted.forEach { allowance ->
             val itemView = layoutInflater.inflate(
                 R.layout.item_allowance,
                 container,
@@ -111,26 +222,27 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
             itemView.findViewById<TextView>(
                 R.id.tvAmount
-            ).text = formatMoney(allowance.amountCentavos)
+            ).text = "+${MoneyUtils.format(allowance.amountCentavos)}"
 
             val notesView = itemView.findViewById<TextView>(
                 R.id.tvNotes
             )
 
-            if (allowance.notes.isNotBlank()) {
-                notesView.visibility = View.VISIBLE
-                notesView.text = allowance.notes
+            notesView.visibility = if (allowance.notes.isBlank()) {
+                View.GONE
             } else {
-                notesView.visibility = View.GONE
+                View.VISIBLE
             }
 
-            itemView.findViewById<MaterialButton>(
+            notesView.text = allowance.notes
+
+            itemView.findViewById<View>(
                 R.id.btnEdit
             ).setOnClickListener {
                 showAllowanceDialog(allowance)
             }
 
-            itemView.findViewById<MaterialButton>(
+            itemView.findViewById<View>(
                 R.id.btnDelete
             ).setOnClickListener {
                 confirmDelete(allowance)
@@ -140,7 +252,9 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
         }
     }
 
-    private fun showAllowanceDialog(existing: Allowance? = null) {
+    private fun showAllowanceDialog(
+        existing: Allowance? = null
+    ) {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_allowance, null)
 
@@ -164,7 +278,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             R.id.layoutSource
         )
 
-        val dateButton = dialogView.findViewById<MaterialButton>(
+        val dateButton = dialogView.findViewById<TextView>(
             R.id.btnSelectDate
         )
 
@@ -173,7 +287,6 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
         dateButton.text = selectedDate
 
-        // Populate fields when editing
         existing?.let { allowance ->
             amountInput.setText(
                 BigDecimal.valueOf(
@@ -186,7 +299,6 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             notesInput.setText(allowance.notes)
         }
 
-        // Date picker
         dateButton.setOnClickListener {
             val date = LocalDate.parse(selectedDate)
 
@@ -218,7 +330,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             .setView(dialogView)
             .setNegativeButton("Cancel", null)
             .setPositiveButton(
-                if (existing == null) "Save" else "Update",
+                if (existing == null) "Save Allowance" else "Update",
                 null
             )
             .create()
@@ -246,7 +358,6 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                     ?.trim()
                     .orEmpty()
 
-                // Phase 8: Reusable money validation
                 val centavos = MoneyUtils.parseCentavos(
                     amountText
                 )
