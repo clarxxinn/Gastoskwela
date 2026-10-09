@@ -25,6 +25,7 @@ class AllowanceSetupActivity : AppCompatActivity() {
     private var selectedFrequency = "Daily"
     private var currentStep = 1
     private var isSaving = false
+    private var isAnimating = false
 
     private lateinit var frequencySection: LinearLayout
     private lateinit var detailsSection: LinearLayout
@@ -73,17 +74,28 @@ class AllowanceSetupActivity : AppCompatActivity() {
 
         cards.forEach { (frequency, card) ->
             card.setOnClickListener {
-                if (currentStep == 1 && !isSaving) {
+                if (!isSaving && !isAnimating && currentStep == 1) {
                     selectedFrequency = frequency
                     updateSelection()
+
+                    card.animate()
+                        .scaleX(0.98f)
+                        .scaleY(0.98f)
+                        .setDuration(90)
+                        .withEndAction {
+                            card.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(120)
+                                .start()
+                        }
+                        .start()
                 }
             }
         }
 
         findViewById<ImageButton>(R.id.btnSetupBack)
-            .setOnClickListener {
-                handleBack()
-            }
+            .setOnClickListener { handleBack() }
 
         onBackPressedDispatcher.addCallback(
             this,
@@ -95,12 +107,11 @@ class AllowanceSetupActivity : AppCompatActivity() {
         )
 
         nextButton.setOnClickListener {
-            if (isSaving) return@setOnClickListener
+            if (isSaving || isAnimating) return@setOnClickListener
 
             if (currentStep == 1) {
                 if (selectedFrequency == "Custom") {
-                    currentStep = 2
-                    showStep()
+                    animateToStep(2)
                 } else {
                     savePresetAllowance()
                 }
@@ -137,17 +148,17 @@ class AllowanceSetupActivity : AppCompatActivity() {
     }
 
     private fun showStep() {
-        if (currentStep == 1) {
-            frequencySection.visibility = View.VISIBLE
-            detailsSection.visibility = View.GONE
+        frequencySection.visibility =
+            if (currentStep == 1) View.VISIBLE else View.GONE
 
+        detailsSection.visibility =
+            if (currentStep == 2) View.VISIBLE else View.GONE
+
+        if (currentStep == 1) {
             titleText.text = "Set Your Allowance"
             subtitleText.text = "You can change this anytime."
             nextButton.text = "Next"
         } else {
-            frequencySection.visibility = View.GONE
-            detailsSection.visibility = View.VISIBLE
-
             titleText.text = "Allowance Details"
             subtitleText.text = "Enter your custom allowance."
             nextButton.text = "Save & Continue"
@@ -158,19 +169,63 @@ class AllowanceSetupActivity : AppCompatActivity() {
         }
     }
 
+    private fun animateToStep(targetStep: Int) {
+        if (isAnimating || isSaving) return
+
+        isAnimating = true
+        nextButton.isEnabled = false
+
+        val currentSection =
+            if (currentStep == 1) frequencySection else detailsSection
+
+        val direction = if (targetStep == 2) -1f else 1f
+
+        currentSection.animate()
+            .alpha(0f)
+            .translationX(35f * direction)
+            .setDuration(180)
+            .withEndAction {
+                currentSection.alpha = 1f
+                currentSection.translationX = 0f
+
+                currentStep = targetStep
+                showStep()
+
+                val newSection =
+                    if (currentStep == 1) frequencySection
+                    else detailsSection
+
+                newSection.alpha = 0f
+                newSection.translationX = -35f * direction
+
+                newSection.animate()
+                    .alpha(1f)
+                    .translationX(0f)
+                    .setDuration(250)
+                    .withEndAction {
+                        isAnimating = false
+                        nextButton.isEnabled = true
+                    }
+                    .start()
+            }
+            .start()
+    }
+
     private fun handleBack() {
-        if (isSaving) return
+        if (isSaving || isAnimating) return
 
         if (currentStep == 2) {
-            currentStep = 1
-            showStep()
+            animateToStep(1)
         } else {
             startActivity(
-                Intent(
-                    this,
-                    OnboardingActivity::class.java
-                )
+                Intent(this, OnboardingActivity::class.java)
             )
+
+            overridePendingTransition(
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+            )
+
             finish()
         }
     }
@@ -214,10 +269,7 @@ class AllowanceSetupActivity : AppCompatActivity() {
             return
         }
 
-        saveAllowance(
-            amountCentavos = amount,
-            source = source
-        )
+        saveAllowance(amount, source)
     }
 
     private fun saveAllowance(
@@ -252,6 +304,7 @@ class AllowanceSetupActivity : AppCompatActivity() {
                     .putString("allowance_frequency", selectedFrequency)
                     .apply()
 
+                // Smooth transition to Dashboard
                 startActivity(
                     Intent(
                         this@AllowanceSetupActivity,
@@ -259,7 +312,13 @@ class AllowanceSetupActivity : AppCompatActivity() {
                     )
                 )
 
+                overridePendingTransition(
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out
+                )
+
                 finish()
+
             } catch (e: Exception) {
                 isSaving = false
                 nextButton.isEnabled = true
