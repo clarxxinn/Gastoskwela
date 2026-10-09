@@ -4,52 +4,68 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:cardCornerRadius="14dp"
-    app:cardElevation="1dp">
+    android:layout_marginBottom="7dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="64dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp">
+
+        <TextView
+            android:id="@+id/tvTransactionIcon"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:gravity="center"
+            android:background="@drawable/bg_home_quick_expense"
+            android:text="🍴"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="10dp"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvTransactionTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Lunch"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="Pagkain"
+                android:textColor="#1F2937"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_semibold" />
 
             <TextView
                 android:id="@+id/tvTransactionDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Food · 2026-10-09"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
-
+                android:layout_marginTop="2dp"
+                android:text="Today"
+                android:textColor="#8990A4"
+                android:textSize="10sp"
+                android:fontFamily="@font/poppins_regular" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvTransactionAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="-₱75.00"
-            android:textColor="@color/expense_red"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="5dp"
+            android:text="-₱45.00"
+            android:textColor="#EF4444"
+            android:textSize="12sp"
+            android:fontFamily="@font/poppins_bold" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

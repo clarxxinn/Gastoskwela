@@ -40,7 +40,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
 
         val dateFormatter = DateTimeFormatter.ofPattern(
-            "EEEE, MMMM d, yyyy",
+            "'Today,' MMM d, yyyy",
             Locale.ENGLISH
         )
 
@@ -60,9 +60,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     database.schoolPaymentDao().getAllPayments()
                 ) { allowances, expenses, payments ->
                     DashboardData(
-                        allowances,
-                        expenses,
-                        payments
+                        allowances = allowances,
+                        expenses = expenses,
+                        payments = payments
                     )
                 }.collect { data ->
                     updateDashboard(view, data)
@@ -72,7 +72,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun setupNavigation(view: View) {
-
         view.findViewById<View>(
             R.id.btnHomeExpenses
         ).setOnClickListener {
@@ -133,7 +132,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         val remaining = totalAllowance - totalExpenses
-
         val today = LocalDate.now().toString()
 
         val todayExpenses = data.expenses
@@ -187,7 +185,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         )
 
         if (allowance <= 0L) {
-            percentageView.text = "0% remaining"
+            percentageView.text = "0%"
             insightView.text =
                 "Add an allowance to start tracking your budget."
             progressBar.progress = 0
@@ -196,19 +194,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         val remaining = allowance - expenses
 
-        val remainingPercent = (
-                remaining.toDouble() /
-                        allowance.toDouble() * 100.0
-                )
+        val remainingPercent =
+            remaining.toDouble() / allowance.toDouble() * 100.0
 
         val displayPercent = remainingPercent
             .coerceIn(0.0, 100.0)
             .toInt()
 
         progressBar.progress = displayPercent
-
-        percentageView.text =
-            "$displayPercent% of allowance remaining"
+        percentageView.text = "$displayPercent%"
 
         insightView.text = when {
             remaining < 0L ->
@@ -249,14 +243,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
             .take(5)
 
-        emptyView.visibility = if (recent.isEmpty()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        emptyView.visibility =
+            if (recent.isEmpty()) View.VISIBLE else View.GONE
 
         emptyView.text =
             "No expenses yet. Tap Add Expense to get started."
+
+        val today = LocalDate.now().toString()
 
         recent.forEach { expense ->
             val itemView = layoutInflater.inflate(
@@ -265,28 +258,61 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 false
             )
 
-            val categoryIcon = when (
-                expense.category.lowercase()
-            ) {
-                "food", "pagkain" -> "🍔"
-                "transportation", "pamasahe" -> "🚌"
-                "school supplies" -> "📚"
-                "projects" -> "📋"
-                "load/internet" -> "📱"
-                else -> "🧾"
+            val category = expense.category.lowercase()
+
+            val iconView = itemView.findViewById<TextView>(
+                R.id.tvTransactionIcon
+            )
+
+            val icon: String
+            val background: Int
+
+            when (category) {
+                "food", "pagkain" -> {
+                    icon = "🍴"
+                    background = R.drawable.bg_home_quick_allowance
+                }
+
+                "transportation", "pamasahe" -> {
+                    icon = "▣"
+                    background = R.drawable.bg_home_transaction_transport
+                }
+
+                "school supplies", "school" -> {
+                    icon = "✎"
+                    background = R.drawable.bg_home_quick_expense
+                }
+
+                "projects" -> {
+                    icon = "▤"
+                    background = R.drawable.bg_home_quick_payment
+                }
+
+                "load/internet" -> {
+                    icon = "▥"
+                    background = R.drawable.bg_home_quick_reports
+                }
+
+                else -> {
+                    icon = "•"
+                    background = R.drawable.bg_home_quick_expense
+                }
             }
 
-            val title = expense.description
-                .takeIf { it.isNotBlank() }
-                ?: expense.category
+            iconView.text = icon
+            iconView.setBackgroundResource(background)
 
             itemView.findViewById<TextView>(
                 R.id.tvTransactionTitle
-            ).text = "$categoryIcon  $title"
+            ).text = expense.category
 
             itemView.findViewById<TextView>(
                 R.id.tvTransactionDetails
-            ).text = "${expense.category} · ${expense.date}"
+            ).text = if (expense.date == today) {
+                "Today"
+            } else {
+                expense.date
+            }
 
             val amountView = itemView.findViewById<TextView>(
                 R.id.tvTransactionAmount
@@ -327,11 +353,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             .sortedBy { it.dueDate }
             .take(3)
 
-        emptyView.visibility = if (upcoming.isEmpty()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        emptyView.visibility =
+            if (upcoming.isEmpty()) View.VISIBLE else View.GONE
 
         emptyView.text =
             "No outstanding school payments. You're all caught up!"
