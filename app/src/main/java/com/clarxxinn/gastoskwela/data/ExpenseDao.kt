@@ -7,6 +7,11 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+data class ExpenseCategoryTotal(
+    val category: String,
+    val totalCentavos: Long
+)
+
 @Dao
 interface ExpenseDao {
 
@@ -15,6 +20,21 @@ interface ExpenseDao {
 
     @Query("SELECT COALESCE(SUM(amountCentavos), 0) FROM expenses")
     fun getTotalExpenses(): Flow<Long>
+
+    @Query("""
+        SELECT COALESCE(SUM(amountCentavos), 0)
+        FROM expenses
+        WHERE date LIKE :month || '%'
+    """)
+    fun getMonthlyExpenses(month: String): Flow<Long>
+
+    @Query("""
+        SELECT category, SUM(amountCentavos) AS totalCentavos
+        FROM expenses
+        GROUP BY category
+        ORDER BY totalCentavos DESC
+    """)
+    fun getExpensesByCategory(): Flow<List<ExpenseCategoryTotal>>
 
     @Insert
     suspend fun insertExpense(expense: Expense)

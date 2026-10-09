@@ -16,6 +16,13 @@ interface AllowanceDao {
     @Query("SELECT COALESCE(SUM(amountCentavos), 0) FROM allowances")
     fun getTotalAllowance(): Flow<Long>
 
+    @Query("""
+        SELECT COALESCE(SUM(amountCentavos), 0)
+        FROM allowances
+        WHERE date LIKE :month || '%'
+    """)
+    fun getMonthlyAllowance(month: String): Flow<Long>
+
     @Insert
     suspend fun insertAllowance(allowance: Allowance)
 
