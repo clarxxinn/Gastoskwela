@@ -2,174 +2,90 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/paymentCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="10dp"
     app:cardBackgroundColor="#FFFFFF"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="1dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp"
+    app:strokeColor="#EFF1F8"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="17dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:minHeight="82dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <FrameLayout
+            android:id="@+id/paymentIconBackground"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_payment_icon_circle">
+
+            <ImageView
+                android:id="@+id/ivPaymentIcon"
+                android:layout_width="21dp"
+                android:layout_height="21dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_payment_school"
+                android:contentDescription="Payment category" />
+        </FrameLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
 
             <TextView
-                android:layout_width="46dp"
-                android:layout_height="46dp"
-                android:background="@drawable/bg_payment_icon"
-                android:gravity="center"
-                android:text="🎓"
-                android:textSize="23sp" />
-
-            <LinearLayout
-                android:layout_width="0dp"
+                android:id="@+id/tvPaymentTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:text="Project Materials"
+                android:textColor="#1F2937"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_semibold" />
 
-                <TextView
-                    android:id="@+id/tvPaymentTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Research Project"
-                    android:textColor="#1F2937"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvPaymentCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Projects"
-                    android:textColor="#6B7280"
-                    android:textSize="12sp" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tvPaymentDueDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Oct 15, 2026"
+                android:textColor="#929AB2"
+                android:textSize="10sp"
+                android:fontFamily="@font/poppins_regular" />
 
             <TextView
                 android:id="@+id/tvPaymentStatus"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Pending"
-                android:textColor="#F59E0B"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvPaymentDueDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="Due: 2026-10-20"
-            android:textColor="#6B7280"
-            android:textSize="13sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="13dp"
-            android:background="#EEF0F6" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="13dp"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvPaymentAmount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Total: ₱500.00"
-                    android:textColor="#1F2937"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/tvPaymentPaid"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Paid: ₱200.00"
-                    android:textColor="#16A34A"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvPaymentRemaining"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="8dp"
-                android:text="₱300.00 left"
+                android:layout_marginTop="4dp"
+                android:text="5 days left"
                 android:textColor="#EF4444"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textSize="10sp"
+                android:fontFamily="@font/poppins_semibold" />
         </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/progressPaymentItem"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:layout_marginTop="14dp"
-            android:max="100"
-            android:progress="0"
-            android:progressTint="#5B3FD9"
-            android:progressBackgroundTint="#ECF0FF" />
 
         <TextView
-            android:id="@+id/tvPaymentNotes"
-            android:layout_width="match_parent"
+            android:id="@+id/tvPaymentAmount"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="11dp"
-            android:textColor="#6B7280"
+            android:layout_marginStart="8dp"
+            android:text="₱150.00"
+            android:textColor="#1F2937"
             android:textSize="12sp"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="end"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEditPayment"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="60dp"
-                android:text="Edit"
-                android:textAllCaps="false"
-                android:textColor="#5B3FD9" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDeletePayment"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="60dp"
-                android:text="Delete"
-                android:textAllCaps="false"
-                android:textColor="#EF4444" />
-        </LinearLayout>
+            android:fontFamily="@font/poppins_semibold" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

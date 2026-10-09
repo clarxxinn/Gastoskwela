@@ -1,15 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="#F8FAFF">
+
+    <!-- HEADER -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp">
+
+        <ImageButton
+            android:id="@+id/btnAllowanceBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_add_expense_back"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Allowance"
+            android:textColor="#1F2937"
+            android:textSize="17sp"
+            android:fontFamily="@font/poppins_semibold" />
+    </FrameLayout>
+
+    <!-- TABS -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/tabAllowanceHistory"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/tvAllowanceHistoryTab"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="History"
+                android:textColor="#6547ED"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_semibold" />
+
+            <View
+                android:id="@+id/indicatorAllowanceHistory"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="#6547ED" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tabAllowanceSettings"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/tvAllowanceSettingsTab"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Settings"
+                android:textColor="#6B7280"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium" />
+
+            <View
+                android:id="@+id/indicatorAllowanceSettings"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:visibility="invisible"
+                android:background="#6547ED" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E6EAF4" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:fillViewport="true"
-        android:clipToPadding="false">
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -17,206 +118,271 @@
             android:orientation="vertical"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="110dp">
+            android:paddingTop="18dp"
+            android:paddingBottom="24dp">
 
-            <TextView
+            <!-- HISTORY SCREEN -->
+            <LinearLayout
+                android:id="@+id/allowanceHistorySection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="My Allowance"
-                android:textColor="#1F2937"
-                android:textSize="27sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="Manage your baon and track what you receive."
-                android:textColor="#6B7280"
-                android:textSize="14sp" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#F0EEFF"
+                    app:cardCornerRadius="17dp"
+                    app:cardElevation="0dp">
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                app:cardBackgroundColor="#5B3FD9"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
 
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Current Balance"
+                                android:textColor="#374151"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/poppins_medium" />
+
+                            <TextView
+                                android:id="@+id/tvAllowanceBalance"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="₱0.00"
+                                android:textColor="#111827"
+                                android:textSize="25sp"
+                                android:fontFamily="@font/poppins_bold" />
+                        </LinearLayout>
+
+                        <FrameLayout
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/bg_allowance_wallet">
+
+                            <ImageView
+                                android:layout_width="29dp"
+                                android:layout_height="29dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_nav_allowance"
+                                android:contentDescription="Wallet"
+                                android:tint="#6547ED" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- RECEIVED / SPENT -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="24dp">
+                    android:layout_marginTop="15dp"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Total Allowance Received"
-                        android:textColor="#E6DFFF"
-                        android:textSize="14sp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="10dp">
 
-                    <TextView
-                        android:id="@+id/tvTotalAllowance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="9dp"
-                        android:text="₱0.00"
-                        android:textColor="#FFFFFF"
-                        android:textSize="35sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Received"
+                            android:textColor="#6B7280"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/poppins_regular" />
+
+                        <TextView
+                            android:id="@+id/tvTotalAllowance"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="₱0.00"
+                            android:textColor="#1F2937"
+                            android:textSize="17sp"
+                            android:fontFamily="@font/poppins_bold" />
+                    </LinearLayout>
 
                     <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="20dp"
-                        android:background="#8976E6" />
+                        android:layout_width="1dp"
+                        android:layout_height="43dp"
+                        android:background="#E4E7F0" />
 
-                    <TextView
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Available Balance"
-                        android:textColor="#E6DFFF"
-                        android:textSize="13sp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="20dp">
 
-                    <TextView
-                        android:id="@+id/tvAllowanceBalance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="₱0.00"
-                        android:textColor="#FFFFFF"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Spent"
+                            android:textColor="#6B7280"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/poppins_regular" />
 
-                    <TextView
-                        android:id="@+id/tvAllowanceSummary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="Your allowance overview"
-                        android:textColor="#E6DFFF"
-                        android:textSize="12sp" />
+                        <TextView
+                            android:id="@+id/tvAllowanceSpent"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="₱0.00"
+                            android:textColor="#EF4444"
+                            android:textSize="17sp"
+                            android:fontFamily="@font/poppins_bold" />
+                    </LinearLayout>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="Allowance Settings"
-                android:textColor="#1F2937"
-                android:textSize="19sp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="1dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddAllowance"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="17dp"
+                    android:text="+   Add Allowance"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/poppins_semibold"
+                    app:backgroundTint="#6547ED"
+                    app:cornerRadius="11dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp">
+                    android:layout_marginTop="19dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Allowance Frequency"
+                        android:layout_weight="1"
+                        android:text="Allowance History"
                         android:textColor="#1F2937"
                         android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:fontFamily="@font/poppins_semibold" />
 
                     <TextView
-                        android:id="@+id/tvAllowanceFrequency"
-                        android:layout_width="match_parent"
+                        android:id="@+id/tvAllowanceCount"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="Daily"
-                        android:textColor="#5B3FD9"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="This is your preferred allowance schedule. It does not automatically add money."
-                        android:textColor="#6B7280"
-                        android:textSize="12sp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnChangeAllowanceFrequency"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
-                        android:text="Change Frequency"
-                        android:textAllCaps="false"
-                        android:textColor="#5B3FD9" />
+                        android:text="0 records"
+                        android:textColor="#8C94AB"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/poppins_regular" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:id="@+id/tvEmptyAllowance"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Allowance History"
-                    android:textColor="#1F2937"
-                    android:textSize="19sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvAllowanceCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 records"
+                    android:layout_marginTop="26dp"
+                    android:gravity="center"
+                    android:text="No allowance records yet."
                     android:textColor="#6B7280"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_regular" />
+
+                <LinearLayout
+                    android:id="@+id/allowanceListContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/tvAllowanceSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textColor="#8C94AB"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_regular" />
+
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvEmptyAllowance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:text="No allowance records yet."
-                android:textColor="#6B7280"
-                android:textSize="14sp" />
-
+            <!-- SETTINGS SCREEN -->
             <LinearLayout
-                android:id="@+id/allowanceListContainer"
+                android:id="@+id/allowanceSettingsSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="15dp"
+                    app:strokeColor="#E8EBF7"
+                    app:strokeWidth="1dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="17dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Default Allowance Frequency"
+                            android:textColor="#1F2937"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/poppins_semibold" />
+
+                        <TextView
+                            android:id="@+id/tvAllowanceFrequency"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:text="Daily"
+                            android:textColor="#6547ED"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/poppins_medium" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="This schedule is a preference only. It does not automatically add money."
+                            android:textColor="#6B7280"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/poppins_regular" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnChangeAllowanceFrequency"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="45dp"
+                            android:layout_marginTop="14dp"
+                            android:text="Change Frequency"
+                            android:textAllCaps="false"
+                            android:textColor="#6547ED"
+                            android:fontFamily="@font/poppins_semibold"
+                            app:strokeColor="#6547ED"
+                            app:cornerRadius="11dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnAddAllowance"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="20dp"
-        android:text="+ Add Allowance"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        app:backgroundTint="#5B3FD9"
-        app:cornerRadius="18dp" />
-
-</FrameLayout>
+</LinearLayout>
