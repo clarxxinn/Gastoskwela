@@ -10,15 +10,17 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 @Database(
     entities = [
         Allowance::class,
-        Expense::class
+        Expense::class,
+        SchoolPayment::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class GastoskwelaDatabase : RoomDatabase() {
 
     abstract fun allowanceDao(): AllowanceDao
     abstract fun expenseDao(): ExpenseDao
+    abstract fun schoolPaymentDao(): SchoolPaymentDao
 
     companion object {
 
@@ -39,6 +41,24 @@ abstract class GastoskwelaDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `school_payments` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `title` TEXT NOT NULL,
+                        `category` TEXT NOT NULL,
+                        `amountCentavos` INTEGER NOT NULL,
+                        `paidCentavos` INTEGER NOT NULL,
+                        `dueDate` TEXT NOT NULL,
+                        `notes` TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var INSTANCE: GastoskwelaDatabase? = null
 
@@ -49,7 +69,10 @@ abstract class GastoskwelaDatabase : RoomDatabase() {
                     GastoskwelaDatabase::class.java,
                     "gastoskwela_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(
+                        MIGRATION_1_2,
+                        MIGRATION_2_3
+                    )
                     .build()
 
                 INSTANCE = instance
