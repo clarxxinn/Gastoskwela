@@ -37,6 +37,10 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".AddExpenseActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

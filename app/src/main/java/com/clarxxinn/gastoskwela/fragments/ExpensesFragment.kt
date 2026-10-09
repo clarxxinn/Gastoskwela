@@ -1,5 +1,7 @@
 package com.clarxxinn.gastoskwela.fragments
 
+import android.content.Intent
+import com.clarxxinn.gastoskwela.AddExpenseActivity
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
@@ -10,6 +12,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -22,7 +25,6 @@ import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -38,10 +40,6 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
     private val expenseDao by lazy {
         database.expenseDao()
-    }
-
-    private val allowanceDao by lazy {
-        database.allowanceDao()
     }
 
     private val categories = listOf(
@@ -66,7 +64,13 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         view.findViewById<View>(
             R.id.btnAddExpense
         ).setOnClickListener {
-            showExpenseDialog()
+            startActivity(
+                Intent(requireContext(), AddExpenseActivity::class.java)
+            )
+            requireActivity().overridePendingTransition(
+                android.R.anim.slide_in_left,
+                android.R.anim.fade_out
+            )
         }
 
         val searchInput = view.findViewById<TextInputEditText>(
@@ -94,11 +98,10 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             override fun afterTextChanged(s: Editable?) = Unit
         })
 
-        val filterGroup = view.findViewById<ChipGroup>(
+        view.findViewById<ChipGroup>(
             R.id.expenseFilterGroup
-        )
+        ).setOnCheckedStateChangeListener { _, checkedIds ->
 
-        filterGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             selectedFilter = when (checkedIds.firstOrNull()) {
                 R.id.chipFood -> "Food"
                 R.id.chipTransportation -> "Transportation"
@@ -114,31 +117,9 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             viewLifecycleOwner.repeatOnLifecycle(
                 Lifecycle.State.STARTED
             ) {
-                launch {
-                    expenseDao.getAllExpenses().collect { expenses ->
-                        allExpenses = expenses
-                        renderExpenses(view)
-                    }
-                }
-
-                launch {
-                    combine(
-                        allowanceDao.getTotalAllowance(),
-                        expenseDao.getTotalExpenses()
-                    ) { allowance, expenses ->
-                        allowance to expenses
-                    }.collect { (allowance, expenses) ->
-
-                        view.findViewById<TextView>(
-                            R.id.tvTotalExpenses
-                        ).text = MoneyUtils.format(expenses)
-
-                        view.findViewById<TextView>(
-                            R.id.tvRemainingBalance
-                        ).text = MoneyUtils.format(
-                            allowance - expenses
-                        )
-                    }
+                expenseDao.getAllExpenses().collect { expenses ->
+                    allExpenses = expenses
+                    renderExpenses(view)
                 }
             }
         }
@@ -147,24 +128,39 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     private fun matchesFilter(expense: Expense): Boolean {
         return when (selectedFilter) {
             "Food" ->
-                expense.category == "Food"
+                expense.category == "Food" ||
+                        expense.category == "Pagkain"
 
             "Transportation" ->
-                expense.category == "Transportation"
+                expense.category == "Transportation" ||
+                        expense.category == "Pamasahe"
 
             "School" ->
                 expense.category in listOf(
                     "School Supplies",
-                    "Projects"
+                    "Projects",
+                    "School"
                 )
 
             "Others" ->
                 expense.category in listOf(
                     "Load/Internet",
-                    "Others"
+                    "Load/Data",
+                    "Others",
+                    "Miscellaneous"
                 )
 
             else -> true
+        }
+    }
+
+    private fun displayCategory(category: String): String {
+        return when (category) {
+            "Food" -> "Pagkain"
+            "Transportation" -> "Pamasahe"
+            "Load/Internet" -> "Load/Data"
+            "Others" -> "Miscellaneous"
+            else -> category
         }
     }
 
@@ -195,6 +191,10 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                                             searchQuery,
                                             ignoreCase = true
                                         ) ||
+                                        displayCategory(expense.category).contains(
+                                            searchQuery,
+                                            ignoreCase = true
+                                        ) ||
                                         expense.notes.contains(
                                             searchQuery,
                                             ignoreCase = true
@@ -210,26 +210,27 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                     .thenByDescending { it.id }
             )
 
-        countText.text = if (filtered.size == 1) {
-            "1 record"
-        } else {
-            "${filtered.size} records"
+        countText.text = when (filtered.size) {
+            1 -> "1 record"
+            else -> "${filtered.size} records"
         }
 
-        emptyText.visibility = if (filtered.isEmpty()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        emptyText.visibility =
+            if (filtered.isEmpty()) View.VISIBLE else View.GONE
 
         emptyText.text = if (allExpenses.isEmpty()) {
-            "No expenses yet. Tap Add Expense to get started."
+            "No expenses yet. Tap + to add your first expense."
         } else {
             "No expenses match your search or filter."
         }
 
         val monthFormatter = DateTimeFormatter.ofPattern(
             "MMMM yyyy",
+            Locale.ENGLISH
+        )
+
+        val dateFormatter = DateTimeFormatter.ofPattern(
+            "MMM d, yyyy",
             Locale.ENGLISH
         )
 
@@ -241,23 +242,21 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             if (monthKey != lastMonth) {
                 lastMonth = monthKey
 
-                val heading = TextView(requireContext())
+                val heading = TextView(requireContext()).apply {
+                    text = try {
+                        YearMonth.parse(monthKey)
+                            .format(monthFormatter)
+                    } catch (_: Exception) {
+                        monthKey
+                    }
 
-                heading.text = try {
-                    YearMonth.parse(monthKey).format(monthFormatter)
-                } catch (_: Exception) {
-                    monthKey
+                    textSize = 13f
+                    setTextColor(0xFF777C98.toInt())
+                    typeface = resources.getFont(
+                        R.font.poppins_medium
+                    )
+                    setPadding(2, dp(15), 0, dp(11))
                 }
-
-                heading.textSize = 15f
-                heading.setTextColor(0xFF6B7280.toInt())
-
-                heading.setPadding(
-                    4,
-                    dp(14),
-                    0,
-                    dp(12)
-                )
 
                 container.addView(heading)
             }
@@ -268,59 +267,66 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 false
             )
 
-            val icon = when (expense.category) {
-                "Food" -> "🍔"
-                "Transportation" -> "🚌"
-                "School Supplies" -> "📚"
-                "Projects" -> "📋"
-                "Load/Internet" -> "📱"
-                else -> "🧾"
+            val (icon, color) = when (expense.category) {
+                "Food", "Pagkain" ->
+                    "🍴" to 0xFFFF8A20.toInt()
+
+                "Transportation", "Pamasahe" ->
+                    "🚌" to 0xFF397CF5.toInt()
+
+                "School Supplies", "School" ->
+                    "📘" to 0xFF4AA2F8.toInt()
+
+                "Projects" ->
+                    "📋" to 0xFF8C67F1.toInt()
+
+                "Load/Internet", "Load/Data" ->
+                    "📱" to 0xFF1AB5B2.toInt()
+
+                else ->
+                    "●" to 0xFF777777.toInt()
             }
 
-            itemView.findViewById<TextView>(
+            val iconView = itemView.findViewById<TextView>(
                 R.id.tvExpenseIcon
-            ).text = icon
+            )
+
+            iconView.text = icon
+
+            val circle = itemView.findViewById<View>(
+                R.id.expenseIconBackground
+            )
+
+            circle.background.mutate().setTint(color)
 
             itemView.findViewById<TextView>(
                 R.id.tvExpenseCategory
-            ).text = expense.category
-
-            itemView.findViewById<TextView>(
-                R.id.tvExpenseDescription
-            ).text = expense.description.ifBlank {
-                expense.category
-            }
+            ).text = displayCategory(expense.category)
 
             itemView.findViewById<TextView>(
                 R.id.tvExpenseDate
-            ).text = expense.date
+            ).text = try {
+                LocalDate.parse(expense.date).format(dateFormatter)
+            } catch (_: Exception) {
+                expense.date
+            }
 
             itemView.findViewById<TextView>(
                 R.id.tvExpenseAmount
             ).text = "-${MoneyUtils.format(expense.amountCentavos)}"
 
-            val notesView = itemView.findViewById<TextView>(
-                R.id.tvExpenseNotes
-            )
-
-            notesView.visibility = if (expense.notes.isBlank()) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
-
-            notesView.text = expense.notes
-
+            // Tap to edit, long-press to delete.
             itemView.findViewById<View>(
-                R.id.btnEditExpense
-            ).setOnClickListener {
-                showExpenseDialog(expense)
-            }
+                R.id.expenseRow
+            ).apply {
+                setOnClickListener {
+                    showExpenseDialog(expense)
+                }
 
-            itemView.findViewById<View>(
-                R.id.btnDeleteExpense
-            ).setOnClickListener {
-                confirmDelete(expense)
+                setOnLongClickListener {
+                    confirmDelete(expense)
+                    true
+                }
             }
 
             container.addView(itemView)
@@ -328,9 +334,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     }
 
     private fun dp(value: Int): Int {
-        return (
-                value * resources.displayMetrics.density
-                ).toInt()
+        return (value * resources.displayMetrics.density).toInt()
     }
 
     private fun showExpenseDialog(existing: Expense? = null) {
@@ -394,11 +398,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 ).toPlainString()
             )
 
-            categoryInput.setText(
-                expense.category,
-                false
-            )
-
+            categoryInput.setText(expense.category, false)
             descriptionInput.setText(expense.description)
             notesInput.setText(expense.notes)
         }
@@ -449,24 +449,16 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 descriptionLayout.error = null
 
                 val amountText = amountInput.text
-                    ?.toString()
-                    ?.trim()
-                    .orEmpty()
+                    ?.toString()?.trim().orEmpty()
 
                 val category = categoryInput.text
-                    ?.toString()
-                    ?.trim()
-                    .orEmpty()
+                    ?.toString()?.trim().orEmpty()
 
                 val description = descriptionInput.text
-                    ?.toString()
-                    ?.trim()
-                    .orEmpty()
+                    ?.toString()?.trim().orEmpty()
 
                 val notes = notesInput.text
-                    ?.toString()
-                    ?.trim()
-                    .orEmpty()
+                    ?.toString()?.trim().orEmpty()
 
                 val centavos = MoneyUtils.parseCentavos(
                     amountText
@@ -474,9 +466,9 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
                 var valid = true
 
-                if (centavos == null) {
+                if (centavos == null || centavos <= 0L) {
                     amountLayout.error =
-                        "Enter a valid positive amount (max 2 decimals)"
+                        "Enter a valid positive amount"
                     valid = false
                 }
 
@@ -492,9 +484,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                     valid = false
                 }
 
-                if (!valid) {
-                    return@setOnClickListener
-                }
+                if (!valid) return@setOnClickListener
 
                 val expense = Expense(
                     id = existing?.id ?: 0,
@@ -506,14 +496,21 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 )
 
                 viewLifecycleOwner.lifecycleScope.launch {
-                    if (existing == null) {
-                        expenseDao.insertExpense(expense)
-                    } else {
-                        expenseDao.updateExpense(expense)
+                    try {
+                        if (existing == null) {
+                            expenseDao.insertExpense(expense)
+                        } else {
+                            expenseDao.updateExpense(expense)
+                        }
+                        dialog.dismiss()
+                    } catch (_: Exception) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Unable to save expense.",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
-
-                dialog.dismiss()
             }
         }
 
@@ -529,7 +526,15 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             .setNegativeButton("Cancel", null)
             .setPositiveButton("Delete") { _, _ ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    expenseDao.deleteExpense(expense)
+                    try {
+                        expenseDao.deleteExpense(expense)
+                    } catch (_: Exception) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Unable to delete expense.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
             .show()

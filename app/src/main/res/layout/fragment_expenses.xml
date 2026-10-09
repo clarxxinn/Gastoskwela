@@ -1,227 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8FAFF">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:clipToPadding="false">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="110dp">
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="22dp"
+            android:layout_marginEnd="20dp"
+            android:text="Expenses"
+            android:textColor="#1F2937"
+            android:textSize="24sp"
+            android:fontFamily="@font/poppins_bold" />
 
-            <TextView
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutExpenseSearch"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="20dp"
+            app:boxBackgroundColor="#ECF0FF"
+            app:boxStrokeColor="#D9DFF7"
+            app:boxStrokeWidth="1dp"
+            app:boxCornerRadiusTopStart="15dp"
+            app:boxCornerRadiusTopEnd="15dp"
+            app:boxCornerRadiusBottomStart="15dp"
+            app:boxCornerRadiusBottomEnd="15dp"
+            app:startIconDrawable="@drawable/ic_expense_search"
+            app:startIconTint="#8A92AD"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearchExpenses"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="My Expenses"
+                android:minHeight="48dp"
+                android:hint="Search expenses..."
+                android:inputType="text"
+                android:singleLine="true"
                 android:textColor="#1F2937"
-                android:textSize="27sp"
-                android:textStyle="bold" />
+                android:textColorHint="#9AA2BC"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:layout_width="match_parent"
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:scrollbars="none"
+            android:fillViewport="false">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/expenseFilterGroup"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="Know where your baon goes."
-                android:textColor="#6B7280"
-                android:textSize="14sp" />
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:chipSpacingHorizontal="7dp">
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                app:cardBackgroundColor="#5B3FD9"
-                app:cardCornerRadius="22dp"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="22dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Total Expenses"
-                        android:textColor="#E6DFFF"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tvTotalExpenses"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="₱0.00"
-                        android:textColor="#FFFFFF"
-                        android:textSize="34sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="18dp"
-                        android:background="#8976E6" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:text="Remaining Balance"
-                        android:textColor="#E6DFFF"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvRemainingBalance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="₱0.00"
-                        android:textColor="#FFFFFF"
-                        android:textSize="23sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutExpenseSearch"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:hint="Search expenses"
-                app:boxBackgroundColor="#FFFFFF"
-                app:boxCornerRadiusTopStart="15dp"
-                app:boxCornerRadiusTopEnd="15dp"
-                app:boxCornerRadiusBottomStart="15dp"
-                app:boxCornerRadiusBottomEnd="15dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSearchExpenses"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:singleLine="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:scrollbars="none">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/expenseFilterGroup"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAllExpenses"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:selectionRequired="true"
-                    app:chipSpacingHorizontal="8dp">
+                    android:text="All"
+                    android:checked="true"
+                    android:checkable="true"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_medium"
+                    app:chipBackgroundColor="@color/expense_chip_background"
+                    app:chipStrokeWidth="0dp"
+                    app:checkedIconVisible="false"
+                    app:chipMinHeight="32dp"
+                    app:chipCornerRadius="16dp"
+                    app:ensureMinTouchTargetSize="false"
+                    app:chipStartPadding="10dp"
+                    app:chipEndPadding="10dp"
+                    android:textColor="@color/expense_chip_text" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipAllExpenses"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="All"
-                        android:checked="true" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFood"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pagkain"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_medium"
+                    app:chipBackgroundColor="@color/expense_chip_background"
+                    app:chipStrokeWidth="0dp"
+                    app:checkedIconVisible="false"
+                    app:chipMinHeight="32dp"
+                    app:chipCornerRadius="16dp"
+                    app:ensureMinTouchTargetSize="false"
+                    android:textColor="@color/expense_chip_text" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipFood"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pagkain" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipTransportation"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pamasahe"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_medium"
+                    app:chipBackgroundColor="@color/expense_chip_background"
+                    app:chipStrokeWidth="0dp"
+                    app:checkedIconVisible="false"
+                    app:chipMinHeight="32dp"
+                    app:chipCornerRadius="16dp"
+                    app:ensureMinTouchTargetSize="false"
+                    android:textColor="@color/expense_chip_text" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipTransportation"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pamasahe" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSchool"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="School"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_medium"
+                    app:chipBackgroundColor="@color/expense_chip_background"
+                    app:chipStrokeWidth="0dp"
+                    app:checkedIconVisible="false"
+                    app:chipMinHeight="32dp"
+                    app:chipCornerRadius="16dp"
+                    app:ensureMinTouchTargetSize="false"
+                    android:textColor="@color/expense_chip_text" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipSchool"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="School" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipOthers"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Others"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_medium"
+                    app:chipBackgroundColor="@color/expense_chip_background"
+                    app:chipStrokeWidth="0dp"
+                    app:checkedIconVisible="false"
+                    app:chipMinHeight="32dp"
+                    app:chipCornerRadius="16dp"
+                    app:ensureMinTouchTargetSize="false"
+                    android:textColor="@color/expense_chip_text" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipOthers"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Others" />
-
-                </com.google.android.material.chip.ChipGroup>
-            </HorizontalScrollView>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:scrollbars="none">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Expense History"
-                    android:textColor="#1F2937"
-                    android:textSize="19sp"
-                    android:textStyle="bold" />
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="95dp">
 
                 <TextView
                     android:id="@+id/tvExpenseCount"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="0 records"
+                    android:textSize="11sp"
+                    android:textColor="#929AB2"
+                    android:fontFamily="@font/poppins_regular" />
+
+                <TextView
+                    android:id="@+id/tvEmptyExpenses"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36dp"
+                    android:gravity="center"
+                    android:text="No expenses yet."
+                    android:textSize="12sp"
                     android:textColor="#6B7280"
-                    android:textSize="12sp" />
+                    android:fontFamily="@font/poppins_regular" />
+
+                <LinearLayout
+                    android:id="@+id/expenseListContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
             </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvEmptyExpenses"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="35dp"
-                android:gravity="center"
-                android:text="No expenses yet."
-                android:textColor="#6B7280"
-                android:textSize="14sp" />
-
-            <LinearLayout
-                android:id="@+id/expenseListContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="vertical" />
-
-        </LinearLayout>
-    </ScrollView>
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddExpense"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="20dp"
-        android:text="+ Add Expense"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        app:backgroundTint="#5B3FD9"
-        app:cornerRadius="18dp" />
+        android:layout_marginEnd="22dp"
+        android:layout_marginBottom="22dp"
+        android:contentDescription="Add Expense"
+        app:srcCompat="@drawable/ic_expense_plus"
+        app:tint="#FFFFFF"
+        app:backgroundTint="#6547ED"
+        app:fabSize="normal"
+        app:elevation="6dp" />
 
 </FrameLayout>

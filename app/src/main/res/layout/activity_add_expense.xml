@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#F8FAFF"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="28dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="#F8FAFF">
+
+            <ImageButton
+                android:id="@+id/btnAddExpenseBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_add_expense_back"
+                android:contentDescription="Back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Add Expense"
+                android:textColor="#1F2937"
+                android:textSize="17sp"
+                android:fontFamily="@font/poppins_semibold" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Amount"
+                android:textColor="#374151"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutAddExpenseAmount"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                app:boxBackgroundColor="#F5F6FA"
+                app:boxStrokeColor="#DDE2EF"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:hintEnabled="false"
+                app:prefixText="₱  ">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAddExpenseAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="52dp"
+                    android:hint="0.00"
+                    android:inputType="numberDecimal"
+                    android:singleLine="true"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/poppins_medium" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Category"
+                android:textColor="#374151"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutAddExpenseCategory"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                app:boxBackgroundColor="#F5F6FA"
+                app:boxStrokeColor="#DDE2EF"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:hintEnabled="false">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etAddExpenseCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="52dp"
+                    android:inputType="none"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/poppins_medium" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Date"
+                android:textColor="#374151"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddExpenseDate"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical|start"
+                android:text="Select date"
+                android:textAllCaps="false"
+                android:textColor="#374151"
+                android:textSize="13sp"
+                android:fontFamily="@font/poppins_medium"
+                app:backgroundTint="#F5F6FA"
+                app:strokeColor="#DDE2EF"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_add_expense_calendar"
+                app:iconTint="#374151"
+                app:iconPadding="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Description (Optional)"
+                android:textColor="#374151"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                app:boxBackgroundColor="#F5F6FA"
+                app:boxStrokeColor="#DDE2EF"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAddExpenseDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="58dp"
+                    android:hint="e.g. Lunch at canteen"
+                    android:inputType="textCapSentences"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_regular" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Payment Method (Optional)"
+                android:textColor="#374151"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                app:boxBackgroundColor="#F5F6FA"
+                app:boxStrokeColor="#DDE2EF"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:hintEnabled="false">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etAddExpensePaymentMethod"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="52dp"
+                    android:inputType="none"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/poppins_medium" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveAddExpense"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="25dp"
+                android:text="Save Expense"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:fontFamily="@font/poppins_semibold"
+                app:backgroundTint="#6547ED"
+                app:cornerRadius="11dp" />
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

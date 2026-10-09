@@ -4,114 +4,113 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="5dp"
     app:cardBackgroundColor="#FFFFFF"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="1dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:strokeColor="#F0F2FA"
+    app:strokeWidth="1dp">
 
     <LinearLayout
+        android:id="@+id/expenseRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:minHeight="64dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp">
+
+            <View
+                android:id="@+id/expenseIconBackground"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_expense_category_circle" />
 
             <TextView
                 android:id="@+id/tvExpenseIcon"
-                android:layout_width="46dp"
-                android:layout_height="46dp"
-                android:background="@drawable/bg_expense_icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="🍔"
-                android:textSize="23sp" />
+                android:text="🍴"
+                android:textSize="19sp" />
+        </FrameLayout>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvExpenseDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Lunch"
-                    android:textColor="#1F2937"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvExpenseCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Food"
-                    android:textColor="#6B7280"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tvExpenseDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="2026-10-09"
-                    android:textColor="#9CA3AF"
-                    android:textSize="11sp" />
-            </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="11dp"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvExpenseAmount"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvExpenseCategory"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="-₱75.00"
-                android:textColor="#EF4444"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="Pagkain"
+                android:textColor="#1F2937"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_semibold"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvExpenseDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Oct 9, 2026"
+                android:textColor="#929AB2"
+                android:textSize="10sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <TextView
+                android:id="@+id/tvExpenseDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:textSize="10sp"
+                android:textColor="#929AB2" />
+
+            <TextView
+                android:id="@+id/tvExpenseNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:textSize="10sp"
+                android:textColor="#929AB2" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvExpenseNotes"
-            android:layout_width="match_parent"
+            android:id="@+id/tvExpenseAmount"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textColor="#6B7280"
+            android:layout_marginStart="6dp"
+            android:text="-₱45.00"
+            android:textColor="#EF4444"
             android:textSize="12sp"
+            android:fontFamily="@font/poppins_bold" />
+
+        <View
+            android:id="@+id/btnEditExpense"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:visibility="gone" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="end"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEditExpense"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="60dp"
-                android:text="Edit"
-                android:textAllCaps="false"
-                android:textColor="#5B3FD9" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDeleteExpense"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="60dp"
-                android:text="Delete"
-                android:textAllCaps="false"
-                android:textColor="#EF4444" />
-        </LinearLayout>
+        <View
+            android:id="@+id/btnDeleteExpense"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
