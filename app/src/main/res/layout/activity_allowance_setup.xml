@@ -3,39 +3,41 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#F8F7FC">
+    android:background="#FFFFFF"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="24dp"
+        android:paddingTop="28dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="32dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
             android:text="Set Your Allowance"
-            android:textColor="#211A40"
-            android:textSize="28sp"
+            android:textColor="#1F2937"
+            android:textSize="26sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Let's start by setting up your baon so you can track your spending."
-            android:textColor="#77718C"
-            android:textSize="15sp" />
+            android:layout_marginTop="6dp"
+            android:text="You can change this anytime."
+            android:textColor="#6B7280"
+            android:textSize="13sp" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="38dp"
+            android:layout_marginTop="30dp"
             android:text="How often do you receive your allowance?"
-            android:textColor="#211A40"
-            android:textSize="16sp"
+            android:textColor="#1F2937"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButtonToggleGroup
@@ -43,36 +45,53 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:orientation="vertical"
             app:singleSelection="true"
-            app:selectionRequired="true">
+            app:selectionRequired="false">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDaily"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Daily"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="Daily Allowance  •  ₱200 per day"
                 android:textAllCaps="false"
-                app:checkedButton="@id/btnDaily" />
+                android:textColor="#1F2937"
+                android:textSize="14sp"
+                app:backgroundTint="#F0ECFF"
+                app:cornerRadius="12dp"
+                app:strokeColor="#5B3FD9"
+                app:strokeWidth="1dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnWeekly"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Weekly"
-                android:textAllCaps="false" />
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginTop="10dp"
+                android:text="Weekly Allowance  •  ₱1,000 per week"
+                android:textAllCaps="false"
+                android:textColor="#1F2937"
+                android:textSize="14sp"
+                app:backgroundTint="#FFFFFF"
+                app:cornerRadius="12dp"
+                app:strokeColor="#E2E5EF"
+                app:strokeWidth="1dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMonthly"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Monthly"
-                android:textAllCaps="false" />
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginTop="10dp"
+                android:text="Monthly Allowance  •  ₱4,000 per month"
+                android:textAllCaps="false"
+                android:textColor="#1F2937"
+                android:textSize="14sp"
+                app:backgroundTint="#FFFFFF"
+                app:cornerRadius="12dp"
+                app:strokeColor="#E2E5EF"
+                app:strokeWidth="1dp" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -80,26 +99,45 @@
             android:id="@+id/btnCustom"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="10dp"
+            android:text="Custom / Irregular  •  Your own schedule"
+            android:textAllCaps="false"
+            android:textColor="#1F2937"
+            android:textSize="14sp"
+            app:backgroundTint="#FFFFFF"
+            app:cornerRadius="12dp"
+            app:strokeColor="#E2E5EF"
+            app:strokeWidth="1dp" />
+
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Custom"
-            android:textAllCaps="false" />
+            android:layout_marginTop="26dp"
+            android:text="Allowance Details"
+            android:textColor="#1F2937"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutSetupAmount"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="34dp"
+            android:layout_marginTop="14dp"
             android:hint="Allowance Amount (₱)"
-            app:boxStrokeColor="#5B3FD9">
+            app:boxStrokeColor="#5B3FD9"
+            app:hintTextColor="@color/purple_primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSetupAmount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textColor="#1F2937"
+                android:textColorHint="#6B7280"
+                android:textSize="16sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -108,15 +146,21 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Allowance Source">
+            android:layout_marginTop="14dp"
+            android:hint="Allowance Source"
+            app:boxStrokeColor="#5B3FD9"
+            app:hintTextColor="@color/purple_primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSetupSource"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Parents"
-                android:singleLine="true" />
+                android:hint="e.g. Parents"
+                android:inputType="textCapSentences"
+                android:singleLine="true"
+                android:textColor="#1F2937"
+                android:textColorHint="#6B7280"
+                android:textSize="16sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -124,22 +168,23 @@
             android:id="@+id/tvSetupFrequency"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:text="Your allowance will be recorded as a daily allowance."
-            android:textColor="#77718C"
-            android:textSize="13sp" />
+            android:textColor="#6B7280"
+            android:textSize="12sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSaveAllowanceSetup"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="44dp"
+            android:layout_marginTop="28dp"
             android:text="Save &amp; Continue"
             android:textAllCaps="false"
-            android:textSize="16sp"
             android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
             app:backgroundTint="#5B3FD9"
-            app:cornerRadius="16dp" />
+            app:cornerRadius="12dp" />
 
     </LinearLayout>
 

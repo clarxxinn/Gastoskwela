@@ -1,6 +1,8 @@
 package com.clarxxinn.gastoskwela
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -19,17 +21,24 @@ class AllowanceSetupActivity : AppCompatActivity() {
 
     private var selectedFrequency = "Daily"
 
+    private val purple = Color.parseColor("#5B3FD9")
+    private val selectedBackground = Color.parseColor("#F0ECFF")
+    private val unselectedBackground = Color.WHITE
+    private val unselectedBorder = Color.parseColor("#E2E5EF")
+    private val darkText = Color.parseColor("#1F2937")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_allowance_setup)
 
-        val frequencyGroup = findViewById<MaterialButtonToggleGroup>(
+        val group = findViewById<MaterialButtonToggleGroup>(
             R.id.allowanceFrequencyGroup
         )
 
-        val customButton = findViewById<MaterialButton>(
-            R.id.btnCustom
-        )
+        val daily = findViewById<MaterialButton>(R.id.btnDaily)
+        val weekly = findViewById<MaterialButton>(R.id.btnWeekly)
+        val monthly = findViewById<MaterialButton>(R.id.btnMonthly)
+        val custom = findViewById<MaterialButton>(R.id.btnCustom)
 
         val frequencyText = findViewById<TextView>(
             R.id.tvSetupFrequency
@@ -55,30 +64,66 @@ class AllowanceSetupActivity : AppCompatActivity() {
             R.id.btnSaveAllowanceSetup
         )
 
-        frequencyGroup.check(R.id.btnDaily)
+        val buttons = listOf(daily, weekly, monthly, custom)
 
-        frequencyGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+        fun updateSelection() {
+            buttons.forEach { button ->
+                val selected = when (button.id) {
+                    R.id.btnDaily -> selectedFrequency == "Daily"
+                    R.id.btnWeekly -> selectedFrequency == "Weekly"
+                    R.id.btnMonthly -> selectedFrequency == "Monthly"
+                    R.id.btnCustom -> selectedFrequency == "Custom"
+                    else -> false
+                }
+
+                button.backgroundTintList =
+                    ColorStateList.valueOf(
+                        if (selected) selectedBackground
+                        else unselectedBackground
+                    )
+
+                button.strokeColor =
+                    ColorStateList.valueOf(
+                        if (selected) purple
+                        else unselectedBorder
+                    )
+
+                button.setTextColor(
+                    if (selected) purple else darkText
+                )
+
+                button.strokeWidth = if (selected) dp(2) else dp(1)
+            }
+
+            frequencyText.text = when (selectedFrequency) {
+                "Daily" -> "Daily allowance selected."
+                "Weekly" -> "Weekly allowance selected."
+                "Monthly" -> "Monthly allowance selected."
+                else -> "Custom allowance frequency selected."
+            }
+        }
+
+        group.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
 
             selectedFrequency = when (checkedId) {
                 R.id.btnDaily -> "Daily"
                 R.id.btnWeekly -> "Weekly"
                 R.id.btnMonthly -> "Monthly"
-                else -> "Daily"
+                else -> selectedFrequency
             }
 
-            customButton.isChecked = false
-            updateFrequencyText(frequencyText)
+            updateSelection()
         }
 
-        customButton.isCheckable = true
-
-        customButton.setOnClickListener {
-            frequencyGroup.clearChecked()
+        custom.setOnClickListener {
             selectedFrequency = "Custom"
-            customButton.isChecked = true
-            updateFrequencyText(frequencyText)
+            group.clearChecked()
+            updateSelection()
         }
+
+        group.check(R.id.btnDaily)
+        updateSelection()
 
         saveButton.setOnClickListener {
             amountLayout.error = null
@@ -93,19 +138,17 @@ class AllowanceSetupActivity : AppCompatActivity() {
                 ?.trim()
                 .orEmpty()
 
-            var valid = true
-
             if (amount == null) {
                 amountLayout.error = "Enter a valid positive amount"
-                valid = false
             }
 
             if (source.isBlank()) {
                 sourceLayout.error = "Allowance source is required"
-                valid = false
             }
 
-            if (!valid) return@setOnClickListener
+            if (amount == null || source.isBlank()) {
+                return@setOnClickListener
+            }
 
             saveButton.isEnabled = false
 
@@ -117,7 +160,7 @@ class AllowanceSetupActivity : AppCompatActivity() {
 
                     database.allowanceDao().insertAllowance(
                         Allowance(
-                            amountCentavos = amount!!,
+                            amountCentavos = amount,
                             source = source,
                             date = LocalDate.now().toString(),
                             notes = "Initial $selectedFrequency allowance"
@@ -149,19 +192,7 @@ class AllowanceSetupActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateFrequencyText(textView: TextView) {
-        textView.text = when (selectedFrequency) {
-            "Daily" ->
-                "Your allowance will be recorded as a daily allowance."
-
-            "Weekly" ->
-                "Your allowance will be recorded as a weekly allowance."
-
-            "Monthly" ->
-                "Your allowance will be recorded as a monthly allowance."
-
-            else ->
-                "Your allowance will be recorded with a custom frequency."
-        }
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
     }
 }
