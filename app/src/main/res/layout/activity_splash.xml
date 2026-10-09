@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#5B3FD9">
+    android:background="@drawable/bg_splash_gradient">
 
     <LinearLayout
         android:id="@+id/splashContent"
@@ -12,52 +12,67 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.43">
 
         <ImageView
             android:id="@+id/imgSplashLogo"
-            android:layout_width="110dp"
-            android:layout_height="110dp"
+            android:layout_width="170dp"
+            android:layout_height="170dp"
             android:contentDescription="Gastoskwela logo"
-            android:src="@mipmap/ic_launcher" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_gastoskwela_splash" />
 
         <TextView
             android:id="@+id/tvSplashTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/poppins_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:letterSpacing="-0.025"
             android:text="Gastoskwela"
-            android:textColor="@android:color/white"
-            android:textSize="32sp"
-            android:textStyle="bold" />
+            android:textColor="#FFFFFF"
+            android:textSize="34sp" />
 
         <TextView
             android:id="@+id/tvSplashTagline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/poppins_regular"
             android:gravity="center"
+            android:includeFontPadding="false"
+            android:letterSpacing="0"
+            android:lineSpacingExtra="2dp"
             android:text="Track Your Baon.&#10;Manage Your Gastos."
-            android:textColor="@android:color/white"
+            android:textColor="#FFFFFF"
             android:textSize="15sp" />
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/splashProgress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="85dp"
-        android:layout_height="4dp"
-        android:indeterminate="true"
-        android:indeterminateTint="@android:color/white"
-        android:progressTint="@android:color/white"
+    <FrameLayout
+        android:id="@+id/splashProgressTrack"
+        android:layout_width="112dp"
+        android:layout_height="6dp"
+        android:layout_marginBottom="68dp"
+        android:background="@drawable/bg_splash_progress_track"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="80dp" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:id="@+id/splashProgressFill"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_splash_progress_fill" />
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

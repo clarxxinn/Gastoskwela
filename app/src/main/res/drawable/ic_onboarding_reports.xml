@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="280dp"
+    android:viewportWidth="300"
+    android:viewportHeight="280">
+
+    <!-- Background circle -->
+    <path
+        android:fillColor="#F2F0FF"
+        android:pathData="M150,25 A113,113 0,1 1,149.9 25" />
+
+    <!-- Main report sheet -->
+    <path
+        android:fillColor="#DDD9FF"
+        android:pathData="M74,51 L228,51 Q239,51 239,63 L239,225 Q239,237 228,237 L74,237 Q62,237 62,225 L62,63 Q62,51 74,51 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M77,57 L225,57 Q233,57 233,65 L233,223 Q233,231 225,231 L77,231 Q69,231 69,223 L69,65 Q69,57 77,57 Z" />
+
+    <!-- Chart heading -->
+    <path
+        android:fillColor="#E9E5FF"
+        android:pathData="M86,73 L144,73 L144,81 L86,81 Z M86,88 L128,88 L128,94 L86,94 Z" />
+
+    <!-- Bar chart -->
+    <path
+        android:fillColor="#B9A9FF"
+        android:pathData="M88,164 L108,164 L108,211 L88,211 Z M117,137 L137,137 L137,211 L117,211 Z" />
+
+    <path
+        android:fillColor="#6844EE"
+        android:pathData="M146,116 L166,116 L166,211 L146,211 Z M175,153 L195,153 L195,211 L175,211 Z" />
+
+    <path
+        android:fillColor="#8F75FF"
+        android:pathData="M204,132 L219,132 L219,211 L204,211 Z" />
+
+    <!-- Pie chart background -->
+    <path
+        android:fillColor="#DAD4FF"
+        android:pathData="M178,34 A52,52 0,1 1,177.9 34" />
+
+    <!-- Pie chart segments -->
+    <path
+        android:fillColor="#6947EF"
+        android:pathData="M178,86 L178,34 A52,52 0,0 1,230 86 Z" />
+
+    <path
+        android:fillColor="#FFA34D"
+        android:pathData="M178,86 L230,86 A52,52 0,0 1,190 137 Z" />
+
+    <path
+        android:fillColor="#9E8AF8"
+        android:pathData="M178,86 L190,137 A52,52 0,0 1,126 86 Z" />
+
+    <path
+        android:fillColor="#55BE9B"
+        android:pathData="M178,86 L126,86 A52,52 0,0 1,178 34 Z" />
+
+    <!-- Coin -->
+    <path
+        android:fillColor="#FFB822"
+        android:pathData="M231,165 A30,30 0,1 1,230.9 165" />
+
+    <path
+        android:fillColor="#FFD66C"
+        android:pathData="M231,171 A24,24 0,1 1,230.9 171" />
+
+    <path
+        android:fillColor="#D98900"
+        android:pathData="M226,180 L235,180 Q243,180 243,189 Q243,196 234,198 L234,204 L229,204 L229,198 Q220,197 219,191 L225,189 Q226,193 233,193 Q237,193 237,190 Q237,186 231,186 Q221,186 221,178 Q221,171 229,170 L229,165 L234,165 L234,170 Q241,171 242,177 L236,179 Q235,175 230,175 Q226,175 226,180 Z" />
+
+</vector>

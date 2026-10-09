@@ -26,9 +26,15 @@ class OnboardingActivity : AppCompatActivity() {
     )
 
     private val descriptions = listOf(
-        "Monitor your baon, pamasahe, pagkain, school payments, and more.",
-        "View reports and charts to see where your money goes.",
-        "Set budgets, save for your goals, and manage your gastos wisely."
+        "Monitor your baon, pamasahe,\npagkain, school payments\nand more.",
+        "View reports and charts to see\nwhere your money goes.",
+        "Set budgets, save for your goals,\nand manage your gastos wisely."
+    )
+
+    private val illustrations = listOf(
+        R.drawable.ic_onboarding_expenses,
+        R.drawable.ic_onboarding_reports,
+        R.drawable.ic_onboarding_goals
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +53,9 @@ class OnboardingActivity : AppCompatActivity() {
             findViewById(R.id.indicator3)
         )
 
-        currentPage = savedInstanceState?.getInt("currentPage") ?: 0
+        currentPage = (
+                savedInstanceState?.getInt("currentPage") ?: 0
+                ).coerceIn(0, 2)
 
         showPage()
 
@@ -69,7 +77,9 @@ class OnboardingActivity : AppCompatActivity() {
         titleText.text = titles[currentPage]
         descriptionText.text = descriptions[currentPage]
 
-        illustration.setImageResource(R.mipmap.ic_launcher)
+        illustration.setImageResource(
+            illustrations[currentPage]
+        )
 
         indicators.forEachIndexed { index, indicator ->
             indicator.setBackgroundResource(

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="280dp"
+    android:viewportWidth="300"
+    android:viewportHeight="280">
+
+    <!-- Background -->
+    <path
+        android:fillColor="#F0EEFF"
+        android:pathData="M155,24 A113,113 0,1 1,154.9 24" />
+
+    <!-- Target rings -->
+    <path
+        android:fillColor="#4D32C6"
+        android:pathData="M162,47 A86,86 0,1 1,161.9 47" />
+
+    <path
+        android:fillColor="#7354F5"
+        android:pathData="M162,55 A78,78 0,1 1,161.9 55" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M162,75 A58,58 0,1 1,161.9 75" />
+
+    <path
+        android:fillColor="#6846E9"
+        android:pathData="M162,93 A40,40 0,1 1,161.9 93" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M162,107 A26,26 0,1 1,161.9 107" />
+
+    <path
+        android:fillColor="#F9A02D"
+        android:pathData="M162,124 A9,9 0,1 1,161.9 124" />
+
+    <!-- Arrow shaft -->
+    <path
+        android:strokeColor="#F18A18"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:pathData="M162,133 L231,64" />
+
+    <!-- Arrow head -->
+    <path
+        android:fillColor="#FF981F"
+        android:pathData="M231,64 L239,35 L247,52 L265,60 L238,72 Z" />
+
+    <path
+        android:fillColor="#E87512"
+        android:pathData="M231,64 L265,60 L248,76 L238,72 Z" />
+
+    <!-- Coins left -->
+    <path
+        android:fillColor="#E9A000"
+        android:pathData="M33,189 L74,189 L74,244 Q53,254 33,244 Z" />
+
+    <path
+        android:fillColor="#FFBE26"
+        android:pathData="M53,180 A21,8 0,1 1,52.9 180 M53,196 A21,8 0,1 1,52.9 196 M53,212 A21,8 0,1 1,52.9 212 M53,228 A21,8 0,1 1,52.9 228" />
+
+    <!-- Coins right -->
+    <path
+        android:fillColor="#E9A000"
+        android:pathData="M85,222 L132,222 L132,243 Q109,254 85,243 Z" />
+
+    <path
+        android:fillColor="#FFC438"
+        android:pathData="M108,212 A24,9 0,1 1,107.9 212 M108,228 A24,9 0,1 1,107.9 228" />
+
+    <!-- Small leaves -->
+    <path
+        android:fillColor="#4DBD8B"
+        android:pathData="M254,219 Q244,196 261,191 Q274,209 254,219 Z M254,219 Q269,196 284,208 Q279,226 254,219 Z" />
+
+    <path
+        android:strokeColor="#278B68"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M254,239 L254,215" />
+
+</vector>

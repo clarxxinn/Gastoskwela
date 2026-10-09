@@ -1,17 +1,20 @@
 package com.clarxxinn.gastoskwela
 
 import android.content.Intent
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.clarxxinn.gastoskwela.data.Allowance
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
@@ -20,179 +23,259 @@ import java.time.LocalDate
 class AllowanceSetupActivity : AppCompatActivity() {
 
     private var selectedFrequency = "Daily"
+    private var currentStep = 1
+    private var isSaving = false
 
-    private val purple = Color.parseColor("#5B3FD9")
-    private val selectedBackground = Color.parseColor("#F0ECFF")
-    private val unselectedBackground = Color.WHITE
-    private val unselectedBorder = Color.parseColor("#E2E5EF")
-    private val darkText = Color.parseColor("#1F2937")
+    private lateinit var frequencySection: LinearLayout
+    private lateinit var detailsSection: LinearLayout
+    private lateinit var titleText: TextView
+    private lateinit var subtitleText: TextView
+    private lateinit var frequencyText: TextView
+    private lateinit var nextButton: MaterialButton
+    private lateinit var setupScroll: ScrollView
+
+    private lateinit var amountInput: TextInputEditText
+    private lateinit var sourceInput: TextInputEditText
+    private lateinit var amountLayout: TextInputLayout
+    private lateinit var sourceLayout: TextInputLayout
+
+    private lateinit var cards: Map<String, LinearLayout>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_allowance_setup)
 
-        val group = findViewById<MaterialButtonToggleGroup>(
-            R.id.allowanceFrequencyGroup
+        selectedFrequency = savedInstanceState
+            ?.getString("selectedFrequency") ?: "Daily"
+
+        currentStep = savedInstanceState
+            ?.getInt("currentStep") ?: 1
+
+        frequencySection = findViewById(R.id.setupFrequencySection)
+        detailsSection = findViewById(R.id.setupDetailsSection)
+        titleText = findViewById(R.id.tvSetupTitle)
+        subtitleText = findViewById(R.id.tvSetupSubtitle)
+        frequencyText = findViewById(R.id.tvSetupFrequency)
+        nextButton = findViewById(R.id.btnSetupNext)
+        setupScroll = findViewById(R.id.setupScroll)
+
+        amountInput = findViewById(R.id.etSetupAmount)
+        sourceInput = findViewById(R.id.etSetupSource)
+        amountLayout = findViewById(R.id.layoutSetupAmount)
+        sourceLayout = findViewById(R.id.layoutSetupSource)
+
+        cards = mapOf(
+            "Daily" to findViewById(R.id.cardDaily),
+            "Weekly" to findViewById(R.id.cardWeekly),
+            "Monthly" to findViewById(R.id.cardMonthly),
+            "Custom" to findViewById(R.id.cardCustom)
         )
 
-        val daily = findViewById<MaterialButton>(R.id.btnDaily)
-        val weekly = findViewById<MaterialButton>(R.id.btnWeekly)
-        val monthly = findViewById<MaterialButton>(R.id.btnMonthly)
-        val custom = findViewById<MaterialButton>(R.id.btnCustom)
-
-        val frequencyText = findViewById<TextView>(
-            R.id.tvSetupFrequency
-        )
-
-        val amountInput = findViewById<TextInputEditText>(
-            R.id.etSetupAmount
-        )
-
-        val sourceInput = findViewById<TextInputEditText>(
-            R.id.etSetupSource
-        )
-
-        val amountLayout = findViewById<TextInputLayout>(
-            R.id.layoutSetupAmount
-        )
-
-        val sourceLayout = findViewById<TextInputLayout>(
-            R.id.layoutSetupSource
-        )
-
-        val saveButton = findViewById<MaterialButton>(
-            R.id.btnSaveAllowanceSetup
-        )
-
-        val buttons = listOf(daily, weekly, monthly, custom)
-
-        fun updateSelection() {
-            buttons.forEach { button ->
-                val selected = when (button.id) {
-                    R.id.btnDaily -> selectedFrequency == "Daily"
-                    R.id.btnWeekly -> selectedFrequency == "Weekly"
-                    R.id.btnMonthly -> selectedFrequency == "Monthly"
-                    R.id.btnCustom -> selectedFrequency == "Custom"
-                    else -> false
+        cards.forEach { (frequency, card) ->
+            card.setOnClickListener {
+                if (currentStep == 1 && !isSaving) {
+                    selectedFrequency = frequency
+                    updateSelection()
                 }
-
-                button.backgroundTintList =
-                    ColorStateList.valueOf(
-                        if (selected) selectedBackground
-                        else unselectedBackground
-                    )
-
-                button.strokeColor =
-                    ColorStateList.valueOf(
-                        if (selected) purple
-                        else unselectedBorder
-                    )
-
-                button.setTextColor(
-                    if (selected) purple else darkText
-                )
-
-                button.strokeWidth = if (selected) dp(2) else dp(1)
-            }
-
-            frequencyText.text = when (selectedFrequency) {
-                "Daily" -> "Daily allowance selected."
-                "Weekly" -> "Weekly allowance selected."
-                "Monthly" -> "Monthly allowance selected."
-                else -> "Custom allowance frequency selected."
             }
         }
 
-        group.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-
-            selectedFrequency = when (checkedId) {
-                R.id.btnDaily -> "Daily"
-                R.id.btnWeekly -> "Weekly"
-                R.id.btnMonthly -> "Monthly"
-                else -> selectedFrequency
+        findViewById<ImageButton>(R.id.btnSetupBack)
+            .setOnClickListener {
+                handleBack()
             }
 
-            updateSelection()
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    handleBack()
+                }
+            }
+        )
+
+        nextButton.setOnClickListener {
+            if (isSaving) return@setOnClickListener
+
+            if (currentStep == 1) {
+                if (selectedFrequency == "Custom") {
+                    currentStep = 2
+                    showStep()
+                } else {
+                    savePresetAllowance()
+                }
+            } else {
+                saveCustomAllowance()
+            }
         }
 
-        custom.setOnClickListener {
-            selectedFrequency = "Custom"
-            group.clearChecked()
-            updateSelection()
-        }
-
-        group.check(R.id.btnDaily)
         updateSelection()
+        showStep()
+    }
 
-        saveButton.setOnClickListener {
-            amountLayout.error = null
-            sourceLayout.error = null
+    private fun updateSelection() {
+        cards.forEach { (frequency, card) ->
+            val selected = frequency == selectedFrequency
 
-            val amount = MoneyUtils.parseCentavos(
-                amountInput.text?.toString().orEmpty()
+            card.setBackgroundResource(
+                if (selected) {
+                    R.drawable.bg_setup_card_selected
+                } else {
+                    R.drawable.bg_setup_card_unselected
+                }
             )
 
-            val source = sourceInput.text
-                ?.toString()
-                ?.trim()
-                .orEmpty()
+            card.isSelected = selected
+        }
 
-            if (amount == null) {
-                amountLayout.error = "Enter a valid positive amount"
-            }
+        frequencyText.text = when (selectedFrequency) {
+            "Daily" -> "Daily allowance selected."
+            "Weekly" -> "Weekly allowance selected."
+            "Monthly" -> "Monthly allowance selected."
+            else -> "Custom / Irregular allowance selected."
+        }
+    }
 
-            if (source.isBlank()) {
-                sourceLayout.error = "Allowance source is required"
-            }
+    private fun showStep() {
+        if (currentStep == 1) {
+            frequencySection.visibility = View.VISIBLE
+            detailsSection.visibility = View.GONE
 
-            if (amount == null || source.isBlank()) {
-                return@setOnClickListener
-            }
+            titleText.text = "Set Your Allowance"
+            subtitleText.text = "You can change this anytime."
+            nextButton.text = "Next"
+        } else {
+            frequencySection.visibility = View.GONE
+            detailsSection.visibility = View.VISIBLE
 
-            saveButton.isEnabled = false
+            titleText.text = "Allowance Details"
+            subtitleText.text = "Enter your custom allowance."
+            nextButton.text = "Save & Continue"
+        }
 
-            lifecycleScope.launch {
-                try {
-                    val database = GastoskwelaDatabase.getDatabase(
-                        this@AllowanceSetupActivity
+        setupScroll.post {
+            setupScroll.scrollTo(0, 0)
+        }
+    }
+
+    private fun handleBack() {
+        if (isSaving) return
+
+        if (currentStep == 2) {
+            currentStep = 1
+            showStep()
+        } else {
+            startActivity(
+                Intent(
+                    this,
+                    OnboardingActivity::class.java
+                )
+            )
+            finish()
+        }
+    }
+
+    private fun savePresetAllowance() {
+        val amountCentavos = when (selectedFrequency) {
+            "Daily" -> 20_000L
+            "Weekly" -> 100_000L
+            "Monthly" -> 400_000L
+            else -> return
+        }
+
+        saveAllowance(
+            amountCentavos = amountCentavos,
+            source = "Allowance"
+        )
+    }
+
+    private fun saveCustomAllowance() {
+        amountLayout.error = null
+        sourceLayout.error = null
+
+        val amount = MoneyUtils.parseCentavos(
+            amountInput.text?.toString().orEmpty()
+        )
+
+        val source = sourceInput.text
+            ?.toString()
+            ?.trim()
+            .orEmpty()
+
+        if (amount == null || amount <= 0L) {
+            amountLayout.error = "Enter a valid positive amount"
+        }
+
+        if (source.isBlank()) {
+            sourceLayout.error = "Allowance source is required"
+        }
+
+        if (amount == null || amount <= 0L || source.isBlank()) {
+            return
+        }
+
+        saveAllowance(
+            amountCentavos = amount,
+            source = source
+        )
+    }
+
+    private fun saveAllowance(
+        amountCentavos: Long,
+        source: String
+    ) {
+        if (isSaving) return
+
+        isSaving = true
+        nextButton.isEnabled = false
+
+        lifecycleScope.launch {
+            try {
+                val database = GastoskwelaDatabase.getDatabase(
+                    this@AllowanceSetupActivity
+                )
+
+                database.allowanceDao().insertAllowance(
+                    Allowance(
+                        amountCentavos = amountCentavos,
+                        source = source,
+                        date = LocalDate.now().toString(),
+                        notes = "Initial $selectedFrequency allowance"
                     )
+                )
 
-                    database.allowanceDao().insertAllowance(
-                        Allowance(
-                            amountCentavos = amount,
-                            source = source,
-                            date = LocalDate.now().toString(),
-                            notes = "Initial $selectedFrequency allowance"
-                        )
+                getSharedPreferences(
+                    "gastoskwela_preferences",
+                    MODE_PRIVATE
+                ).edit()
+                    .putBoolean("allowance_setup_completed", true)
+                    .putString("allowance_frequency", selectedFrequency)
+                    .apply()
+
+                startActivity(
+                    Intent(
+                        this@AllowanceSetupActivity,
+                        MainActivity::class.java
                     )
+                )
 
-                    getSharedPreferences(
-                        "gastoskwela_preferences",
-                        MODE_PRIVATE
-                    ).edit()
-                        .putBoolean("allowance_setup_completed", true)
-                        .putString("allowance_frequency", selectedFrequency)
-                        .apply()
+                finish()
+            } catch (e: Exception) {
+                isSaving = false
+                nextButton.isEnabled = true
 
-                    startActivity(
-                        Intent(
-                            this@AllowanceSetupActivity,
-                            MainActivity::class.java
-                        )
-                    )
-
-                    finish()
-                } catch (e: Exception) {
-                    saveButton.isEnabled = true
-                    amountLayout.error =
-                        "Unable to save allowance. Please try again."
-                }
+                Toast.makeText(
+                    this@AllowanceSetupActivity,
+                    "Unable to save allowance. Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
 
-    private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("selectedFrequency", selectedFrequency)
+        outState.putInt("currentStep", currentStep)
+        super.onSaveInstanceState(outState)
     }
 }

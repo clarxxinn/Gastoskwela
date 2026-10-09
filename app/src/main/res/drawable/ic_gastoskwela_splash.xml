@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp"
+    android:height="160dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+
+    <!-- Wallet shadow -->
+    <path
+        android:fillColor="#35208E"
+        android:fillAlpha="0.35"
+        android:pathData="M33,72 L113,72 Q124,72 124,84 L124,125 Q124,138 111,138 L44,138 Q32,138 32,125 Z" />
+
+    <!-- Wallet body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,69 L112,69 Q121,69 121,79 L121,122 Q121,133 110,133 L41,133 Q30,133 30,122 Z" />
+
+    <!-- Wallet lower shading -->
+    <path
+        android:fillColor="#EAE5FF"
+        android:pathData="M30,110 L121,110 L121,122 Q121,133 110,133 L41,133 Q30,133 30,122 Z" />
+
+    <!-- Wallet top accent -->
+    <path
+        android:fillColor="#AF6CF4"
+        android:pathData="M35,62 L105,62 Q115,62 115,73 L115,79 L35,79 Z" />
+
+    <!-- Graduation cap white outline -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M18,43 L78,17 Q81,16 84,17 L142,43 Q149,47 142,52 L87,76 Q82,78 77,76 L18,52 Q10,48 18,43 Z" />
+
+    <!-- Graduation cap main surface -->
+    <path
+        android:fillColor="#21154D"
+        android:pathData="M21,47 L81,22 L139,47 L82,72 Z" />
+
+    <!-- Graduation cap lower flap -->
+    <path
+        android:fillColor="#342169"
+        android:pathData="M43,60 L81,77 L119,60 L119,83 Q82,104 43,83 Z" />
+
+    <!-- Graduation cap upper highlight -->
+    <path
+        android:fillColor="#4D3597"
+        android:pathData="M32,47 L81,26 L130,47 L81,67 Z" />
+
+    <!-- Cap center detail -->
+    <path
+        android:fillColor="#C35BFC"
+        android:pathData="M81,43 a3,3 0,1 0,0.1 0" />
+
+    <!-- Tassel -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M83,47 L127,66 L127,92" />
+
+    <path
+        android:strokeColor="#33205C"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M83,47 L127,66 L127,92" />
+
+    <!-- Coin dark outer outline -->
+    <path
+        android:fillColor="#20164B"
+        android:pathData="M112,81 C130,77 148,89 151,107 C154,126 141,143 123,146 C104,149 87,137 84,118 C81,100 94,85 112,81 Z" />
+
+    <!-- Coin white ring -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M113,85 C129,82 144,93 147,108 C150,124 139,139 123,142 C107,145 92,134 89,118 C86,102 97,88 113,85 Z" />
+
+    <!-- Coin gold fill -->
+    <path
+        android:fillColor="#FFC43A"
+        android:pathData="M114,90 C127,87 139,96 142,109 C145,122 136,134 123,137 C110,140 98,131 95,118 C92,105 101,93 114,90 Z" />
+
+    <!-- Coin highlight -->
+    <path
+        android:fillColor="#FFE27B"
+        android:pathData="M111,96 C118,92 127,94 132,99 C120,97 109,106 105,117 C102,109 105,100 111,96 Z" />
+
+    <!-- Peso symbol -->
+    <path
+        android:fillColor="#B86A00"
+        android:pathData="M117,101 L121,101 L121,105 Q130,106 130,114 Q130,123 120,125 L120,130 L116,130 L116,125 Q109,125 106,120 L110,116 Q113,121 119,121 Q125,121 125,115 Q125,111 118,111 Q109,111 109,103 Q109,96 116,95 L116,91 L120,91 L120,95 Q126,96 129,101 L125,105 Q122,100 117,101 Z" />
+
+</vector>

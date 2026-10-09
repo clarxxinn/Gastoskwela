@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="280dp"
+    android:viewportWidth="300"
+    android:viewportHeight="280">
+
+    <path
+        android:fillColor="#F0EEFF"
+        android:pathData="M150,22 A115,115 0,1 1,149.9 22" />
+
+    <path
+        android:fillColor="#DDD8FF"
+        android:pathData="M75,55 A12,12 0,1 1,74.9 55 M230,75 A9,9 0,1 1,229.9 75 M242,185 A12,12 0,1 1,241.9 185" />
+
+    <!-- Backpack -->
+    <path
+        android:fillColor="#32236E"
+        android:pathData="M80,150 Q50,147 47,185 L47,236 Q48,250 65,250 L103,250 L113,168 Z" />
+
+    <path
+        android:fillColor="#7652F4"
+        android:pathData="M65,179 Q66,160 84,162 L102,164 L97,236 L65,236 Z" />
+
+    <!-- Student body -->
+    <path
+        android:fillColor="#6944EA"
+        android:pathData="M105,151 Q131,132 165,149 Q185,157 192,189 L210,239 L91,239 Q88,197 105,151 Z" />
+
+    <path
+        android:fillColor="#4C2FC3"
+        android:pathData="M105,178 Q120,196 145,202 L138,239 L92,239 Z" />
+
+    <!-- Neck -->
+    <path
+        android:fillColor="#F2A778"
+        android:pathData="M140,135 L162,135 L165,156 Q152,168 139,155 Z" />
+
+    <!-- Face -->
+    <path
+        android:fillColor="#FFC49B"
+        android:pathData="M119,97 Q124,75 149,74 Q179,76 180,105 L172,137 Q164,155 144,149 Q119,143 119,120 Z" />
+
+    <!-- Hair -->
+    <path
+        android:fillColor="#1E214F"
+        android:pathData="M118,115 Q104,96 116,77 Q126,61 145,65 Q159,49 178,63 Q196,64 194,83 Q189,97 172,97 Q164,83 152,90 Q136,89 133,112 Z" />
+
+    <!-- Eyes -->
+    <path
+        android:fillColor="#1E214F"
+        android:pathData="M154,112 A2,2 0,1 1,153.9 112 M169,112 A2,2 0,1 1,168.9 112" />
+
+    <!-- Phone -->
+    <path
+        android:fillColor="#20234F"
+        android:pathData="M183,160 L216,168 Q222,170 220,177 L204,228 Q202,234 196,232 L166,223 Q161,221 163,215 L177,166 Q179,159 183,160 Z" />
+
+    <path
+        android:fillColor="#A7B3FF"
+        android:pathData="M184,170 L211,176 L198,218 L172,211 Z" />
+
+    <!-- Hands -->
+    <path
+        android:fillColor="#FFC49B"
+        android:pathData="M159,192 Q169,184 182,190 L193,198 L188,210 L170,204 L157,208 Z" />
+
+    <path
+        android:fillColor="#FFC49B"
+        android:pathData="M183,220 Q193,207 204,213 L206,223 Q193,233 183,230 Z" />
+
+    <!-- Floating book badge -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M220,36 A27,27 0,1 1,219.9 36" />
+
+    <path
+        android:strokeColor="#6844EE"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M203,54 Q212,49 220,55 L220,74 Q212,68 203,73 Z M220,55 Q228,49 237,54 L237,73 Q228,68 220,74 Z" />
+
+    <!-- Floating food badge -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M57,35 A25,25 0,1 1,56.9 35" />
+
+    <path
+        android:strokeColor="#6844EE"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M49,46 L49,72 M42,46 L42,56 Q42,63 49,63 M56,46 L56,56 Q56,63 49,63 M66,46 Q78,55 66,64 L66,72" />
+
+    <!-- Ground -->
+    <path
+        android:strokeColor="#DCD7FF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M53,252 L248,252" />
+</vector>
