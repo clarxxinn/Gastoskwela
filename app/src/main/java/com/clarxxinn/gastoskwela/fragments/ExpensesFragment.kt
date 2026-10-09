@@ -2,6 +2,8 @@ package com.clarxxinn.gastoskwela.fragments
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
@@ -17,13 +19,16 @@ import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
-import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
@@ -48,9 +53,9 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         "Others"
     )
 
-    private fun formatMoney(centavos: Long): String {
-        return MoneyUtils.format(centavos)
-    }
+    private var allExpenses: List<Expense> = emptyList()
+    private var searchQuery = ""
+    private var selectedFilter = "All"
 
     override fun onViewCreated(
         view: View,
@@ -58,26 +63,51 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val totalText = view.findViewById<TextView>(
-            R.id.tvTotalExpenses
-        )
-
-        val balanceText = view.findViewById<TextView>(
-            R.id.tvRemainingBalance
-        )
-
-        val emptyText = view.findViewById<TextView>(
-            R.id.tvEmptyExpenses
-        )
-
-        val container = view.findViewById<LinearLayout>(
-            R.id.expenseListContainer
-        )
-
-        view.findViewById<MaterialButton>(
+        view.findViewById<View>(
             R.id.btnAddExpense
         ).setOnClickListener {
             showExpenseDialog()
+        }
+
+        val searchInput = view.findViewById<TextInputEditText>(
+            R.id.etSearchExpenses
+        )
+
+        searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) = Unit
+
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                searchQuery = s?.toString()?.trim().orEmpty()
+                renderExpenses(view)
+            }
+
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
+
+        val filterGroup = view.findViewById<ChipGroup>(
+            R.id.expenseFilterGroup
+        )
+
+        filterGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            selectedFilter = when (checkedIds.firstOrNull()) {
+                R.id.chipFood -> "Food"
+                R.id.chipTransportation -> "Transportation"
+                R.id.chipSchool -> "School"
+                R.id.chipOthers -> "Others"
+                else -> "All"
+            }
+
+            renderExpenses(view)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -86,11 +116,8 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             ) {
                 launch {
                     expenseDao.getAllExpenses().collect { expenses ->
-                        renderExpenses(
-                            container,
-                            emptyText,
-                            expenses
-                        )
+                        allExpenses = expenses
+                        renderExpenses(view)
                     }
                 }
 
@@ -99,11 +126,16 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                         allowanceDao.getTotalAllowance(),
                         expenseDao.getTotalExpenses()
                     ) { allowance, expenses ->
-                        Pair(allowance, expenses)
+                        allowance to expenses
                     }.collect { (allowance, expenses) ->
-                        totalText.text = formatMoney(expenses)
 
-                        balanceText.text = formatMoney(
+                        view.findViewById<TextView>(
+                            R.id.tvTotalExpenses
+                        ).text = MoneyUtils.format(expenses)
+
+                        view.findViewById<TextView>(
+                            R.id.tvRemainingBalance
+                        ).text = MoneyUtils.format(
                             allowance - expenses
                         )
                     }
@@ -112,25 +144,142 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         }
     }
 
-    private fun renderExpenses(
-        container: LinearLayout,
-        emptyText: TextView,
-        expenses: List<Expense>
-    ) {
+    private fun matchesFilter(expense: Expense): Boolean {
+        return when (selectedFilter) {
+            "Food" ->
+                expense.category == "Food"
+
+            "Transportation" ->
+                expense.category == "Transportation"
+
+            "School" ->
+                expense.category in listOf(
+                    "School Supplies",
+                    "Projects"
+                )
+
+            "Others" ->
+                expense.category in listOf(
+                    "Load/Internet",
+                    "Others"
+                )
+
+            else -> true
+        }
+    }
+
+    private fun renderExpenses(view: View) {
+        val container = view.findViewById<LinearLayout>(
+            R.id.expenseListContainer
+        )
+
+        val emptyText = view.findViewById<TextView>(
+            R.id.tvEmptyExpenses
+        )
+
+        val countText = view.findViewById<TextView>(
+            R.id.tvExpenseCount
+        )
+
         container.removeAllViews()
 
-        emptyText.visibility = if (expenses.isEmpty()) {
+        val filtered = allExpenses
+            .filter { expense ->
+                matchesFilter(expense) &&
+                        (
+                                expense.description.contains(
+                                    searchQuery,
+                                    ignoreCase = true
+                                ) ||
+                                        expense.category.contains(
+                                            searchQuery,
+                                            ignoreCase = true
+                                        ) ||
+                                        expense.notes.contains(
+                                            searchQuery,
+                                            ignoreCase = true
+                                        ) ||
+                                        expense.date.contains(
+                                            searchQuery,
+                                            ignoreCase = true
+                                        )
+                                )
+            }
+            .sortedWith(
+                compareByDescending<Expense> { it.date }
+                    .thenByDescending { it.id }
+            )
+
+        countText.text = if (filtered.size == 1) {
+            "1 record"
+        } else {
+            "${filtered.size} records"
+        }
+
+        emptyText.visibility = if (filtered.isEmpty()) {
             View.VISIBLE
         } else {
             View.GONE
         }
 
-        expenses.forEach { expense ->
+        emptyText.text = if (allExpenses.isEmpty()) {
+            "No expenses yet. Tap Add Expense to get started."
+        } else {
+            "No expenses match your search or filter."
+        }
+
+        val monthFormatter = DateTimeFormatter.ofPattern(
+            "MMMM yyyy",
+            Locale.ENGLISH
+        )
+
+        var lastMonth = ""
+
+        filtered.forEach { expense ->
+            val monthKey = expense.date.take(7)
+
+            if (monthKey != lastMonth) {
+                lastMonth = monthKey
+
+                val heading = TextView(requireContext())
+
+                heading.text = try {
+                    YearMonth.parse(monthKey).format(monthFormatter)
+                } catch (_: Exception) {
+                    monthKey
+                }
+
+                heading.textSize = 15f
+                heading.setTextColor(0xFF6B7280.toInt())
+
+                heading.setPadding(
+                    4,
+                    dp(14),
+                    0,
+                    dp(12)
+                )
+
+                container.addView(heading)
+            }
+
             val itemView = layoutInflater.inflate(
                 R.layout.item_expense,
                 container,
                 false
             )
+
+            val icon = when (expense.category) {
+                "Food" -> "🍔"
+                "Transportation" -> "🚌"
+                "School Supplies" -> "📚"
+                "Projects" -> "📋"
+                "Load/Internet" -> "📱"
+                else -> "🧾"
+            }
+
+            itemView.findViewById<TextView>(
+                R.id.tvExpenseIcon
+            ).text = icon
 
             itemView.findViewById<TextView>(
                 R.id.tvExpenseCategory
@@ -138,7 +287,9 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
             itemView.findViewById<TextView>(
                 R.id.tvExpenseDescription
-            ).text = expense.description
+            ).text = expense.description.ifBlank {
+                expense.category
+            }
 
             itemView.findViewById<TextView>(
                 R.id.tvExpenseDate
@@ -146,26 +297,27 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
             itemView.findViewById<TextView>(
                 R.id.tvExpenseAmount
-            ).text = "-${formatMoney(expense.amountCentavos)}"
+            ).text = "-${MoneyUtils.format(expense.amountCentavos)}"
 
             val notesView = itemView.findViewById<TextView>(
                 R.id.tvExpenseNotes
             )
 
-            if (expense.notes.isNotBlank()) {
-                notesView.visibility = View.VISIBLE
-                notesView.text = expense.notes
+            notesView.visibility = if (expense.notes.isBlank()) {
+                View.GONE
             } else {
-                notesView.visibility = View.GONE
+                View.VISIBLE
             }
 
-            itemView.findViewById<MaterialButton>(
+            notesView.text = expense.notes
+
+            itemView.findViewById<View>(
                 R.id.btnEditExpense
             ).setOnClickListener {
                 showExpenseDialog(expense)
             }
 
-            itemView.findViewById<MaterialButton>(
+            itemView.findViewById<View>(
                 R.id.btnDeleteExpense
             ).setOnClickListener {
                 confirmDelete(expense)
@@ -173,6 +325,12 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
             container.addView(itemView)
         }
+    }
+
+    private fun dp(value: Int): Int {
+        return (
+                value * resources.displayMetrics.density
+                ).toInt()
     }
 
     private fun showExpenseDialog(existing: Expense? = null) {
@@ -207,7 +365,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             R.id.layoutExpenseDescription
         )
 
-        val dateButton = dialogView.findViewById<MaterialButton>(
+        val dateButton = dialogView.findViewById<TextView>(
             R.id.btnExpenseDate
         )
 
@@ -228,7 +386,6 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
         dateButton.text = selectedDate
 
-        // Populate fields when editing
         existing?.let { expense ->
             amountInput.setText(
                 BigDecimal.valueOf(
@@ -246,7 +403,6 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             notesInput.setText(expense.notes)
         }
 
-        // Date Picker
         dateButton.setOnClickListener {
             val date = LocalDate.parse(selectedDate)
 
@@ -278,7 +434,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             .setView(dialogView)
             .setNegativeButton("Cancel", null)
             .setPositiveButton(
-                if (existing == null) "Save" else "Update",
+                if (existing == null) "Save Expense" else "Update",
                 null
             )
             .create()
@@ -312,7 +468,6 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                     ?.trim()
                     .orEmpty()
 
-                // Phase 8: Reusable money validation
                 val centavos = MoneyUtils.parseCentavos(
                     amountText
                 )
