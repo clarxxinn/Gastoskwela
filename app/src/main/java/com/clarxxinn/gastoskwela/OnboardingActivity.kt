@@ -15,7 +15,6 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var descriptionText: TextView
     private lateinit var nextButton: MaterialButton
     private lateinit var skipButton: TextView
-
     private lateinit var indicators: List<View>
 
     private var currentPage = 0
@@ -70,7 +69,6 @@ class OnboardingActivity : AppCompatActivity() {
         titleText.text = titles[currentPage]
         descriptionText.text = descriptions[currentPage]
 
-        // Temporary illustration until matching assets are added.
         illustration.setImageResource(R.mipmap.ic_launcher)
 
         indicators.forEachIndexed { index, indicator ->
@@ -97,12 +95,20 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     private fun finishOnboarding() {
-        getSharedPreferences("gastoskwela_preferences", MODE_PRIVATE)
-            .edit()
+        getSharedPreferences(
+            "gastoskwela_preferences",
+            MODE_PRIVATE
+        ).edit()
             .putBoolean("onboarding_completed", true)
             .apply()
 
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(
+            Intent(
+                this,
+                AllowanceSetupActivity::class.java
+            )
+        )
+
         finish()
     }
 

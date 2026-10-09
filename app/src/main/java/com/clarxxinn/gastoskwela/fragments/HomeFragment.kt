@@ -17,10 +17,11 @@ import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.data.SchoolPayment
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
-import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -28,8 +29,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         GastoskwelaDatabase.getDatabase(requireContext())
     }
 
-    private fun formatMoney(centavos: Long): String {
-        return MoneyUtils.format(centavos)
+    private fun money(value: Long): String {
+        return MoneyUtils.format(value)
     }
 
     override fun onViewCreated(
@@ -38,34 +39,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Quick action: Allowance
-        view.findViewById<MaterialButton>(
-            R.id.btnHomeAllowance
-        ).setOnClickListener {
-            (requireActivity() as MainActivity).selectTab(
-                R.id.nav_allowance
-            )
-        }
+        val dateFormatter = DateTimeFormatter.ofPattern(
+            "EEEE, MMMM d, yyyy",
+            Locale.ENGLISH
+        )
 
-        // Quick action: Expenses
-        view.findViewById<MaterialButton>(
-            R.id.btnHomeExpenses
-        ).setOnClickListener {
-            (requireActivity() as MainActivity).selectTab(
-                R.id.nav_expenses
-            )
-        }
+        view.findViewById<TextView>(
+            R.id.tvHomeDate
+        ).text = LocalDate.now().format(dateFormatter)
 
-        // Quick action: Payments
-        view.findViewById<MaterialButton>(
-            R.id.btnHomePayments
-        ).setOnClickListener {
-            (requireActivity() as MainActivity).selectTab(
-                R.id.nav_payments
-            )
-        }
+        setupNavigation(view)
 
-        // Observe Room database
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(
                 Lifecycle.State.STARTED
@@ -76,15 +60,58 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     database.schoolPaymentDao().getAllPayments()
                 ) { allowances, expenses, payments ->
                     DashboardData(
-                        allowances = allowances,
-                        expenses = expenses,
-                        payments = payments
+                        allowances,
+                        expenses,
+                        payments
                     )
                 }.collect { data ->
                     updateDashboard(view, data)
                 }
             }
         }
+    }
+
+    private fun setupNavigation(view: View) {
+
+        view.findViewById<View>(
+            R.id.btnHomeExpenses
+        ).setOnClickListener {
+            openTab(R.id.nav_expenses)
+        }
+
+        view.findViewById<View>(
+            R.id.btnHomeAllowance
+        ).setOnClickListener {
+            openTab(R.id.nav_allowance)
+        }
+
+        view.findViewById<View>(
+            R.id.btnHomePayments
+        ).setOnClickListener {
+            openTab(R.id.nav_payments)
+        }
+
+        view.findViewById<View>(
+            R.id.btnHomeReports
+        ).setOnClickListener {
+            openTab(R.id.nav_reports)
+        }
+
+        view.findViewById<View>(
+            R.id.btnSeeAllExpenses
+        ).setOnClickListener {
+            openTab(R.id.nav_expenses)
+        }
+
+        view.findViewById<View>(
+            R.id.btnSeeAllPayments
+        ).setOnClickListener {
+            openTab(R.id.nav_payments)
+        }
+    }
+
+    private fun openTab(tabId: Int) {
+        (requireActivity() as MainActivity).selectTab(tabId)
     }
 
     private data class DashboardData(
@@ -105,30 +132,34 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             it.amountCentavos
         }
 
-        val balance = totalAllowance - totalExpenses
+        val remaining = totalAllowance - totalExpenses
 
-        // Financial summary
+        val today = LocalDate.now().toString()
+
+        val todayExpenses = data.expenses
+            .filter { it.date == today }
+            .sumOf { it.amountCentavos }
+
         view.findViewById<TextView>(
             R.id.tvHomeBalance
-        ).text = formatMoney(balance)
+        ).text = money(remaining)
 
         view.findViewById<TextView>(
             R.id.tvHomeAllowance
-        ).text = formatMoney(totalAllowance)
+        ).text = money(totalAllowance)
 
         view.findViewById<TextView>(
             R.id.tvHomeExpenses
-        ).text = formatMoney(totalExpenses)
+        ).text = money(todayExpenses)
 
-        updateBudgetInsight(
+        updateBudgetProgress(
             view,
             totalAllowance,
             totalExpenses
         )
 
-        updateRecentTransactions(
+        updateRecentExpenses(
             view,
-            data.allowances,
             data.expenses
         )
 
@@ -138,161 +169,136 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         )
     }
 
-    private fun updateBudgetInsight(
+    private fun updateBudgetProgress(
         view: View,
         allowance: Long,
         expenses: Long
     ) {
-        val insightText = view.findViewById<TextView>(
-            R.id.tvHomeBudgetInsight
-        )
-
-        val percentageText = view.findViewById<TextView>(
+        val percentageView = view.findViewById<TextView>(
             R.id.tvHomeBudgetPercentage
         )
 
-        val progress = view.findViewById<ProgressBar>(
+        val insightView = view.findViewById<TextView>(
+            R.id.tvHomeBudgetInsight
+        )
+
+        val progressBar = view.findViewById<ProgressBar>(
             R.id.progressHomeBudget
         )
 
         if (allowance <= 0L) {
-            insightText.text = if (expenses > 0L) {
-                "You have expenses recorded but no allowance yet."
-            } else {
-                "Add your allowance to start tracking your budget."
-            }
-
-            percentageText.text = "No allowance available"
-            progress.progress = 0
+            percentageView.text = "0% remaining"
+            insightView.text =
+                "Add an allowance to start tracking your budget."
+            progressBar.progress = 0
             return
         }
 
-        val spentPercent =
-            expenses.toDouble() / allowance.toDouble() * 100.0
+        val remaining = allowance - expenses
 
-        val displayPercent = spentPercent.toInt()
+        val remainingPercent = (
+                remaining.toDouble() /
+                        allowance.toDouble() * 100.0
+                )
 
-        progress.progress = spentPercent
+        val displayPercent = remainingPercent
             .coerceIn(0.0, 100.0)
             .toInt()
 
-        percentageText.text =
-            "$displayPercent% of allowance spent"
+        progressBar.progress = displayPercent
 
-        insightText.text = when {
-            spentPercent >= 100.0 ->
-                "Your expenses have reached or exceeded your allowance."
+        percentageView.text =
+            "$displayPercent% of allowance remaining"
 
-            spentPercent >= 80.0 ->
-                "Budget alert! You have spent most of your allowance."
+        insightView.text = when {
+            remaining < 0L ->
+                "You've exceeded your available allowance."
 
-            spentPercent >= 50.0 ->
-                "You have used more than half of your allowance."
+            remaining == 0L ->
+                "You've used all your available allowance."
+
+            remainingPercent <= 20.0 ->
+                "Budget alert! Your allowance is running low."
+
+            remainingPercent <= 50.0 ->
+                "You've used more than half your allowance."
 
             else ->
-                "Great! You still have room in your budget."
+                "You're doing great! Keep tracking your gastos."
         }
     }
 
-    private data class HomeTransaction(
-        val title: String,
-        val category: String,
-        val date: String,
-        val amountCentavos: Long,
-        val isIncome: Boolean,
-        val id: Int
-    )
-
-    private fun updateRecentTransactions(
+    private fun updateRecentExpenses(
         view: View,
-        allowances: List<Allowance>,
         expenses: List<Expense>
     ) {
         val container = view.findViewById<LinearLayout>(
             R.id.homeTransactionsContainer
         )
 
-        val emptyText = view.findViewById<TextView>(
+        val emptyView = view.findViewById<TextView>(
             R.id.tvHomeEmptyTransactions
         )
 
         container.removeAllViews()
 
-        val incomeTransactions = allowances.map { allowance ->
-            HomeTransaction(
-                title = allowance.source,
-                category = "Allowance",
-                date = allowance.date,
-                amountCentavos = allowance.amountCentavos,
-                isIncome = true,
-                id = allowance.id
-            )
-        }
-
-        val expenseTransactions = expenses.map { expense ->
-            HomeTransaction(
-                title = expense.description,
-                category = expense.category,
-                date = expense.date,
-                amountCentavos = expense.amountCentavos,
-                isIncome = false,
-                id = expense.id
-            )
-        }
-
-        val recentTransactions = (
-                incomeTransactions + expenseTransactions
-                )
+        val recent = expenses
             .sortedWith(
-                compareByDescending<HomeTransaction> { it.date }
+                compareByDescending<Expense> { it.date }
                     .thenByDescending { it.id }
             )
             .take(5)
 
-        emptyText.visibility = if (recentTransactions.isEmpty()) {
+        emptyView.visibility = if (recent.isEmpty()) {
             View.VISIBLE
         } else {
             View.GONE
         }
 
-        emptyText.text =
-            "No transactions yet. Add an allowance or expense to get started."
+        emptyView.text =
+            "No expenses yet. Tap Add Expense to get started."
 
-        recentTransactions.forEach { transaction ->
+        recent.forEach { expense ->
             val itemView = layoutInflater.inflate(
                 R.layout.item_home_transaction,
                 container,
                 false
             )
 
+            val categoryIcon = when (
+                expense.category.lowercase()
+            ) {
+                "food", "pagkain" -> "🍔"
+                "transportation", "pamasahe" -> "🚌"
+                "school supplies" -> "📚"
+                "projects" -> "📋"
+                "load/internet" -> "📱"
+                else -> "🧾"
+            }
+
+            val title = expense.description
+                .takeIf { it.isNotBlank() }
+                ?: expense.category
+
             itemView.findViewById<TextView>(
                 R.id.tvTransactionTitle
-            ).text = transaction.title
+            ).text = "$categoryIcon  $title"
 
             itemView.findViewById<TextView>(
                 R.id.tvTransactionDetails
-            ).text = "${transaction.category} · ${transaction.date}"
+            ).text = "${expense.category} · ${expense.date}"
 
             val amountView = itemView.findViewById<TextView>(
                 R.id.tvTransactionAmount
             )
 
-            amountView.text = if (transaction.isIncome) {
-                "+${formatMoney(transaction.amountCentavos)}"
-            } else {
-                "-${formatMoney(transaction.amountCentavos)}"
-            }
-
-            val amountColor = if (transaction.isIncome) {
-                R.color.success_green
-            } else {
-                R.color.expense_red
-            }
+            amountView.text =
+                "-${money(expense.amountCentavos)}"
 
             amountView.setTextColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    amountColor
+                    R.color.expense_red
                 )
             )
 
@@ -308,7 +314,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             R.id.homePaymentsContainer
         )
 
-        val emptyText = view.findViewById<TextView>(
+        val emptyView = view.findViewById<TextView>(
             R.id.tvHomeEmptyPayments
         )
 
@@ -316,19 +322,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         val today = LocalDate.now().toString()
 
-        // Overdue payments first, then nearest due dates
         val upcoming = payments
             .filter { it.remainingCentavos > 0L }
             .sortedBy { it.dueDate }
-            .take(5)
+            .take(3)
 
-        emptyText.visibility = if (upcoming.isEmpty()) {
+        emptyView.visibility = if (upcoming.isEmpty()) {
             View.VISIBLE
         } else {
             View.GONE
         }
 
-        emptyText.text =
+        emptyView.text =
             "No outstanding school payments. You're all caught up!"
 
         upcoming.forEach { payment ->
@@ -344,21 +349,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             itemView.findViewById<TextView>(
                 R.id.tvHomePaymentAmount
-            ).text = formatMoney(payment.remainingCentavos)
-
-            val dueText = itemView.findViewById<TextView>(
-                R.id.tvHomePaymentDue
-            )
+            ).text = money(payment.remainingCentavos)
 
             val isOverdue = payment.dueDate < today
 
-            dueText.text = if (isOverdue) {
+            val dueView = itemView.findViewById<TextView>(
+                R.id.tvHomePaymentDue
+            )
+
+            dueView.text = if (isOverdue) {
                 "Overdue: ${payment.dueDate}"
             } else {
                 "Due: ${payment.dueDate}"
             }
 
-            dueText.setTextColor(
+            dueView.setTextColor(
                 ContextCompat.getColor(
                     requireContext(),
                     if (isOverdue) {

@@ -11,7 +11,6 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_splash)
 
         lifecycleScope.launch {
@@ -27,10 +26,20 @@ class SplashActivity : AppCompatActivity() {
                 false
             )
 
-            val destination = if (onboardingCompleted) {
-                MainActivity::class.java
-            } else {
-                OnboardingActivity::class.java
+            val allowanceSetupCompleted = preferences.getBoolean(
+                "allowance_setup_completed",
+                false
+            )
+
+            val destination = when {
+                !onboardingCompleted ->
+                    OnboardingActivity::class.java
+
+                !allowanceSetupCompleted ->
+                    AllowanceSetupActivity::class.java
+
+                else ->
+                    MainActivity::class.java
             }
 
             startActivity(
