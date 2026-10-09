@@ -13,14 +13,28 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEF0F6" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:elevation="8dp"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        app:itemIconTint="@color/purple_primary"
-        app:itemTextColor="@color/purple_primary" />
+        app:itemHorizontalTranslationEnabled="false"
+        app:itemIconSize="23dp"
+        app:itemIconTint="@color/bottom_nav_colors"
+        app:itemTextColor="@color/bottom_nav_colors"
+        app:itemActiveIndicatorEnabled="true"
+        app:itemActiveIndicatorColor="@color/purple_soft"
+        app:itemActiveIndicatorWidth="62dp"
+        app:itemActiveIndicatorHeight="32dp"
+        app:itemPaddingTop="7dp"
+        app:itemPaddingBottom="7dp" />
 
 </LinearLayout>

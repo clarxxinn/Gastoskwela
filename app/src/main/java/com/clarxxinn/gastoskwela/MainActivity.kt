@@ -16,27 +16,37 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNavigation: BottomNavigationView
 
+    private var currentTabId = R.id.nav_home
+
+    companion object {
+        private const val KEY_SELECTED_TAB = "selected_tab"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
         bottomNavigation = findViewById(
             R.id.bottomNavigation
         )
 
-        // Bottom Navigation
         bottomNavigation.setOnItemSelectedListener { item ->
-
-            val fragment: Fragment = when (item.itemId) {
-                R.id.nav_home -> HomeFragment()
-                R.id.nav_expenses -> ExpensesFragment()
-                R.id.nav_allowance -> AllowanceFragment()
-                R.id.nav_payments -> PaymentsFragment()
-                R.id.nav_reports -> ReportsFragment()
-                else -> return@setOnItemSelectedListener false
+            if (item.itemId == currentTabId &&
+                supportFragmentManager.findFragmentById(
+                    R.id.fragmentContainer
+                ) != null
+            ) {
+                return@setOnItemSelectedListener true
             }
 
+            val fragment = createFragment(item.itemId)
+                ?: return@setOnItemSelectedListener false
+
+            currentTabId = item.itemId
+
             supportFragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
                 .replace(
                     R.id.fragmentContainer,
                     fragment
@@ -46,30 +56,48 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // Default tab
-        if (savedInstanceState == null) {
-            bottomNavigation.selectedItemId = R.id.nav_home
+        val restoredTab = savedInstanceState?.getInt(
+            KEY_SELECTED_TAB,
+            R.id.nav_home
+        ) ?: R.id.nav_home
+
+        val validTab = if (createFragment(restoredTab) != null) {
+            restoredTab
+        } else {
+            R.id.nav_home
         }
 
-        // Phase 8: Android Back Button Handling
+        if (savedInstanceState != null) {
+            currentTabId = validTab
+        }
+
+        bottomNavigation.selectedItemId = validTab
+
+        if (
+            supportFragmentManager.findFragmentById(
+                R.id.fragmentContainer
+            ) == null
+        ) {
+            val fragment = createFragment(validTab) ?: HomeFragment()
+
+            supportFragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(
+                    R.id.fragmentContainer,
+                    fragment
+                )
+                .commit()
+
+            currentTabId = validTab
+        }
+
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
-
                 override fun handleOnBackPressed() {
-
-                    val currentTab =
-                        bottomNavigation.selectedItemId
-
-                    if (currentTab != R.id.nav_home) {
-
-                        // Return to Home
-                        bottomNavigation.selectedItemId =
-                            R.id.nav_home
-
+                    if (currentTabId != R.id.nav_home) {
+                        selectTab(R.id.nav_home)
                     } else {
-
-                        // Confirm before exiting
                         showExitConfirmation()
                     }
                 }
@@ -77,12 +105,28 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    // Navigate to a specific tab
+    private fun createFragment(itemId: Int): Fragment? {
+        return when (itemId) {
+            R.id.nav_home -> HomeFragment()
+            R.id.nav_expenses -> ExpensesFragment()
+            R.id.nav_allowance -> AllowanceFragment()
+            R.id.nav_payments -> PaymentsFragment()
+            R.id.nav_reports -> ReportsFragment()
+            else -> null
+        }
+    }
+
     fun selectTab(itemId: Int) {
+        if (createFragment(itemId) == null) return
+
         bottomNavigation.selectedItemId = itemId
     }
 
-    // Exit confirmation dialog
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(KEY_SELECTED_TAB, currentTabId)
+        super.onSaveInstanceState(outState)
+    }
+
     private fun showExitConfirmation() {
         AlertDialog.Builder(this)
             .setTitle("Exit Gastoskwela?")

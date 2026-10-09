@@ -1,4 +1,5 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
 
     <style name="Theme.Gastoskwela"
         parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -6,11 +7,21 @@
         <item name="colorPrimary">@color/purple_primary</item>
         <item name="colorPrimaryVariant">@color/purple_light</item>
         <item name="colorSecondary">@color/purple_light</item>
+
+        <item name="android:colorAccent">@color/purple_primary</item>
+
         <item name="android:statusBarColor">@color/purple_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+
         <item name="android:navigationBarColor">@color/white</item>
         <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:windowLightStatusBar">false</item>
+
         <item name="android:windowBackground">@color/background</item>
+
+        <item name="materialButtonStyle">
+            @style/Widget.MaterialComponents.Button
+        </item>
+
     </style>
 
 </resources>
