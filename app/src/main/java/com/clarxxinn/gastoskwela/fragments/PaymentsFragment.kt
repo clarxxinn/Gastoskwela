@@ -7,9 +7,9 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +18,7 @@ import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.data.SchoolPayment
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -41,9 +42,8 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
         "Others"
     )
 
-    private fun formatMoney(centavos: Long): String {
-        return MoneyUtils.format(centavos)
-    }
+    private var allPayments: List<SchoolPayment> = emptyList()
+    private var selectedFilter = "All"
 
     override fun onViewCreated(
         view: View,
@@ -51,30 +51,25 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val totalDue = view.findViewById<TextView>(
-            R.id.tvTotalPaymentDue
-        )
-
-        val totalPaid = view.findViewById<TextView>(
-            R.id.tvTotalPaymentPaid
-        )
-
-        val outstanding = view.findViewById<TextView>(
-            R.id.tvTotalPaymentOutstanding
-        )
-
-        val emptyText = view.findViewById<TextView>(
-            R.id.tvEmptyPayments
-        )
-
-        val container = view.findViewById<LinearLayout>(
-            R.id.paymentListContainer
-        )
-
-        view.findViewById<MaterialButton>(
+        view.findViewById<View>(
             R.id.btnAddPayment
         ).setOnClickListener {
             showPaymentDialog()
+        }
+
+        val filterGroup = view.findViewById<ChipGroup>(
+            R.id.paymentFilterGroup
+        )
+
+        filterGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            selectedFilter = when (checkedIds.firstOrNull()) {
+                R.id.chipPendingPayments -> "Pending"
+                R.id.chipPartialPayments -> "Partial"
+                R.id.chipPaidPayments -> "Paid"
+                else -> "All"
+            }
+
+            renderPayments(view)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -83,56 +78,127 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
             ) {
                 launch {
                     paymentDao.getAllPayments().collect { payments ->
-                        renderPayments(
-                            container,
-                            emptyText,
-                            payments
-                        )
+                        allPayments = payments
+                        renderPayments(view)
                     }
                 }
 
                 launch {
                     paymentDao.getTotalDue().collect { amount ->
-                        totalDue.text = formatMoney(amount)
+                        view.findViewById<TextView>(
+                            R.id.tvTotalPaymentDue
+                        ).text = MoneyUtils.format(amount)
                     }
                 }
 
                 launch {
                     paymentDao.getTotalPaid().collect { amount ->
-                        totalPaid.text = formatMoney(amount)
+                        view.findViewById<TextView>(
+                            R.id.tvTotalPaymentPaid
+                        ).text = MoneyUtils.format(amount)
                     }
                 }
 
                 launch {
                     paymentDao.getTotalOutstanding().collect { amount ->
-                        outstanding.text = formatMoney(amount)
+                        view.findViewById<TextView>(
+                            R.id.tvTotalPaymentOutstanding
+                        ).text = MoneyUtils.format(amount)
                     }
                 }
             }
         }
     }
 
-    private fun renderPayments(
-        container: LinearLayout,
-        emptyText: TextView,
-        payments: List<SchoolPayment>
-    ) {
+    private fun paymentProgress(
+        total: Long,
+        paid: Long
+    ): Int {
+        if (total <= 0L) return 0
+
+        return (
+                paid.toDouble() / total.toDouble() * 100.0
+                ).toInt().coerceIn(0, 100)
+    }
+
+    private fun renderPayments(view: View) {
+        val container = view.findViewById<LinearLayout>(
+            R.id.paymentListContainer
+        )
+
+        val emptyText = view.findViewById<TextView>(
+            R.id.tvEmptyPayments
+        )
+
+        val countText = view.findViewById<TextView>(
+            R.id.tvPaymentCount
+        )
+
         container.removeAllViews()
 
-        emptyText.visibility = if (payments.isEmpty()) {
+        val filtered = allPayments
+            .filter { payment ->
+                selectedFilter == "All" ||
+                        payment.status == selectedFilter
+            }
+            .sortedWith(
+                compareBy<SchoolPayment> {
+                    it.status == "Paid"
+                }.thenBy { it.dueDate }
+                    .thenByDescending { it.id }
+            )
+
+        countText.text = if (filtered.size == 1) {
+            "1 record"
+        } else {
+            "${filtered.size} records"
+        }
+
+        emptyText.visibility = if (filtered.isEmpty()) {
             View.VISIBLE
         } else {
             View.GONE
         }
 
+        emptyText.text = if (allPayments.isEmpty()) {
+            "No school payments yet. Tap Add Payment to begin."
+        } else {
+            "No payments found in this category."
+        }
+
+        val totalAmount = allPayments.sumOf {
+            it.amountCentavos
+        }
+
+        val totalPaid = allPayments.sumOf {
+            it.paidCentavos
+        }
+
+        val completion = paymentProgress(
+            totalAmount,
+            totalPaid
+        )
+
+        view.findViewById<ProgressBar>(
+            R.id.progressPaymentCompletion
+        ).progress = completion
+
+        view.findViewById<TextView>(
+            R.id.tvPaymentCompletion
+        ).text = "$completion% paid"
+
         val today = LocalDate.now().toString()
 
-        payments.forEach { payment ->
+        filtered.forEach { payment ->
             val itemView = layoutInflater.inflate(
                 R.layout.item_payment,
                 container,
                 false
             )
+
+            val isOverdue =
+                payment.remainingCentavos > 0L &&
+                        payment.dueDate < today
 
             itemView.findViewById<TextView>(
                 R.id.tvPaymentTitle
@@ -142,74 +208,81 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 R.id.tvPaymentCategory
             ).text = payment.category
 
-            // Phase 8: Overdue highlighting
-            val isOverdue =
-                payment.remainingCentavos > 0L &&
-                        payment.dueDate < today
-
             val dueDateView = itemView.findViewById<TextView>(
                 R.id.tvPaymentDueDate
             )
 
             dueDateView.text = if (isOverdue) {
-                "Overdue since: ${payment.dueDate}"
+                "⚠ Overdue since ${payment.dueDate}"
             } else {
                 "Due: ${payment.dueDate}"
             }
+
+            dueDateView.setTextColor(
+                if (isOverdue) {
+                    0xFFEF4444.toInt()
+                } else {
+                    0xFF6B7280.toInt()
+                }
+            )
 
             val statusView = itemView.findViewById<TextView>(
                 R.id.tvPaymentStatus
             )
 
             statusView.text = if (isOverdue) {
-                "Overdue · ${payment.status}"
+                "Overdue"
             } else {
                 payment.status
             }
 
-            val statusColor = when {
-                isOverdue -> R.color.expense_red
-                payment.status == "Paid" -> R.color.success_green
-                else -> R.color.purple_primary
-            }
-
             statusView.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    statusColor
-                )
+                when {
+                    isOverdue -> 0xFFEF4444.toInt()
+                    payment.status == "Paid" -> 0xFF16A34A.toInt()
+                    payment.status == "Partial" -> 0xFF5B3FD9.toInt()
+                    else -> 0xFFF59E0B.toInt()
+                }
             )
 
             itemView.findViewById<TextView>(
                 R.id.tvPaymentAmount
-            ).text = "Total: ${formatMoney(payment.amountCentavos)}"
+            ).text = "Total: ${MoneyUtils.format(payment.amountCentavos)}"
 
             itemView.findViewById<TextView>(
                 R.id.tvPaymentPaid
-            ).text = "Paid: ${formatMoney(payment.paidCentavos)}"
+            ).text = "Paid: ${MoneyUtils.format(payment.paidCentavos)}"
 
             itemView.findViewById<TextView>(
                 R.id.tvPaymentRemaining
-            ).text = "Remaining: ${formatMoney(payment.remainingCentavos)}"
+            ).text = "${MoneyUtils.format(payment.remainingCentavos)} left"
+
+            itemView.findViewById<ProgressBar>(
+                R.id.progressPaymentItem
+            ).progress = paymentProgress(
+                payment.amountCentavos,
+                payment.paidCentavos
+            )
 
             val notesView = itemView.findViewById<TextView>(
                 R.id.tvPaymentNotes
             )
 
-            if (payment.notes.isNotBlank()) {
-                notesView.visibility = View.VISIBLE
-                notesView.text = payment.notes
+            notesView.visibility = if (payment.notes.isBlank()) {
+                View.GONE
             } else {
-                notesView.visibility = View.GONE
+                View.VISIBLE
             }
 
-            itemView.findViewById<MaterialButton>(
+            notesView.text = payment.notes
+
+            itemView.findViewById<View>(
                 R.id.btnEditPayment
             ).setOnClickListener {
                 showPaymentDialog(payment)
             }
 
-            itemView.findViewById<MaterialButton>(
+            itemView.findViewById<View>(
                 R.id.btnDeletePayment
             ).setOnClickListener {
                 confirmDelete(payment)
@@ -282,7 +355,6 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
 
         dateButton.text = selectedDate
 
-        // Populate fields when editing
         existing?.let { payment ->
             titleInput.setText(payment.title)
 
@@ -308,7 +380,6 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
             notesInput.setText(payment.notes)
         }
 
-        // Date Picker
         dateButton.setOnClickListener {
             val date = LocalDate.parse(selectedDate)
 
@@ -370,7 +441,6 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                     ?.trim()
                     .orEmpty()
 
-                // Phase 8: Reusable money validation
                 val amount = MoneyUtils.parseCentavos(
                     amountInput.text?.toString().orEmpty()
                 )
@@ -390,8 +460,7 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 }
 
                 if (category !in categories) {
-                    categoryLayout.error =
-                        "Select a valid category"
+                    categoryLayout.error = "Select a valid category"
                     valid = false
                 }
 
