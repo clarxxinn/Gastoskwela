@@ -1,11 +1,12 @@
 package com.clarxxinn.gastoskwela.fragments
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,12 +16,10 @@ import com.clarxxinn.gastoskwela.data.Allowance
 import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.data.SchoolPayment
-import com.google.android.material.button.MaterialButton
+import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.text.NumberFormat
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -38,16 +37,17 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         Locale.ENGLISH
     )
 
-    private fun formatMoney(centavos: Long): String {
-        val formatter = NumberFormat.getCurrencyInstance(
-            Locale.Builder()
-                .setLanguage("en")
-                .setRegion("PH")
-                .build()
-        )
+    private val purple = Color.rgb(91, 63, 217)
+    private val green = Color.rgb(22, 163, 74)
+    private val red = Color.rgb(239, 68, 68)
+    private val gray = Color.rgb(107, 114, 128)
 
-        return formatter.format(BigDecimal.valueOf(centavos, 2))
-    }
+    private data class ReportData(
+        val allowances: List<Allowance>,
+        val expenses: List<Expense>,
+        val payments: List<SchoolPayment>,
+        val month: YearMonth
+    )
 
     override fun onViewCreated(
         view: View,
@@ -55,22 +55,28 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (savedInstanceState != null) {
-            savedInstanceState.getString("selected_month")?.let {
-                selectedMonth.value = YearMonth.parse(it)
+        savedInstanceState
+            ?.getString("selected_month")
+            ?.let { savedMonth ->
+                runCatching {
+                    YearMonth.parse(savedMonth)
+                }.getOrNull()?.let {
+                    selectedMonth.value = it
+                }
             }
-        }
 
-        view.findViewById<MaterialButton>(
+        view.findViewById<View>(
             R.id.btnPreviousMonth
         ).setOnClickListener {
-            selectedMonth.value = selectedMonth.value.minusMonths(1)
+            selectedMonth.value =
+                selectedMonth.value.minusMonths(1)
         }
 
-        view.findViewById<MaterialButton>(
+        view.findViewById<View>(
             R.id.btnNextMonth
         ).setOnClickListener {
-            selectedMonth.value = selectedMonth.value.plusMonths(1)
+            selectedMonth.value =
+                selectedMonth.value.plusMonths(1)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -101,15 +107,21 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
             "selected_month",
             selectedMonth.value.toString()
         )
+
         super.onSaveInstanceState(outState)
     }
 
-    private data class ReportData(
-        val allowances: List<Allowance>,
-        val expenses: List<Expense>,
-        val payments: List<SchoolPayment>,
-        val month: YearMonth
-    )
+    private fun percentage(
+        numerator: Long,
+        denominator: Long
+    ): Int {
+        if (denominator <= 0L) return 0
+
+        return (
+                numerator.toDouble() /
+                        denominator.toDouble() * 100.0
+                ).toInt().coerceIn(0, 100)
+    }
 
     private fun updateReport(
         view: View,
@@ -125,97 +137,159 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
 
         val balance = totalAllowance - totalExpenses
 
-        // Financial Summary
-        view.findViewById<TextView>(
-            R.id.tvReportAllowance
-        ).text = formatMoney(totalAllowance)
+        updateText(
+            view,
+            R.id.tvReportAllowance,
+            MoneyUtils.format(totalAllowance)
+        )
 
-        view.findViewById<TextView>(
-            R.id.tvReportExpenses
-        ).text = formatMoney(totalExpenses)
+        updateText(
+            view,
+            R.id.tvReportExpenses,
+            MoneyUtils.format(totalExpenses)
+        )
 
-        view.findViewById<TextView>(
-            R.id.tvReportBalance
-        ).text = formatMoney(balance)
+        updateText(
+            view,
+            R.id.tvReportBalance,
+            MoneyUtils.format(balance)
+        )
 
-        // Estimated Savings
-        val availableSavings = balance.coerceAtLeast(0L)
+        updateSavings(
+            view,
+            totalAllowance,
+            balance
+        )
 
-        val savingsRate = if (totalAllowance > 0L) {
-            (
-                    availableSavings.toDouble() /
-                            totalAllowance.toDouble() * 100.0
-                    ).coerceIn(0.0, 100.0).toInt()
-        } else {
-            0
-        }
-
-        view.findViewById<TextView>(
-            R.id.tvSavingsAmount
-        ).text = formatMoney(availableSavings)
-
-        view.findViewById<TextView>(
-            R.id.tvSavingsRate
-        ).text = "Available savings rate: $savingsRate%"
-
-        view.findViewById<ProgressBar>(
-            R.id.progressSavings
-        ).progress = savingsRate
-
-        // Monthly Report
         val monthPrefix = report.month.toString()
 
         val monthlyAllowance = report.allowances
             .filter { it.date.startsWith(monthPrefix) }
             .sumOf { it.amountCentavos }
 
-        val monthlyExpenses = report.expenses
+        val monthlyExpenseRecords = report.expenses
             .filter { it.date.startsWith(monthPrefix) }
-            .sumOf { it.amountCentavos }
 
-        view.findViewById<TextView>(
-            R.id.tvSelectedMonth
-        ).text = report.month.format(monthFormatter)
-
-        view.findViewById<TextView>(
-            R.id.tvMonthlyAllowance
-        ).text = formatMoney(monthlyAllowance)
-
-        view.findViewById<TextView>(
-            R.id.tvMonthlyExpenses
-        ).text = formatMoney(monthlyExpenses)
-
-        view.findViewById<TextView>(
-            R.id.tvMonthlyNet
-        ).text = formatMoney(
-            monthlyAllowance - monthlyExpenses
-        )
-
-        // Category Breakdown (all-time)
-        updateCategories(view, report.expenses)
-
-        // School Payments Summary (all-time)
-        val paymentDue = report.payments.sumOf {
+        val monthlyExpenses = monthlyExpenseRecords.sumOf {
             it.amountCentavos
         }
 
-        val paymentPaid = report.payments.sumOf {
-            it.paidCentavos
+        val monthlyNet = monthlyAllowance - monthlyExpenses
+
+        updateText(
+            view,
+            R.id.tvSelectedMonth,
+            report.month.format(monthFormatter)
+        )
+
+        updateText(
+            view,
+            R.id.tvMonthlyAllowance,
+            MoneyUtils.format(monthlyAllowance)
+        )
+
+        updateText(
+            view,
+            R.id.tvMonthlyExpenses,
+            MoneyUtils.format(monthlyExpenses)
+        )
+
+        updateText(
+            view,
+            R.id.tvMonthlyNet,
+            MoneyUtils.format(monthlyNet)
+        )
+
+        view.findViewById<TextView>(
+            R.id.tvMonthlyNet
+        ).setTextColor(
+            if (monthlyNet < 0L) red else purple
+        )
+
+        val monthlyInsight = when {
+            monthlyAllowance == 0L && monthlyExpenses == 0L ->
+                "No allowance or expenses recorded for this month."
+
+            monthlyNet < 0L ->
+                "Your expenses exceeded this month's allowance."
+
+            monthlyNet == 0L ->
+                "Your recorded allowance and expenses are equal."
+
+            else ->
+                "Great! Your recorded allowance is higher than your expenses."
         }
 
-        val outstanding = paymentDue - paymentPaid
+        updateText(
+            view,
+            R.id.tvMonthlyInsight,
+            monthlyInsight
+        )
 
-        view.findViewById<TextView>(
-            R.id.tvReportPaymentDue
-        ).text = formatMoney(paymentDue)
+        updateCategories(
+            view,
+            monthlyExpenseRecords
+        )
 
-        view.findViewById<TextView>(
-            R.id.tvReportPaymentPaid
-        ).text = formatMoney(paymentPaid)
+        updateSchoolPayments(
+            view,
+            report.payments
+        )
+    }
 
-        view.findViewById<TextView>(
-            R.id.tvReportPaymentOutstanding
-        ).text = formatMoney(outstanding)
+    private fun updateSavings(
+        view: View,
+        totalAllowance: Long,
+        balance: Long
+    ) {
+        val availableSavings = balance.coerceAtLeast(0L)
+
+        val savingsRate = percentage(
+            availableSavings,
+            totalAllowance
+        )
+
+        updateText(
+            view,
+            R.id.tvSavingsAmount,
+            MoneyUtils.format(availableSavings)
+        )
+
+        updateText(
+            view,
+            R.id.tvSavingsRate,
+            "Available savings rate: $savingsRate%"
+        )
+
+        view.findViewById<ProgressBar>(
+            R.id.progressSavings
+        ).progress = savingsRate
+
+        val insight = when {
+            totalAllowance <= 0L ->
+                "Add allowance records to start tracking your budget."
+
+            balance < 0L ->
+                "Your recorded expenses are higher than your allowance."
+
+            savingsRate >= 50 ->
+                "You're keeping at least half of your allowance unspent."
+
+            savingsRate >= 20 ->
+                "You still have part of your allowance available."
+
+            balance > 0L ->
+                "Your remaining allowance is getting low."
+
+            else ->
+                "Your recorded allowance has been fully spent."
+        }
+
+        updateText(
+            view,
+            R.id.tvSavingsInsight,
+            insight
+        )
     }
 
     private fun updateCategories(
@@ -234,38 +308,68 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
 
         val totals = expenses
             .groupBy { it.category }
-            .mapValues { (_, items) ->
-                items.sumOf { it.amountCentavos }
+            .mapValues { (_, records) ->
+                records.sumOf { it.amountCentavos }
             }
             .toList()
             .sortedByDescending { it.second }
 
-        emptyText.visibility =
-            if (totals.isEmpty()) View.VISIBLE else View.GONE
+        emptyText.visibility = if (totals.isEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        if (totals.isEmpty()) {
+            emptyText.text =
+                "No expenses recorded for this month."
+            return
+        }
 
         val grandTotal = totals.sumOf { it.second }
 
         totals.forEach { (category, amount) ->
+            val categoryPercentage = percentage(
+                amount,
+                grandTotal
+            )
 
-            val percentage = if (grandTotal > 0L) {
-                (
-                        amount.toDouble() /
-                                grandTotal.toDouble() * 100.0
-                        ).coerceIn(0.0, 100.0).toInt()
-            } else {
-                0
+            val row = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = dp(19)
+                }
+            }
+
+            val header = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
             }
 
             val categoryLabel = TextView(requireContext()).apply {
-                text = "$category — ${formatMoney(amount)} ($percentage%)"
+                text = category
                 textSize = 14f
-                setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.text_primary
-                    )
+                setTextColor(Color.rgb(31, 41, 55))
+
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
                 )
             }
+
+            val amountLabel = TextView(requireContext()).apply {
+                text = MoneyUtils.format(amount)
+                textSize = 14f
+                setTextColor(purple)
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+
+            header.addView(categoryLabel)
+            header.addView(amountLabel)
 
             val progressBar = ProgressBar(
                 requireContext(),
@@ -273,25 +377,122 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
                 android.R.attr.progressBarStyleHorizontal
             ).apply {
                 max = 100
-                progress = percentage
-                progressTintList =
-                    ContextCompat.getColorStateList(
-                        requireContext(),
-                        R.color.purple_primary
+                progress = categoryPercentage
+                progressTintList = ColorStateList.valueOf(
+                    categoryColor(category)
+                )
+                progressBackgroundTintList =
+                    ColorStateList.valueOf(
+                        Color.rgb(236, 240, 255)
                     )
 
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    dp(12)
+                    dp(9)
                 ).apply {
-                    topMargin = dp(8)
-                    bottomMargin = dp(18)
+                    topMargin = dp(9)
                 }
             }
 
-            container.addView(categoryLabel)
-            container.addView(progressBar)
+            val percentLabel = TextView(requireContext()).apply {
+                text = "$categoryPercentage% of monthly expenses"
+                textSize = 11f
+                setTextColor(gray)
+
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = dp(6)
+                }
+            }
+
+            row.addView(header)
+            row.addView(progressBar)
+            row.addView(percentLabel)
+
+            container.addView(row)
         }
+    }
+
+    private fun categoryColor(category: String): Int {
+        return when (category.lowercase(Locale.ENGLISH)) {
+            "food", "pagkain" ->
+                Color.rgb(245, 158, 11)
+
+            "transportation", "pamasahe" ->
+                Color.rgb(59, 130, 246)
+
+            "school supplies" ->
+                Color.rgb(139, 92, 246)
+
+            "projects" ->
+                Color.rgb(236, 72, 153)
+
+            "load/internet" ->
+                Color.rgb(6, 182, 212)
+
+            else ->
+                Color.rgb(91, 63, 217)
+        }
+    }
+
+    private fun updateSchoolPayments(
+        view: View,
+        payments: List<SchoolPayment>
+    ) {
+        val totalDue = payments.sumOf {
+            it.amountCentavos
+        }
+
+        val totalPaid = payments.sumOf {
+            it.paidCentavos
+        }
+
+        val outstanding = payments.sumOf {
+            it.remainingCentavos
+        }
+
+        val paymentRate = percentage(
+            totalPaid,
+            totalDue
+        )
+
+        updateText(
+            view,
+            R.id.tvReportPaymentDue,
+            MoneyUtils.format(totalDue)
+        )
+
+        updateText(
+            view,
+            R.id.tvReportPaymentPaid,
+            MoneyUtils.format(totalPaid)
+        )
+
+        updateText(
+            view,
+            R.id.tvReportPaymentOutstanding,
+            MoneyUtils.format(outstanding)
+        )
+
+        view.findViewById<ProgressBar>(
+            R.id.progressReportPayments
+        ).progress = paymentRate
+
+        updateText(
+            view,
+            R.id.tvReportPaymentProgress,
+            "$paymentRate% paid"
+        )
+    }
+
+    private fun updateText(
+        view: View,
+        id: Int,
+        value: String
+    ) {
+        view.findViewById<TextView>(id).text = value
     }
 
     private fun dp(value: Int): Int {

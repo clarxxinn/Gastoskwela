@@ -3,37 +3,41 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="#F8FAFF"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingStart="20dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="32dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Financial Reports"
-            android:textColor="@color/text_primary"
-            android:textSize="26sp"
+            android:textColor="#1F2937"
+            android:textSize="27sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Understand your spending and manage your budget."
-            android:textColor="@color/text_secondary"
+            android:layout_marginTop="5dp"
+            android:text="See where your allowance goes."
+            android:textColor="#6B7280"
             android:textSize="14sp" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardBackgroundColor="@color/purple_primary"
-            app:cardCornerRadius="20dp">
+            android:layout_marginTop="22dp"
+            app:cardBackgroundColor="#5B3FD9"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -42,89 +46,134 @@
                 android:padding="22dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="ALL-TIME OVERVIEW"
+                    android:textColor="#E6DFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
                     android:text="Remaining Balance"
-                    android:textColor="@color/white"
+                    android:textColor="#E6DFFF"
                     android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvReportBalance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="₱0.00"
-                    android:textColor="@color/white"
-                    android:textSize="32sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:text="Total Allowance Received"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/tvReportAllowance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:text="₱0.00"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="35sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Total Expenses"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:background="#8976E6" />
 
-                <TextView
-                    android:id="@+id/tvReportExpenses"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="₱0.00"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="17dp"
+                    android:orientation="horizontal">
 
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Total Allowance"
+                            android:textColor="#E6DFFF"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvReportAllowance"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="₱0.00"
+                            android:textColor="#FFFFFF"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Total Expenses"
+                            android:textColor="#E6DFFF"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvReportExpenses"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="₱0.00"
+                            android:textColor="#FFFFFF"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
+            android:layout_marginTop="27dp"
             android:text="Savings Overview"
-            android:textColor="@color/text_primary"
+            android:textColor="#1F2937"
             android:textSize="19sp"
             android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="16dp">
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Estimated Available Savings"
+                    android:textColor="#6B7280"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tvSavingsAmount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="₱0.00"
-                    android:textColor="@color/success_green"
-                    android:textSize="25sp"
+                    android:textColor="#16A34A"
+                    android:textSize="29sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -133,78 +182,56 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="Available savings rate: 0%"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
+                    android:textColor="#5B3FD9"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <ProgressBar
                     android:id="@+id/progressSavings"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="10dp"
+                    android:layout_height="9dp"
                     android:layout_marginTop="14dp"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="@color/purple_primary" />
+                    android:progressTint="#22C55E"
+                    android:progressBackgroundTint="#ECF0FF" />
+
+                <TextView
+                    android:id="@+id/tvSavingsInsight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Start tracking your allowance to see your savings insight."
+                    android:textColor="#6B7280"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Estimated unspent allowance, not money set aside in a separate savings account."
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
-
+                    android:layout_marginTop="8dp"
+                    android:text="Estimated unspent allowance, not money saved in a separate account."
+                    android:textColor="#9CA3AF"
+                    android:textSize="11sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
+            android:layout_marginTop="27dp"
             android:text="Monthly Report"
-            android:textColor="@color/text_primary"
+            android:textColor="#1F2937"
             android:textSize="19sp"
             android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPreviousMonth"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="‹" />
-
-            <TextView
-                android:id="@+id/tvSelectedMonth"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="October 2026"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnNextMonth"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="›" />
-
-        </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="16dp">
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -212,11 +239,59 @@
                 android:orientation="vertical"
                 android:padding="18dp">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPreviousMonth"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:minWidth="48dp"
+                        android:text="‹"
+                        android:textAllCaps="false"
+                        android:textSize="22sp"
+                        app:cornerRadius="14dp" />
+
+                    <TextView
+                        android:id="@+id/tvSelectedMonth"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="October 2026"
+                        android:textColor="#1F2937"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnNextMonth"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:minWidth="48dp"
+                        android:text="›"
+                        android:textAllCaps="false"
+                        android:textSize="22sp"
+                        app:cornerRadius="14dp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="15dp"
+                    android:background="#EEF0F6" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Monthly Allowance"
-                    android:textColor="@color/text_secondary" />
+                    android:layout_marginTop="17dp"
+                    android:text="Allowance Received"
+                    android:textColor="#6B7280"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tvMonthlyAllowance"
@@ -224,16 +299,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="₱0.00"
-                    android:textColor="@color/success_green"
-                    android:textSize="21sp"
+                    android:textColor="#16A34A"
+                    android:textSize="23sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Monthly Expenses"
-                    android:textColor="@color/text_secondary" />
+                    android:layout_marginTop="17dp"
+                    android:text="Expenses"
+                    android:textColor="#6B7280"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tvMonthlyExpenses"
@@ -241,16 +317,23 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="₱0.00"
-                    android:textColor="@color/expense_red"
-                    android:textSize="21sp"
+                    android:textColor="#EF4444"
+                    android:textSize="23sp"
                     android:textStyle="bold" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="17dp"
+                    android:background="#EEF0F6" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="17dp"
                     android:text="Monthly Net"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="#6B7280"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tvMonthlyNet"
@@ -258,51 +341,45 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="₱0.00"
-                    android:textColor="@color/text_primary"
-                    android:textSize="21sp"
+                    android:textColor="#5B3FD9"
+                    android:textSize="26sp"
                     android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/tvMonthlyInsight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Your monthly summary will appear here."
+                    android:textColor="#6B7280"
+                    android:textSize="12sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
+            android:layout_marginTop="27dp"
             android:text="Expenses by Category"
-            android:textColor="@color/text_primary"
+            android:textColor="#1F2937"
             android:textSize="19sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvEmptyCategories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="No expenses recorded yet."
-            android:textColor="@color/text_secondary" />
-
-        <LinearLayout
-            android:id="@+id/categoryReportContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
-            android:text="School Payments Summary"
-            android:textColor="@color/text_primary"
-            android:textSize="19sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="4dp"
+            android:text="Breakdown for your selected month"
+            android:textColor="#6B7280"
+            android:textSize="12sp" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="16dp">
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -311,10 +388,61 @@
                 android:padding="18dp">
 
                 <TextView
+                    android:id="@+id/tvEmptyCategories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp"
+                    android:text="No expenses recorded for this month."
+                    android:textColor="#6B7280"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:id="@+id/categoryReportContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="27dp"
+            android:text="School Payments Summary"
+            android:textColor="#1F2937"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="All-time school payment records"
+            android:textColor="#6B7280"
+            android:textSize="12sp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Total School Payments"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="#6B7280"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tvReportPaymentDue"
@@ -322,44 +450,91 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:text="₱0.00"
-                    android:textColor="@color/text_primary"
-                    android:textSize="20sp"
+                    android:textColor="#1F2937"
+                    android:textSize="23sp"
                     android:textStyle="bold" />
 
-                <TextView
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="15dp"
+                    android:background="#EEF0F6" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="Total Paid"
-                    android:textColor="@color/text_secondary" />
+                    android:layout_marginTop="15dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Total Paid"
+                            android:textColor="#6B7280"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvReportPaymentPaid"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="₱0.00"
+                            android:textColor="#16A34A"
+                            android:textSize="19sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Outstanding"
+                            android:textColor="#6B7280"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvReportPaymentOutstanding"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="₱0.00"
+                            android:textColor="#EF4444"
+                            android:textSize="19sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progressReportPayments"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="20dp"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressTint="#5B3FD9"
+                    android:progressBackgroundTint="#ECF0FF" />
 
                 <TextView
-                    android:id="@+id/tvReportPaymentPaid"
+                    android:id="@+id/tvReportPaymentProgress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="₱0.00"
-                    android:textColor="@color/success_green"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="Outstanding Balance"
-                    android:textColor="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/tvReportPaymentOutstanding"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="₱0.00"
-                    android:textColor="@color/expense_red"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
+                    android:layout_marginTop="8dp"
+                    android:text="0% paid"
+                    android:textColor="#6B7280"
+                    android:textSize="12sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
