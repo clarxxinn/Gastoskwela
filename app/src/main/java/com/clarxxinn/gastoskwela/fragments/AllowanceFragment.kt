@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -15,15 +14,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.Allowance
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
+import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.math.RoundingMode
-import java.text.NumberFormat
 import java.time.LocalDate
-import java.util.Locale
 
 class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
@@ -32,20 +29,27 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
     }
 
     private fun formatMoney(centavos: Long): String {
-        val formatter = NumberFormat.getCurrencyInstance(
-            Locale.Builder().setLanguage("en").setRegion("PH").build()
-        )
-        return formatter.format(BigDecimal.valueOf(centavos, 2))
+        return MoneyUtils.format(centavos)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val totalText = view.findViewById<TextView>(R.id.tvTotalAllowance)
-        val emptyText = view.findViewById<TextView>(R.id.tvEmptyAllowance)
+        val totalText = view.findViewById<TextView>(
+            R.id.tvTotalAllowance
+        )
+
+        val emptyText = view.findViewById<TextView>(
+            R.id.tvEmptyAllowance
+        )
+
         val listContainer = view.findViewById<LinearLayout>(
             R.id.allowanceListContainer
         )
+
         val addButton = view.findViewById<MaterialButton>(
             R.id.btnAddAllowance
         )
@@ -55,7 +59,9 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
                 launch {
                     allowanceDao.getAllAllowances().collect { allowances ->
                         renderAllowances(
@@ -82,8 +88,11 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
     ) {
         container.removeAllViews()
 
-        emptyText.visibility =
-            if (allowances.isEmpty()) View.VISIBLE else View.GONE
+        emptyText.visibility = if (allowances.isEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
 
         allowances.forEach { allowance ->
             val itemView = layoutInflater.inflate(
@@ -92,16 +101,21 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                 false
             )
 
-            itemView.findViewById<TextView>(R.id.tvSource).text =
-                allowance.source
+            itemView.findViewById<TextView>(
+                R.id.tvSource
+            ).text = allowance.source
 
-            itemView.findViewById<TextView>(R.id.tvDate).text =
-                allowance.date
+            itemView.findViewById<TextView>(
+                R.id.tvDate
+            ).text = allowance.date
 
-            itemView.findViewById<TextView>(R.id.tvAmount).text =
-                formatMoney(allowance.amountCentavos)
+            itemView.findViewById<TextView>(
+                R.id.tvAmount
+            ).text = formatMoney(allowance.amountCentavos)
 
-            val notesView = itemView.findViewById<TextView>(R.id.tvNotes)
+            val notesView = itemView.findViewById<TextView>(
+                R.id.tvNotes
+            )
 
             if (allowance.notes.isNotBlank()) {
                 notesView.visibility = View.VISIBLE
@@ -110,15 +124,17 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                 notesView.visibility = View.GONE
             }
 
-            itemView.findViewById<MaterialButton>(R.id.btnEdit)
-                .setOnClickListener {
-                    showAllowanceDialog(allowance)
-                }
+            itemView.findViewById<MaterialButton>(
+                R.id.btnEdit
+            ).setOnClickListener {
+                showAllowanceDialog(allowance)
+            }
 
-            itemView.findViewById<MaterialButton>(R.id.btnDelete)
-                .setOnClickListener {
-                    confirmDelete(allowance)
-                }
+            itemView.findViewById<MaterialButton>(
+                R.id.btnDelete
+            ).setOnClickListener {
+                confirmDelete(allowance)
+            }
 
             container.addView(itemView)
         }
@@ -131,36 +147,46 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
         val amountInput = dialogView.findViewById<TextInputEditText>(
             R.id.etAmount
         )
+
         val sourceInput = dialogView.findViewById<TextInputEditText>(
             R.id.etSource
         )
+
         val notesInput = dialogView.findViewById<TextInputEditText>(
             R.id.etNotes
         )
+
         val amountLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutAmount
         )
+
         val sourceLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutSource
         )
+
         val dateButton = dialogView.findViewById<MaterialButton>(
             R.id.btnSelectDate
         )
 
-        var selectedDate = existing?.date ?: LocalDate.now().toString()
+        var selectedDate = existing?.date
+            ?: LocalDate.now().toString()
 
         dateButton.text = selectedDate
 
-        existing?.let {
+        // Populate fields when editing
+        existing?.let { allowance ->
             amountInput.setText(
-                BigDecimal.valueOf(it.amountCentavos, 2)
-                    .setScale(2, RoundingMode.UNNECESSARY)
-                    .toPlainString()
+                BigDecimal.valueOf(
+                    allowance.amountCentavos,
+                    2
+                ).toPlainString()
             )
-            sourceInput.setText(it.source)
-            notesInput.setText(it.notes)
+
+            sourceInput.setText(allowance.source)
+            notesInput.setText(allowance.notes)
         }
 
+        // Date picker
         dateButton.setOnClickListener {
             val date = LocalDate.parse(selectedDate)
 
@@ -172,6 +198,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                         month + 1,
                         day
                     ).toString()
+
                     dateButton.text = selectedDate
                 },
                 date.year,
@@ -182,8 +209,11 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(
-                if (existing == null) "Add Allowance"
-                else "Edit Allowance"
+                if (existing == null) {
+                    "Add Allowance"
+                } else {
+                    "Edit Allowance"
+                }
             )
             .setView(dialogView)
             .setNegativeButton("Cancel", null)
@@ -194,63 +224,68 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             .create()
 
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setOnClickListener {
-                    amountLayout.error = null
-                    sourceLayout.error = null
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).setOnClickListener {
 
-                    val amountText =
-                        amountInput.text?.toString()?.trim().orEmpty()
+                amountLayout.error = null
+                sourceLayout.error = null
 
-                    val source =
-                        sourceInput.text?.toString()?.trim().orEmpty()
+                val amountText = amountInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                    val notes =
-                        notesInput.text?.toString()?.trim().orEmpty()
+                val source = sourceInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                    val centavos = try {
-                        val amount = BigDecimal(amountText)
-                        val cents = amount.movePointRight(2)
+                val notes = notesInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                        if (amount.signum() <= 0) null
-                        else cents.longValueExact()
-                    } catch (_: Exception) {
-                        null
-                    }
+                // Phase 8: Reusable money validation
+                val centavos = MoneyUtils.parseCentavos(
+                    amountText
+                )
 
-                    var valid = true
+                var valid = true
 
-                    if (centavos == null) {
-                        amountLayout.error =
-                            "Enter a valid positive amount (max 2 decimals)"
-                        valid = false
-                    }
-
-                    if (source.isBlank()) {
-                        sourceLayout.error = "Source is required"
-                        valid = false
-                    }
-
-                    if (!valid) return@setOnClickListener
-
-                    val allowance = Allowance(
-                        id = existing?.id ?: 0,
-                        amountCentavos = centavos!!,
-                        source = source,
-                        date = selectedDate,
-                        notes = notes
-                    )
-
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        if (existing == null) {
-                            allowanceDao.insertAllowance(allowance)
-                        } else {
-                            allowanceDao.updateAllowance(allowance)
-                        }
-                    }
-
-                    dialog.dismiss()
+                if (centavos == null) {
+                    amountLayout.error =
+                        "Enter a valid positive amount (max 2 decimals)"
+                    valid = false
                 }
+
+                if (source.isBlank()) {
+                    sourceLayout.error = "Source is required"
+                    valid = false
+                }
+
+                if (!valid) {
+                    return@setOnClickListener
+                }
+
+                val allowance = Allowance(
+                    id = existing?.id ?: 0,
+                    amountCentavos = centavos!!,
+                    source = source,
+                    date = selectedDate,
+                    notes = notes
+                )
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    if (existing == null) {
+                        allowanceDao.insertAllowance(allowance)
+                    } else {
+                        allowanceDao.updateAllowance(allowance)
+                    }
+                }
+
+                dialog.dismiss()
+            }
         }
 
         dialog.show()

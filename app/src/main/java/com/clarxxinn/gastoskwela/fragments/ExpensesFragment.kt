@@ -16,15 +16,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
+import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.text.NumberFormat
 import java.time.LocalDate
-import java.util.Locale
 
 class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
@@ -32,8 +31,13 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         GastoskwelaDatabase.getDatabase(requireContext())
     }
 
-    private val expenseDao by lazy { database.expenseDao() }
-    private val allowanceDao by lazy { database.allowanceDao() }
+    private val expenseDao by lazy {
+        database.expenseDao()
+    }
+
+    private val allowanceDao by lazy {
+        database.allowanceDao()
+    }
 
     private val categories = listOf(
         "Food",
@@ -45,33 +49,48 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     )
 
     private fun formatMoney(centavos: Long): String {
-        val formatter = NumberFormat.getCurrencyInstance(
-            Locale.Builder().setLanguage("en").setRegion("PH").build()
-        )
-        return formatter.format(BigDecimal.valueOf(centavos, 2))
+        return MoneyUtils.format(centavos)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val totalText = view.findViewById<TextView>(R.id.tvTotalExpenses)
-        val balanceText = view.findViewById<TextView>(R.id.tvRemainingBalance)
-        val emptyText = view.findViewById<TextView>(R.id.tvEmptyExpenses)
+        val totalText = view.findViewById<TextView>(
+            R.id.tvTotalExpenses
+        )
+
+        val balanceText = view.findViewById<TextView>(
+            R.id.tvRemainingBalance
+        )
+
+        val emptyText = view.findViewById<TextView>(
+            R.id.tvEmptyExpenses
+        )
+
         val container = view.findViewById<LinearLayout>(
             R.id.expenseListContainer
         )
 
-        view.findViewById<MaterialButton>(R.id.btnAddExpense)
-            .setOnClickListener {
-                showExpenseDialog()
-            }
+        view.findViewById<MaterialButton>(
+            R.id.btnAddExpense
+        ).setOnClickListener {
+            showExpenseDialog()
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
                 launch {
                     expenseDao.getAllExpenses().collect { expenses ->
-                        renderExpenses(container, emptyText, expenses)
+                        renderExpenses(
+                            container,
+                            emptyText,
+                            expenses
+                        )
                     }
                 }
 
@@ -83,7 +102,10 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                         Pair(allowance, expenses)
                     }.collect { (allowance, expenses) ->
                         totalText.text = formatMoney(expenses)
-                        balanceText.text = formatMoney(allowance - expenses)
+
+                        balanceText.text = formatMoney(
+                            allowance - expenses
+                        )
                     }
                 }
             }
@@ -97,8 +119,11 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     ) {
         container.removeAllViews()
 
-        emptyText.visibility =
-            if (expenses.isEmpty()) View.VISIBLE else View.GONE
+        emptyText.visibility = if (expenses.isEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
 
         expenses.forEach { expense ->
             val itemView = layoutInflater.inflate(
@@ -107,17 +132,21 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 false
             )
 
-            itemView.findViewById<TextView>(R.id.tvExpenseCategory).text =
-                expense.category
+            itemView.findViewById<TextView>(
+                R.id.tvExpenseCategory
+            ).text = expense.category
 
-            itemView.findViewById<TextView>(R.id.tvExpenseDescription).text =
-                expense.description
+            itemView.findViewById<TextView>(
+                R.id.tvExpenseDescription
+            ).text = expense.description
 
-            itemView.findViewById<TextView>(R.id.tvExpenseDate).text =
-                expense.date
+            itemView.findViewById<TextView>(
+                R.id.tvExpenseDate
+            ).text = expense.date
 
-            itemView.findViewById<TextView>(R.id.tvExpenseAmount).text =
-                "-${formatMoney(expense.amountCentavos)}"
+            itemView.findViewById<TextView>(
+                R.id.tvExpenseAmount
+            ).text = "-${formatMoney(expense.amountCentavos)}"
 
             val notesView = itemView.findViewById<TextView>(
                 R.id.tvExpenseNotes
@@ -130,15 +159,17 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 notesView.visibility = View.GONE
             }
 
-            itemView.findViewById<MaterialButton>(R.id.btnEditExpense)
-                .setOnClickListener {
-                    showExpenseDialog(expense)
-                }
+            itemView.findViewById<MaterialButton>(
+                R.id.btnEditExpense
+            ).setOnClickListener {
+                showExpenseDialog(expense)
+            }
 
-            itemView.findViewById<MaterialButton>(R.id.btnDeleteExpense)
-                .setOnClickListener {
-                    confirmDelete(expense)
-                }
+            itemView.findViewById<MaterialButton>(
+                R.id.btnDeleteExpense
+            ).setOnClickListener {
+                confirmDelete(expense)
+            }
 
             container.addView(itemView)
         }
@@ -151,12 +182,15 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         val amountInput = dialogView.findViewById<TextInputEditText>(
             R.id.etExpenseAmount
         )
+
         val categoryInput = dialogView.findViewById<AutoCompleteTextView>(
             R.id.etExpenseCategory
         )
+
         val descriptionInput = dialogView.findViewById<TextInputEditText>(
             R.id.etExpenseDescription
         )
+
         val notesInput = dialogView.findViewById<TextInputEditText>(
             R.id.etExpenseNotes
         )
@@ -164,12 +198,15 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         val amountLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutExpenseAmount
         )
+
         val categoryLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutExpenseCategory
         )
+
         val descriptionLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutExpenseDescription
         )
+
         val dateButton = dialogView.findViewById<MaterialButton>(
             R.id.btnExpenseDate
         )
@@ -186,18 +223,30 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             categoryInput.showDropDown()
         }
 
-        var selectedDate = existing?.date ?: LocalDate.now().toString()
+        var selectedDate = existing?.date
+            ?: LocalDate.now().toString()
+
         dateButton.text = selectedDate
 
-        existing?.let {
+        // Populate fields when editing
+        existing?.let { expense ->
             amountInput.setText(
-                BigDecimal.valueOf(it.amountCentavos, 2).toPlainString()
+                BigDecimal.valueOf(
+                    expense.amountCentavos,
+                    2
+                ).toPlainString()
             )
-            categoryInput.setText(it.category, false)
-            descriptionInput.setText(it.description)
-            notesInput.setText(it.notes)
+
+            categoryInput.setText(
+                expense.category,
+                false
+            )
+
+            descriptionInput.setText(expense.description)
+            notesInput.setText(expense.notes)
         }
 
+        // Date Picker
         dateButton.setOnClickListener {
             val date = LocalDate.parse(selectedDate)
 
@@ -209,6 +258,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                         month + 1,
                         day
                     ).toString()
+
                     dateButton.text = selectedDate
                 },
                 date.year,
@@ -219,8 +269,11 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(
-                if (existing == null) "Add Expense"
-                else "Edit Expense"
+                if (existing == null) {
+                    "Add Expense"
+                } else {
+                    "Edit Expense"
+                }
             )
             .setView(dialogView)
             .setNegativeButton("Cancel", null)
@@ -231,71 +284,82 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             .create()
 
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setOnClickListener {
-                    amountLayout.error = null
-                    categoryLayout.error = null
-                    descriptionLayout.error = null
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).setOnClickListener {
 
-                    val amountText =
-                        amountInput.text?.toString()?.trim().orEmpty()
-                    val category =
-                        categoryInput.text?.toString()?.trim().orEmpty()
-                    val description =
-                        descriptionInput.text?.toString()?.trim().orEmpty()
-                    val notes =
-                        notesInput.text?.toString()?.trim().orEmpty()
+                amountLayout.error = null
+                categoryLayout.error = null
+                descriptionLayout.error = null
 
-                    val centavos = try {
-                        val amount = BigDecimal(amountText)
-                        val cents = amount.movePointRight(2)
+                val amountText = amountInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                        if (amount.signum() <= 0) null
-                        else cents.longValueExact()
-                    } catch (_: Exception) {
-                        null
-                    }
+                val category = categoryInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                    var valid = true
+                val description = descriptionInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                    if (centavos == null) {
-                        amountLayout.error =
-                            "Enter a valid amount (max 2 decimals)"
-                        valid = false
-                    }
+                val notes = notesInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                    if (category !in categories) {
-                        categoryLayout.error = "Select a valid category"
-                        valid = false
-                    }
+                // Phase 8: Reusable money validation
+                val centavos = MoneyUtils.parseCentavos(
+                    amountText
+                )
 
-                    if (description.isBlank()) {
-                        descriptionLayout.error =
-                            "Description is required"
-                        valid = false
-                    }
+                var valid = true
 
-                    if (!valid) return@setOnClickListener
-
-                    val expense = Expense(
-                        id = existing?.id ?: 0,
-                        amountCentavos = centavos!!,
-                        category = category,
-                        description = description,
-                        date = selectedDate,
-                        notes = notes
-                    )
-
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        if (existing == null) {
-                            expenseDao.insertExpense(expense)
-                        } else {
-                            expenseDao.updateExpense(expense)
-                        }
-                    }
-
-                    dialog.dismiss()
+                if (centavos == null) {
+                    amountLayout.error =
+                        "Enter a valid positive amount (max 2 decimals)"
+                    valid = false
                 }
+
+                if (category !in categories) {
+                    categoryLayout.error =
+                        "Select a valid category"
+                    valid = false
+                }
+
+                if (description.isBlank()) {
+                    descriptionLayout.error =
+                        "Description is required"
+                    valid = false
+                }
+
+                if (!valid) {
+                    return@setOnClickListener
+                }
+
+                val expense = Expense(
+                    id = existing?.id ?: 0,
+                    amountCentavos = centavos!!,
+                    category = category,
+                    description = description,
+                    date = selectedDate,
+                    notes = notes
+                )
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    if (existing == null) {
+                        expenseDao.insertExpense(expense)
+                    } else {
+                        expenseDao.updateExpense(expense)
+                    }
+                }
+
+                dialog.dismiss()
+            }
         }
 
         dialog.show()

@@ -9,6 +9,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -16,19 +17,19 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.data.SchoolPayment
+import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.text.NumberFormat
 import java.time.LocalDate
-import java.util.Locale
 
 class PaymentsFragment : Fragment(R.layout.fragment_payments) {
 
     private val paymentDao by lazy {
-        GastoskwelaDatabase.getDatabase(requireContext()).schoolPaymentDao()
+        GastoskwelaDatabase.getDatabase(requireContext())
+            .schoolPaymentDao()
     }
 
     private val categories = listOf(
@@ -41,53 +42,70 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
     )
 
     private fun formatMoney(centavos: Long): String {
-        val formatter = NumberFormat.getCurrencyInstance(
-            Locale.Builder().setLanguage("en").setRegion("PH").build()
-        )
-        return formatter.format(BigDecimal.valueOf(centavos, 2))
+        return MoneyUtils.format(centavos)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val totalDue = view.findViewById<TextView>(R.id.tvTotalPaymentDue)
-        val totalPaid = view.findViewById<TextView>(R.id.tvTotalPaymentPaid)
+        val totalDue = view.findViewById<TextView>(
+            R.id.tvTotalPaymentDue
+        )
+
+        val totalPaid = view.findViewById<TextView>(
+            R.id.tvTotalPaymentPaid
+        )
+
         val outstanding = view.findViewById<TextView>(
             R.id.tvTotalPaymentOutstanding
         )
-        val emptyText = view.findViewById<TextView>(R.id.tvEmptyPayments)
+
+        val emptyText = view.findViewById<TextView>(
+            R.id.tvEmptyPayments
+        )
+
         val container = view.findViewById<LinearLayout>(
             R.id.paymentListContainer
         )
 
-        view.findViewById<MaterialButton>(R.id.btnAddPayment)
-            .setOnClickListener {
-                showPaymentDialog()
-            }
+        view.findViewById<MaterialButton>(
+            R.id.btnAddPayment
+        ).setOnClickListener {
+            showPaymentDialog()
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
                 launch {
                     paymentDao.getAllPayments().collect { payments ->
-                        renderPayments(container, emptyText, payments)
+                        renderPayments(
+                            container,
+                            emptyText,
+                            payments
+                        )
                     }
                 }
 
                 launch {
-                    paymentDao.getTotalDue().collect {
-                        totalDue.text = formatMoney(it)
+                    paymentDao.getTotalDue().collect { amount ->
+                        totalDue.text = formatMoney(amount)
                     }
                 }
 
                 launch {
-                    paymentDao.getTotalPaid().collect {
-                        totalPaid.text = formatMoney(it)
+                    paymentDao.getTotalPaid().collect { amount ->
+                        totalPaid.text = formatMoney(amount)
                     }
                 }
 
                 launch {
-                    paymentDao.getTotalOutstanding().collect {
-                        outstanding.text = formatMoney(it)
+                    paymentDao.getTotalOutstanding().collect { amount ->
+                        outstanding.text = formatMoney(amount)
                     }
                 }
             }
@@ -101,8 +119,13 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
     ) {
         container.removeAllViews()
 
-        emptyText.visibility =
-            if (payments.isEmpty()) View.VISIBLE else View.GONE
+        emptyText.visibility = if (payments.isEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        val today = LocalDate.now().toString()
 
         payments.forEach { payment ->
             val itemView = layoutInflater.inflate(
@@ -111,26 +134,63 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 false
             )
 
-            itemView.findViewById<TextView>(R.id.tvPaymentTitle).text =
-                payment.title
+            itemView.findViewById<TextView>(
+                R.id.tvPaymentTitle
+            ).text = payment.title
 
-            itemView.findViewById<TextView>(R.id.tvPaymentCategory).text =
-                payment.category
+            itemView.findViewById<TextView>(
+                R.id.tvPaymentCategory
+            ).text = payment.category
 
-            itemView.findViewById<TextView>(R.id.tvPaymentDueDate).text =
+            // Phase 8: Overdue highlighting
+            val isOverdue =
+                payment.remainingCentavos > 0L &&
+                        payment.dueDate < today
+
+            val dueDateView = itemView.findViewById<TextView>(
+                R.id.tvPaymentDueDate
+            )
+
+            dueDateView.text = if (isOverdue) {
+                "Overdue since: ${payment.dueDate}"
+            } else {
                 "Due: ${payment.dueDate}"
+            }
 
-            itemView.findViewById<TextView>(R.id.tvPaymentStatus).text =
+            val statusView = itemView.findViewById<TextView>(
+                R.id.tvPaymentStatus
+            )
+
+            statusView.text = if (isOverdue) {
+                "Overdue · ${payment.status}"
+            } else {
                 payment.status
+            }
 
-            itemView.findViewById<TextView>(R.id.tvPaymentAmount).text =
-                "Total: ${formatMoney(payment.amountCentavos)}"
+            val statusColor = when {
+                isOverdue -> R.color.expense_red
+                payment.status == "Paid" -> R.color.success_green
+                else -> R.color.purple_primary
+            }
 
-            itemView.findViewById<TextView>(R.id.tvPaymentPaid).text =
-                "Paid: ${formatMoney(payment.paidCentavos)}"
+            statusView.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    statusColor
+                )
+            )
 
-            itemView.findViewById<TextView>(R.id.tvPaymentRemaining).text =
-                "Remaining: ${formatMoney(payment.remainingCentavos)}"
+            itemView.findViewById<TextView>(
+                R.id.tvPaymentAmount
+            ).text = "Total: ${formatMoney(payment.amountCentavos)}"
+
+            itemView.findViewById<TextView>(
+                R.id.tvPaymentPaid
+            ).text = "Paid: ${formatMoney(payment.paidCentavos)}"
+
+            itemView.findViewById<TextView>(
+                R.id.tvPaymentRemaining
+            ).text = "Remaining: ${formatMoney(payment.remainingCentavos)}"
 
             val notesView = itemView.findViewById<TextView>(
                 R.id.tvPaymentNotes
@@ -143,36 +203,44 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 notesView.visibility = View.GONE
             }
 
-            itemView.findViewById<MaterialButton>(R.id.btnEditPayment)
-                .setOnClickListener {
-                    showPaymentDialog(payment)
-                }
+            itemView.findViewById<MaterialButton>(
+                R.id.btnEditPayment
+            ).setOnClickListener {
+                showPaymentDialog(payment)
+            }
 
-            itemView.findViewById<MaterialButton>(R.id.btnDeletePayment)
-                .setOnClickListener {
-                    confirmDelete(payment)
-                }
+            itemView.findViewById<MaterialButton>(
+                R.id.btnDeletePayment
+            ).setOnClickListener {
+                confirmDelete(payment)
+            }
 
             container.addView(itemView)
         }
     }
 
-    private fun showPaymentDialog(existing: SchoolPayment? = null) {
+    private fun showPaymentDialog(
+        existing: SchoolPayment? = null
+    ) {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_payment, null)
 
         val titleInput = dialogView.findViewById<TextInputEditText>(
             R.id.etPaymentTitle
         )
+
         val categoryInput = dialogView.findViewById<AutoCompleteTextView>(
             R.id.etPaymentCategory
         )
+
         val amountInput = dialogView.findViewById<TextInputEditText>(
             R.id.etPaymentAmount
         )
+
         val paidInput = dialogView.findViewById<TextInputEditText>(
             R.id.etPaymentPaid
         )
+
         val notesInput = dialogView.findViewById<TextInputEditText>(
             R.id.etPaymentNotes
         )
@@ -180,15 +248,19 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
         val titleLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutPaymentTitle
         )
+
         val categoryLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutPaymentCategory
         )
+
         val amountLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutPaymentAmount
         )
+
         val paidLayout = dialogView.findViewById<TextInputLayout>(
             R.id.layoutPaymentPaid
         )
+
         val dateButton = dialogView.findViewById<MaterialButton>(
             R.id.btnPaymentDueDate
         )
@@ -205,21 +277,38 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
             categoryInput.showDropDown()
         }
 
-        var selectedDate = existing?.dueDate ?: LocalDate.now().toString()
+        var selectedDate = existing?.dueDate
+            ?: LocalDate.now().toString()
+
         dateButton.text = selectedDate
 
-        existing?.let {
-            titleInput.setText(it.title)
-            categoryInput.setText(it.category, false)
+        // Populate fields when editing
+        existing?.let { payment ->
+            titleInput.setText(payment.title)
+
+            categoryInput.setText(
+                payment.category,
+                false
+            )
+
             amountInput.setText(
-                BigDecimal.valueOf(it.amountCentavos, 2).toPlainString()
+                BigDecimal.valueOf(
+                    payment.amountCentavos,
+                    2
+                ).toPlainString()
             )
+
             paidInput.setText(
-                BigDecimal.valueOf(it.paidCentavos, 2).toPlainString()
+                BigDecimal.valueOf(
+                    payment.paidCentavos,
+                    2
+                ).toPlainString()
             )
-            notesInput.setText(it.notes)
+
+            notesInput.setText(payment.notes)
         }
 
+        // Date Picker
         dateButton.setOnClickListener {
             val date = LocalDate.parse(selectedDate)
 
@@ -231,6 +320,7 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                         month + 1,
                         day
                     ).toString()
+
                     dateButton.text = selectedDate
                 },
                 date.year,
@@ -241,8 +331,11 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(
-                if (existing == null) "Add School Payment"
-                else "Edit School Payment"
+                if (existing == null) {
+                    "Add School Payment"
+                } else {
+                    "Edit School Payment"
+                }
             )
             .setView(dialogView)
             .setNegativeButton("Cancel", null)
@@ -252,35 +345,41 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
             )
             .create()
 
-        dialog.show()
+        dialog.setOnShowListener {
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).setOnClickListener {
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            .setOnClickListener {
                 titleLayout.error = null
                 categoryLayout.error = null
                 amountLayout.error = null
                 paidLayout.error = null
 
-                val title = titleInput.text?.toString()?.trim().orEmpty()
-                val category = categoryInput.text?.toString()?.trim().orEmpty()
-                val notes = notesInput.text?.toString()?.trim().orEmpty()
+                val title = titleInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                fun parseCentavos(text: String): Long? {
-                    return try {
-                        BigDecimal(text)
-                            .movePointRight(2)
-                            .longValueExact()
-                    } catch (_: Exception) {
-                        null
-                    }
-                }
+                val category = categoryInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
 
-                val amount = parseCentavos(
-                    amountInput.text?.toString()?.trim().orEmpty()
+                val notes = notesInput.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
+
+                // Phase 8: Reusable money validation
+                val amount = MoneyUtils.parseCentavos(
+                    amountInput.text?.toString().orEmpty()
                 )
-                val paid = parseCentavos(
-                    paidInput.text?.toString()?.trim().orEmpty()
-                        .ifBlank { "0" }
+
+                val paid = MoneyUtils.parseCentavos(
+                    paidInput.text?.toString()
+                        ?.ifBlank { "0" }
+                        .orEmpty(),
+                    allowZero = true
                 )
 
                 var valid = true
@@ -291,16 +390,19 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 }
 
                 if (category !in categories) {
-                    categoryLayout.error = "Select a valid category"
+                    categoryLayout.error =
+                        "Select a valid category"
                     valid = false
                 }
 
-                if (amount == null || amount <= 0) {
-                    amountLayout.error = "Enter a valid positive amount"
+                if (amount == null) {
+                    amountLayout.error =
+                        "Enter a valid positive amount (max 2 decimals)"
                     valid = false
                 }
 
-                if (paid == null || paid < 0 ||
+                if (
+                    paid == null ||
                     (amount != null && paid > amount)
                 ) {
                     paidLayout.error =
@@ -308,7 +410,9 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                     valid = false
                 }
 
-                if (!valid) return@setOnClickListener
+                if (!valid) {
+                    return@setOnClickListener
+                }
 
                 val payment = SchoolPayment(
                     id = existing?.id ?: 0,
@@ -330,6 +434,9 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
 
                 dialog.dismiss()
             }
+        }
+
+        dialog.show()
     }
 
     private fun confirmDelete(payment: SchoolPayment) {

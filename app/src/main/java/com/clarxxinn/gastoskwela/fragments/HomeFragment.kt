@@ -16,13 +16,11 @@ import com.clarxxinn.gastoskwela.data.Allowance
 import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.data.SchoolPayment
+import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.text.NumberFormat
 import java.time.LocalDate
-import java.util.Locale
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -31,13 +29,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun formatMoney(centavos: Long): String {
-        val formatter = NumberFormat.getCurrencyInstance(
-            Locale.Builder()
-                .setLanguage("en")
-                .setRegion("PH")
-                .build()
-        )
-        return formatter.format(BigDecimal.valueOf(centavos, 2))
+        return MoneyUtils.format(centavos)
     }
 
     override fun onViewCreated(
@@ -46,7 +38,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Quick Actions
+        // Quick action: Allowance
         view.findViewById<MaterialButton>(
             R.id.btnHomeAllowance
         ).setOnClickListener {
@@ -55,6 +47,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
         }
 
+        // Quick action: Expenses
         view.findViewById<MaterialButton>(
             R.id.btnHomeExpenses
         ).setOnClickListener {
@@ -63,6 +56,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
         }
 
+        // Quick action: Payments
         view.findViewById<MaterialButton>(
             R.id.btnHomePayments
         ).setOnClickListener {
@@ -71,7 +65,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
         }
 
-        // Observe Room data
+        // Observe Room database
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(
                 Lifecycle.State.STARTED
@@ -126,21 +120,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             R.id.tvHomeExpenses
         ).text = formatMoney(totalExpenses)
 
-        // Budget insight
         updateBudgetInsight(
             view,
             totalAllowance,
             totalExpenses
         )
 
-        // Recent transactions
         updateRecentTransactions(
             view,
             data.allowances,
             data.expenses
         )
 
-        // Upcoming school payments
         updateUpcomingPayments(
             view,
             data.payments
@@ -176,16 +167,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             return
         }
 
-        val spentPercent = (
-                expenses.toDouble() /
-                        allowance.toDouble() * 100.0
-                )
+        val spentPercent =
+            expenses.toDouble() / allowance.toDouble() * 100.0
 
         val displayPercent = spentPercent.toInt()
-        progress.progress = spentPercent.coerceIn(
-            0.0,
-            100.0
-        ).toInt()
+
+        progress.progress = spentPercent
+            .coerceIn(0.0, 100.0)
+            .toInt()
 
         percentageText.text =
             "$displayPercent% of allowance spent"
@@ -229,25 +218,25 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         container.removeAllViews()
 
-        val incomeTransactions = allowances.map {
+        val incomeTransactions = allowances.map { allowance ->
             HomeTransaction(
-                title = it.source,
+                title = allowance.source,
                 category = "Allowance",
-                date = it.date,
-                amountCentavos = it.amountCentavos,
+                date = allowance.date,
+                amountCentavos = allowance.amountCentavos,
                 isIncome = true,
-                id = it.id
+                id = allowance.id
             )
         }
 
-        val expenseTransactions = expenses.map {
+        val expenseTransactions = expenses.map { expense ->
             HomeTransaction(
-                title = it.description,
-                category = it.category,
-                date = it.date,
-                amountCentavos = it.amountCentavos,
+                title = expense.description,
+                category = expense.category,
+                date = expense.date,
+                amountCentavos = expense.amountCentavos,
                 isIncome = false,
-                id = it.id
+                id = expense.id
             )
         }
 
@@ -260,12 +249,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
             .take(5)
 
-        emptyText.visibility =
-            if (recentTransactions.isEmpty()) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+        emptyText.visibility = if (recentTransactions.isEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        emptyText.text =
+            "No transactions yet. Add an allowance or expense to get started."
 
         recentTransactions.forEach { transaction ->
             val itemView = layoutInflater.inflate(
@@ -292,14 +283,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 "-${formatMoney(transaction.amountCentavos)}"
             }
 
+            val amountColor = if (transaction.isIncome) {
+                R.color.success_green
+            } else {
+                R.color.expense_red
+            }
+
             amountView.setTextColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    if (transaction.isIncome) {
-                        R.color.success_green
-                    } else {
-                        R.color.expense_red
-                    }
+                    amountColor
                 )
             )
 
@@ -323,21 +316,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         val today = LocalDate.now().toString()
 
+        // Overdue payments first, then nearest due dates
         val upcoming = payments
-            .filter {
-                it.remainingCentavos > 0L
-            }
-            .sortedWith(
-                compareBy<SchoolPayment> {
-                    it.dueDate < today
-                }.thenBy {
-                    it.dueDate
-                }
-            )
+            .filter { it.remainingCentavos > 0L }
+            .sortedBy { it.dueDate }
             .take(5)
 
-        emptyText.visibility =
-            if (upcoming.isEmpty()) View.VISIBLE else View.GONE
+        emptyText.visibility = if (upcoming.isEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        emptyText.text =
+            "No outstanding school payments. You're all caught up!"
 
         upcoming.forEach { payment ->
             val itemView = layoutInflater.inflate(
@@ -358,15 +350,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 R.id.tvHomePaymentDue
             )
 
-            dueText.text = if (payment.dueDate < today) {
+            val isOverdue = payment.dueDate < today
+
+            dueText.text = if (isOverdue) {
                 "Overdue: ${payment.dueDate}"
             } else {
                 "Due: ${payment.dueDate}"
             }
 
+            dueText.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    if (isOverdue) {
+                        R.color.expense_red
+                    } else {
+                        R.color.text_secondary
+                    }
+                )
+            )
+
             itemView.findViewById<TextView>(
                 R.id.tvHomePaymentStatus
-            ).text = payment.status
+            ).text = if (isOverdue) {
+                "Overdue · ${payment.status}"
+            } else {
+                payment.status
+            }
 
             container.addView(itemView)
         }
