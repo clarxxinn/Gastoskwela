@@ -10,26 +10,88 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SchoolPaymentDao {
 
-    @Query("SELECT * FROM school_payments ORDER BY dueDate ASC, id DESC")
+    // Get all school payments
+    @Query(
+        """
+        SELECT * FROM school_payments
+        ORDER BY dueDate ASC, id DESC
+        """
+    )
     fun getAllPayments(): Flow<List<SchoolPayment>>
 
-    @Query("SELECT COALESCE(SUM(amountCentavos), 0) FROM school_payments")
+    // Get a specific school payment by ID
+    @Query(
+        """
+        SELECT * FROM school_payments
+        WHERE id = :id
+        LIMIT 1
+        """
+    )
+    suspend fun getPaymentById(id: Int): SchoolPayment?
+
+    // Total school payment obligations
+    @Query(
+        """
+        SELECT COALESCE(SUM(amountCentavos), 0)
+        FROM school_payments
+        """
+    )
     fun getTotalDue(): Flow<Long>
 
-    @Query("SELECT COALESCE(SUM(paidCentavos), 0) FROM school_payments")
+    // Total amount already paid
+    @Query(
+        """
+        SELECT COALESCE(SUM(paidCentavos), 0)
+        FROM school_payments
+        """
+    )
     fun getTotalPaid(): Flow<Long>
 
+    // Total remaining school payment balance
     @Query(
-        "SELECT COALESCE(SUM(amountCentavos - paidCentavos), 0) FROM school_payments"
+        """
+        SELECT COALESCE(
+            SUM(amountCentavos - paidCentavos),
+            0
+        )
+        FROM school_payments
+        """
     )
     fun getTotalOutstanding(): Flow<Long>
 
+    // Insert school payment (repository)
     @Insert
-    suspend fun insertPayment(payment: SchoolPayment)
+    suspend fun insert(
+        payment: SchoolPayment
+    ): Long
 
+    // Insert school payment (PaymentsFragment compatibility)
+    @Insert
+    suspend fun insertPayment(
+        payment: SchoolPayment
+    ): Long
+
+    // Update school payment (repository)
     @Update
-    suspend fun updatePayment(payment: SchoolPayment)
+    suspend fun update(
+        payment: SchoolPayment
+    )
 
+    // Update school payment (PaymentsFragment compatibility)
+    @Update
+    suspend fun updatePayment(
+        payment: SchoolPayment
+    )
+
+    // Delete school payment (repository)
     @Delete
-    suspend fun deletePayment(payment: SchoolPayment)
+    suspend fun delete(
+        payment: SchoolPayment
+    )
+
+    // Delete school payment (PaymentsFragment compatibility)
+    @Delete
+    suspend fun deletePayment(
+        payment: SchoolPayment
+    )
 }

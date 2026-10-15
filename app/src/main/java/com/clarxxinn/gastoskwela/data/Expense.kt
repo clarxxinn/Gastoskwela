@@ -1,5 +1,6 @@
 package com.clarxxinn.gastoskwela.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -7,9 +8,17 @@ import androidx.room.PrimaryKey
 data class Expense(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+
     val amountCentavos: Long,
+
     val category: String,
+
     val description: String,
+
     val date: String,
-    val notes: String = ""
+
+    val notes: String = "",
+
+    @ColumnInfo(defaultValue = "'Unspecified'")
+    val paymentMethod: String = "Unspecified"
 )
