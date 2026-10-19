@@ -68,10 +68,14 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/btnHomeNotifications"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:contentDescription="Notifications"
-                android:src="@drawable/ic_home_bell" />
+                android:contentDescription="School payment reminders"
+                android:src="@drawable/ic_home_bell"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless" />
 
         </LinearLayout>
 

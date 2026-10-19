@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -20,6 +21,7 @@ import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -28,6 +30,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private val database by lazy {
         GastoskwelaDatabase.getDatabase(requireContext())
     }
+
+    private var latestPayments: List<SchoolPayment> = emptyList()
 
     private fun money(value: Long): String {
         return MoneyUtils.format(value)
@@ -71,7 +75,81 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+    private fun showPaymentReminders() {
+        val today = LocalDate.now()
+
+        val reminders = latestPayments.mapNotNull { payment ->
+            if (payment.remainingCentavos <= 0L ||
+                payment.status.equals("Paid", ignoreCase = true)
+            ) {
+                return@mapNotNull null
+            }
+
+            val dueDate = runCatching {
+                LocalDate.parse(payment.dueDate)
+            }.getOrNull() ?: return@mapNotNull null
+
+            val daysLeft = ChronoUnit.DAYS.between(today, dueDate)
+
+            if (daysLeft > 7L) {
+                return@mapNotNull null
+            }
+
+            val dueMessage = when {
+                daysLeft < 0L ->
+                    "${-daysLeft} day(s) overdue"
+
+                daysLeft == 0L ->
+                    "Due today"
+
+                daysLeft == 1L ->
+                    "Due tomorrow"
+
+                daysLeft <= 3L ->
+                    "$daysLeft days left"
+
+                else ->
+                    "Upcoming · $daysLeft days left"
+            }
+
+            payment to dueMessage
+        }.sortedBy { it.first.dueDate }
+
+        if (reminders.isEmpty()) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("School Payment Reminders")
+                .setMessage(
+                    "You're all caught up! No payments due within 7 days."
+                )
+                .setPositiveButton("OK", null)
+                .show()
+
+            return
+        }
+
+        val message = reminders.joinToString("\n\n") { (payment, status) ->
+            "${payment.title}\n" +
+                    "$status\n" +
+                    "Remaining: ${money(payment.remainingCentavos)}"
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("School Payment Reminders (${reminders.size})")
+            .setMessage(message)
+            .setNegativeButton("Close", null)
+            .setPositiveButton("View Payments") { _, _ ->
+                openTab(R.id.nav_payments)
+            }
+            .show()
+    }
+
     private fun setupNavigation(view: View) {
+        view.findViewById<View>(
+            R.id.btnHomeNotifications
+        ).setOnClickListener {
+            showPaymentReminders()
+        }
+
         view.findViewById<View>(
             R.id.btnHomeExpenses
         ).setOnClickListener {
@@ -123,6 +201,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         view: View,
         data: DashboardData
     ) {
+        latestPayments = data.payments
+
         val totalAllowance = data.allowances.sumOf {
             it.amountCentavos
         }
