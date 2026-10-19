@@ -23,20 +23,13 @@
         android:paddingTop="12dp"
         android:paddingBottom="12dp">
 
-        <FrameLayout
-            android:id="@+id/paymentIconBackground"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:background="@drawable/bg_payment_icon_circle">
-
-            <ImageView
-                android:id="@+id/ivPaymentIcon"
-                android:layout_width="21dp"
-                android:layout_height="21dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_payment_school"
-                android:contentDescription="Payment category" />
-        </FrameLayout>
+        <ImageView
+            android:id="@+id/ivPaymentIcon"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@drawable/ic_payment_others_category"
+            android:scaleType="fitCenter"
+            android:contentDescription="Payment category icon" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -75,6 +68,7 @@
                 android:textColor="#EF4444"
                 android:textSize="10sp"
                 android:fontFamily="@font/poppins_semibold" />
+
         </LinearLayout>
 
         <TextView
@@ -88,4 +82,5 @@
             android:fontFamily="@font/poppins_semibold" />
 
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>

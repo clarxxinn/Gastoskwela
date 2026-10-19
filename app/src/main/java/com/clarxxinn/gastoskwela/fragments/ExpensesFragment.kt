@@ -1,8 +1,7 @@
 package com.clarxxinn.gastoskwela.fragments
 
-import android.content.Intent
-import com.clarxxinn.gastoskwela.AddExpenseActivity
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.clarxxinn.gastoskwela.AddExpenseActivity
 import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
@@ -78,6 +79,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         )
 
         searchInput.addTextChangedListener(object : TextWatcher {
+
             override fun beforeTextChanged(
                 s: CharSequence?,
                 start: Int,
@@ -127,6 +129,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
     private fun matchesFilter(expense: Expense): Boolean {
         return when (selectedFilter) {
+
             "Food" ->
                 expense.category == "Food" ||
                         expense.category == "Pagkain"
@@ -164,7 +167,34 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         }
     }
 
+    private fun categoryIcon(category: String): Int {
+        return when (category) {
+
+            "Food", "Pagkain" ->
+                R.drawable.ic_expense_food
+
+            "Transportation", "Pamasahe" ->
+                R.drawable.ic_expense_transport
+
+            "School Supplies", "School" ->
+                R.drawable.ic_expense_supplies
+
+            "Projects" ->
+                R.drawable.ic_expense_projects
+
+            "Load/Internet", "Load/Data" ->
+                R.drawable.ic_expense_load
+
+            "Others", "Miscellaneous" ->
+                R.drawable.ic_expense_misc
+
+            else ->
+                R.drawable.ic_expense_misc
+        }
+    }
+
     private fun renderExpenses(view: View) {
+
         val container = view.findViewById<LinearLayout>(
             R.id.expenseListContainer
         )
@@ -237,6 +267,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         var lastMonth = ""
 
         filtered.forEach { expense ->
+
             val monthKey = expense.date.take(7)
 
             if (monthKey != lastMonth) {
@@ -267,37 +298,11 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 false
             )
 
-            val (icon, color) = when (expense.category) {
-                "Food", "Pagkain" ->
-                    "🍴" to 0xFFFF8A20.toInt()
-
-                "Transportation", "Pamasahe" ->
-                    "🚌" to 0xFF397CF5.toInt()
-
-                "School Supplies", "School" ->
-                    "📘" to 0xFF4AA2F8.toInt()
-
-                "Projects" ->
-                    "📋" to 0xFF8C67F1.toInt()
-
-                "Load/Internet", "Load/Data" ->
-                    "📱" to 0xFF1AB5B2.toInt()
-
-                else ->
-                    "●" to 0xFF777777.toInt()
-            }
-
-            val iconView = itemView.findViewById<TextView>(
-                R.id.tvExpenseIcon
+            itemView.findViewById<ImageView>(
+                R.id.ivExpenseIcon
+            ).setImageResource(
+                categoryIcon(expense.category)
             )
-
-            iconView.text = icon
-
-            val circle = itemView.findViewById<View>(
-                R.id.expenseIconBackground
-            )
-
-            circle.background.mutate().setTint(color)
 
             itemView.findViewById<TextView>(
                 R.id.tvExpenseCategory
@@ -338,6 +343,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     }
 
     private fun showExpenseDialog(existing: Expense? = null) {
+
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_expense, null)
 
@@ -404,6 +410,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
         }
 
         dateButton.setOnClickListener {
+
             val date = LocalDate.parse(selectedDate)
 
             DatePickerDialog(
@@ -518,6 +525,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     }
 
     private fun confirmDelete(expense: Expense) {
+
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Expense?")
             .setMessage(

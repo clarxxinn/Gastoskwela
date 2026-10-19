@@ -26,24 +26,13 @@
         android:focusable="true"
         android:background="?attr/selectableItemBackground">
 
-        <FrameLayout
+        <ImageView
+            android:id="@+id/ivExpenseIcon"
             android:layout_width="40dp"
-            android:layout_height="40dp">
-
-            <View
-                android:id="@+id/expenseIconBackground"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/bg_expense_category_circle" />
-
-            <TextView
-                android:id="@+id/tvExpenseIcon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="🍴"
-                android:textSize="19sp" />
-        </FrameLayout>
+            android:layout_height="40dp"
+            android:src="@drawable/ic_expense_misc"
+            android:scaleType="fitCenter"
+            android:contentDescription="Expense category icon" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -88,6 +77,7 @@
                 android:visibility="gone"
                 android:textSize="10sp"
                 android:textColor="#929AB2" />
+
         </LinearLayout>
 
         <TextView

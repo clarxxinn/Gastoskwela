@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Light indigo circular background -->
+    <path
+        android:fillColor="#ECEBFF"
+        android:pathData="M24,2 A22,22 0,1 1,24 46 A22,22 0,1 1,24 2 Z" />
+
+    <!-- Bar 1 -->
+    <path
+        android:fillColor="#6045EA"
+        android:pathData="M12,26 Q12,24 14,24 H17 Q19,24 19,26 V35 H12 Z" />
+
+    <!-- Bar 2 -->
+    <path
+        android:fillColor="#6045EA"
+        android:pathData="M22,15 Q22,13 24,13 H27 Q29,13 29,15 V35 H22 Z" />
+
+    <!-- Bar 3 -->
+    <path
+        android:fillColor="#6045EA"
+        android:pathData="M32,21 Q32,19 34,19 H37 Q39,19 39,21 V35 H32 Z" />
+
+</vector>

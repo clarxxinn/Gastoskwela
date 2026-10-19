@@ -1,7 +1,6 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Gastoskwela" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
-    </style>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Keep Gastoskwela light even when the phone uses dark mode. -->
+    <style name="Theme.Gastoskwela"
+        parent="Theme.MaterialComponents.Light.NoActionBar" />
 </resources>

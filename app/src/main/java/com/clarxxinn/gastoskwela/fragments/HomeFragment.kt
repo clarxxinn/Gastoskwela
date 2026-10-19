@@ -131,16 +131,36 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             it.amountCentavos
         }
 
-        val remaining = totalAllowance - totalExpenses
+        // Paid school payments count as spending.
+        // Do not also record the same payment as a regular expense.
+        val totalPaidSchoolPayments = data.payments.sumOf {
+            it.paidCentavos
+        }
+
+        val totalSpending =
+            totalExpenses + totalPaidSchoolPayments
+
+        val remaining = totalAllowance - totalSpending
+
         val today = LocalDate.now().toString()
 
         val todayExpenses = data.expenses
             .filter { it.date == today }
             .sumOf { it.amountCentavos }
 
-        view.findViewById<TextView>(
+        val balanceView = view.findViewById<TextView>(
             R.id.tvHomeBalance
-        ).text = money(remaining)
+        )
+
+        balanceView.text = money(remaining)
+
+        // Keep the balance readable on the purple card.
+        balanceView.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                android.R.color.white
+            )
+        )
 
         view.findViewById<TextView>(
             R.id.tvHomeAllowance
@@ -151,26 +171,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         ).text = money(todayExpenses)
 
         updateBudgetProgress(
-            view,
-            totalAllowance,
-            totalExpenses
+            view = view,
+            allowance = totalAllowance,
+            spending = totalSpending
         )
 
         updateRecentExpenses(
-            view,
-            data.expenses
+            view = view,
+            expenses = data.expenses
         )
 
         updateUpcomingPayments(
-            view,
-            data.payments
+            view = view,
+            payments = data.payments
         )
     }
 
     private fun updateBudgetProgress(
         view: View,
         allowance: Long,
-        expenses: Long
+        spending: Long
     ) {
         val percentageView = view.findViewById<TextView>(
             R.id.tvHomeBudgetPercentage
@@ -186,13 +206,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         if (allowance <= 0L) {
             percentageView.text = "0%"
-            insightView.text =
-                "Add an allowance to start tracking your budget."
             progressBar.progress = 0
+
+            insightView.text = if (spending > 0L) {
+                "Over Budget! Add allowance to cover your spending."
+            } else {
+                "Add an allowance to start tracking your budget."
+            }
+
             return
         }
 
-        val remaining = allowance - expenses
+        val remaining = allowance - spending
 
         val remainingPercent =
             remaining.toDouble() / allowance.toDouble() * 100.0
@@ -206,7 +231,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         insightView.text = when {
             remaining < 0L ->
-                "You've exceeded your available allowance."
+                "Over Budget! You've exceeded your allowance."
 
             remaining == 0L ->
                 "You've used all your available allowance."
@@ -258,7 +283,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 false
             )
 
-            val category = expense.category.lowercase()
+            val category = expense.category.lowercase(
+                Locale.ROOT
+            )
 
             val iconView = itemView.findViewById<TextView>(
                 R.id.tvTransactionIcon

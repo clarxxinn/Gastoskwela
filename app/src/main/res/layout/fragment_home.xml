@@ -13,64 +13,94 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="20dp"
+        android:paddingTop="16dp"
         android:paddingEnd="20dp"
-        android:paddingTop="18dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="28dp">
 
-        <!-- HEADER -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/ic_gastoskwela_splash"
-                android:contentDescription="Gastoskwela logo" />
+            <FrameLayout
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/bg_home_logo"
+                android:padding="3dp">
 
-            <TextView
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Gastoskwela logo"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_gastoskwela_splash" />
+
+            </FrameLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:layout_marginStart="9dp"
-                android:text="Gastoskwela"
-                android:textColor="#30235E"
-                android:textSize="19sp"
-                android:fontFamily="@font/poppins_bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:includeFontPadding="false"
+                    android:text="Gastos"
+                    android:textColor="#111827"
+                    android:textSize="19sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:includeFontPadding="false"
+                    android:text="kwela"
+                    android:textColor="#5B3FD9"
+                    android:textSize="19sp" />
+
+            </LinearLayout>
 
             <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_home_bell"
-                android:contentDescription="Notifications" />
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:contentDescription="Notifications"
+                android:src="@drawable/ic_home_bell" />
+
         </LinearLayout>
 
+        <!-- Date -->
         <TextView
             android:id="@+id/tvHomeDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Today, Oct 9, 2026"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Today"
             android:textColor="#7772A4"
-            android:textSize="12sp"
-            android:fontFamily="@font/poppins_medium" />
+            android:textSize="12sp" />
 
-        <!-- PURPLE BALANCE CARD -->
+        <!-- Remaining Allowance -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="13dp"
+            android:layout_marginTop="15dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="20dp"
-            app:cardElevation="3dp"
-            app:cardBackgroundColor="#704AF0">
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_home_balance_gradient"
                 android:orientation="vertical"
-                android:padding="17dp">
+                android:padding="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -82,19 +112,20 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="Remaining Allowance"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/poppins_medium" />
+                        android:textColor="#F3EEFF"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/tvHomeBudgetPercentage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_semibold"
                         android:text="0%"
                         android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/poppins_semibold" />
+                        android:textSize="12sp" />
+
                 </LinearLayout>
 
                 <TextView
@@ -102,41 +133,44 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
+                    android:fontFamily="@font/poppins_bold"
                     android:text="₱0.00"
                     android:textColor="#FFFFFF"
-                    android:textSize="29sp"
-                    android:fontFamily="@font/poppins_bold" />
+                    android:textSize="30sp" />
 
                 <ProgressBar
                     android:id="@+id/progressHomeBudget"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="9dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="11dp"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="#E9FFFF"
-                    android:progressBackgroundTint="#A48CF8" />
+                    android:progressBackgroundTint="#9A85EB"
+                    android:progressTint="#FFFFFF" />
 
                 <TextView
                     android:id="@+id/tvHomeBudgetInsight"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="9dp"
+                    android:fontFamily="@font/poppins_regular"
                     android:text="Track your allowance"
-                    android:textColor="#F0E9FF"
-                    android:textSize="10sp"
-                    android:fontFamily="@font/poppins_regular" />
+                    android:textColor="#F3EEFF"
+                    android:textSize="11sp" />
+
             </LinearLayout>
+
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- SUMMARY CARDS -->
+        <!-- Summary Cards -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
+            <!-- Today's Spending -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -149,32 +183,35 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="13dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="Today's Spending"
-                        android:textSize="11sp"
                         android:textColor="#6B7280"
-                        android:fontFamily="@font/poppins_medium" />
+                        android:textSize="11sp" />
 
                     <TextView
                         android:id="@+id/tvHomeExpenses"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/poppins_bold"
                         android:text="₱0.00"
-                        android:textSize="18sp"
                         android:textColor="#1F2937"
-                        android:fontFamily="@font/poppins_bold" />
+                        android:textSize="18sp" />
+
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
             <Space
                 android:layout_width="10dp"
                 android:layout_height="1dp" />
 
+            <!-- Total Allowance -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -187,58 +224,63 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="13dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="Total Allowance"
-                        android:textSize="11sp"
                         android:textColor="#6B7280"
-                        android:fontFamily="@font/poppins_medium" />
+                        android:textSize="11sp" />
 
                     <TextView
                         android:id="@+id/tvHomeAllowance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/poppins_bold"
                         android:text="₱0.00"
-                        android:textSize="18sp"
                         android:textColor="#1F2937"
-                        android:fontFamily="@font/poppins_bold" />
+                        android:textSize="18sp" />
+
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
 
-        <!-- QUICK ACTIONS -->
+        <!-- Quick Actions -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="21dp"
+            android:fontFamily="@font/poppins_bold"
             android:text="Quick Actions"
             android:textColor="#1F2937"
-            android:textSize="16sp"
-            android:fontFamily="@font/poppins_bold" />
+            android:textSize="16sp" />
 
+        <!-- Quick Actions First Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="9dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
+            <!-- Add Expense -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnHomeExpenses"
                 android:layout_width="0dp"
-                android:layout_height="90dp"
+                android:layout_height="100dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="14dp"
+                app:cardCornerRadius="17dp"
+                app:cardElevation="0dp"
                 app:strokeColor="#E9ECF5"
-                app:strokeWidth="1dp"
-                app:cardElevation="0dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -246,44 +288,43 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:gravity="center"
-                        android:background="@drawable/bg_home_quick_expense"
-                        android:text="+"
-                        android:textSize="24sp"
-                        android:textColor="#FFFFFF"
-                        android:fontFamily="@font/poppins_semibold" />
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Add Expense"
+                        android:src="@drawable/ic_quick_expense" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
+                        android:fontFamily="@font/poppins_semibold"
                         android:text="Add Expense"
                         android:textColor="#1F2937"
-                        android:textSize="11sp"
-                        android:fontFamily="@font/poppins_medium" />
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
             <Space
                 android:layout_width="10dp"
                 android:layout_height="1dp" />
 
+            <!-- Add Allowance -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnHomeAllowance"
                 android:layout_width="0dp"
-                android:layout_height="90dp"
+                android:layout_height="100dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="14dp"
+                app:cardCornerRadius="17dp"
+                app:cardElevation="0dp"
                 app:strokeColor="#E9ECF5"
-                app:strokeWidth="1dp"
-                app:cardElevation="0dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -291,47 +332,48 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:gravity="center"
-                        android:background="@drawable/bg_home_quick_allowance"
-                        android:text="₱"
-                        android:textSize="19sp"
-                        android:textColor="#FFFFFF"
-                        android:fontFamily="@font/poppins_bold" />
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Add Allowance"
+                        android:src="@drawable/ic_quick_allowance" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
+                        android:fontFamily="@font/poppins_semibold"
                         android:text="Add Allowance"
                         android:textColor="#1F2937"
-                        android:textSize="11sp"
-                        android:fontFamily="@font/poppins_medium" />
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
 
+        <!-- Quick Actions Second Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="9dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
+            <!-- Add Payment -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnHomePayments"
                 android:layout_width="0dp"
-                android:layout_height="90dp"
+                android:layout_height="100dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="14dp"
+                app:cardCornerRadius="17dp"
+                app:cardElevation="0dp"
                 app:strokeColor="#E9ECF5"
-                app:strokeWidth="1dp"
-                app:cardElevation="0dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -339,43 +381,43 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:gravity="center"
-                        android:background="@drawable/bg_home_quick_payment"
-                        android:text="▣"
-                        android:textSize="20sp"
-                        android:textColor="#FFFFFF" />
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Add Payment"
+                        android:src="@drawable/ic_quick_payment" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
+                        android:fontFamily="@font/poppins_semibold"
                         android:text="Add Payment"
                         android:textColor="#1F2937"
-                        android:textSize="11sp"
-                        android:fontFamily="@font/poppins_medium" />
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
             <Space
                 android:layout_width="10dp"
                 android:layout_height="1dp" />
 
+            <!-- View Reports -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnHomeReports"
                 android:layout_width="0dp"
-                android:layout_height="90dp"
+                android:layout_height="100dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="14dp"
+                app:cardCornerRadius="17dp"
+                app:cardElevation="0dp"
                 app:strokeColor="#E9ECF5"
-                app:strokeWidth="1dp"
-                app:cardElevation="0dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -383,32 +425,32 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:gravity="center"
-                        android:background="@drawable/bg_home_quick_reports"
-                        android:text="▥"
-                        android:textSize="22sp"
-                        android:textColor="#5B3FD9" />
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="View Reports"
+                        android:src="@drawable/ic_quick_reports" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
+                        android:fontFamily="@font/poppins_semibold"
                         android:text="View Reports"
                         android:textColor="#1F2937"
-                        android:textSize="11sp"
-                        android:fontFamily="@font/poppins_medium" />
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
 
-        <!-- RECENT EXPENSES -->
+        <!-- Recent Expenses -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="19dp"
+            android:layout_marginTop="20dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -416,33 +458,35 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:fontFamily="@font/poppins_bold"
                 android:text="Recent Expenses"
-                android:textSize="16sp"
                 android:textColor="#1F2937"
-                android:fontFamily="@font/poppins_bold" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/btnSeeAllExpenses"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/poppins_semibold"
                 android:gravity="center"
                 android:paddingStart="8dp"
                 android:text="See all"
                 android:textColor="#5B3FD9"
-                android:textSize="12sp"
-                android:fontFamily="@font/poppins_semibold"
-                android:clickable="true"
-                android:focusable="true" />
+                android:textSize="12sp" />
+
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvHomeEmptyTransactions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:fontFamily="@font/poppins_regular"
             android:text="No expenses yet."
-            android:textSize="12sp"
             android:textColor="#6B7280"
-            android:fontFamily="@font/poppins_regular" />
+            android:textSize="12sp" />
 
         <LinearLayout
             android:id="@+id/homeTransactionsContainer"
@@ -450,7 +494,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <!-- UPCOMING PAYMENTS -->
+        <!-- Upcoming Payments -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -462,32 +506,34 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:fontFamily="@font/poppins_bold"
                 android:text="Upcoming Payments"
                 android:textColor="#1F2937"
-                android:textSize="16sp"
-                android:fontFamily="@font/poppins_bold" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/btnSeeAllPayments"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/poppins_semibold"
                 android:gravity="center"
                 android:text="See all"
                 android:textColor="#5B3FD9"
-                android:textSize="12sp"
-                android:fontFamily="@font/poppins_semibold"
-                android:clickable="true"
-                android:focusable="true" />
+                android:textSize="12sp" />
+
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvHomeEmptyPayments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:fontFamily="@font/poppins_regular"
             android:text="No upcoming school payments."
             android:textColor="#6B7280"
-            android:textSize="12sp"
-            android:fontFamily="@font/poppins_regular" />
+            android:textSize="12sp" />
 
         <LinearLayout
             android:id="@+id/homePaymentsContainer"
@@ -496,4 +542,5 @@
             android:orientation="vertical" />
 
     </LinearLayout>
+
 </ScrollView>

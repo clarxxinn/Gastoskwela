@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Light orange background -->
+    <path
+        android:fillColor="#FFE6C7"
+        android:pathData="M14,2 H34 Q46,2 46,14 V34 Q46,46 34,46 H14 Q2,46 2,34 V14 Q2,2 14,2 Z" />
+
+    <!-- Orange rounded square -->
+    <path
+        android:fillColor="#FF9D16"
+        android:pathData="M15,7 H33 Q41,7 41,15 V33 Q41,41 33,41 H15 Q7,41 7,33 V15 Q7,7 15,7 Z" />
+
+    <!-- Wallet body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M13,17 Q13,14 17,14 H32 Q35,14 35,17 V32 Q35,35 32,35 H17 Q13,35 13,32 Z" />
+
+    <!-- Wallet interior -->
+    <path
+        android:fillColor="#FF9D16"
+        android:pathData="M16,18 H32 V31 H16 Z" />
+
+    <!-- Wallet flap -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M27,22 H37 V29 H27 Q24,29 24,26 Q24,22 27,22 Z" />
+
+    <!-- Wallet button -->
+    <path
+        android:fillColor="#FF9D16"
+        android:pathData="M29,25 a1.5,1.5 0,1 0,3 0 a1.5,1.5 0,1 0,-3 0" />
+
+</vector>

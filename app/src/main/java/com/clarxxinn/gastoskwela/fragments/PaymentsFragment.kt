@@ -19,15 +19,15 @@ import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.data.SchoolPayment
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 class PaymentsFragment : Fragment(R.layout.fragment_payments) {
@@ -197,37 +197,36 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 false
             )
 
-            val iconBackground = itemView.findViewById<View>(
-                R.id.paymentIconBackground
-            )
-
+            // School Payments category icons
             val icon = itemView.findViewById<ImageView>(
                 R.id.ivPaymentIcon
             )
 
-            val (iconColor, backgroundColor) =
-                categoryColors(payment.category)
+            val iconRes = when (payment.category) {
+                "Tuition" ->
+                    R.drawable.ic_payment_tuition_category
 
-            iconBackground.background.mutate().setTint(
-                backgroundColor
-            )
+                "Projects" ->
+                    R.drawable.ic_payment_projects_category
 
-            icon.setColorFilter(iconColor)
+                "School Supplies" ->
+                    R.drawable.ic_payment_supplies_category
 
-            icon.setImageResource(
-                when (payment.category) {
-                    "Tuition", "School Fees" ->
-                        R.drawable.ic_payment_school
-                    "Projects" ->
-                        R.drawable.ic_payment_project
-                    "School Supplies" ->
-                        R.drawable.ic_payment_print
-                    "Events" ->
-                        R.drawable.ic_payment_calendar
-                    else ->
-                        R.drawable.ic_payment_school
-                }
-            )
+                "School Fees" ->
+                    R.drawable.ic_payment_fees_category
+
+                "Events" ->
+                    R.drawable.ic_payment_events_category
+
+                "Others" ->
+                    R.drawable.ic_payment_others_category
+
+                else ->
+                    R.drawable.ic_payment_others_category
+            }
+
+            icon.clearColorFilter()
+            icon.setImageResource(iconRes)
 
             itemView.findViewById<TextView>(
                 R.id.tvPaymentTitle
@@ -256,6 +255,7 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 payment.remainingCentavos <= 0L ||
                         payment.status == "Paid"
 
+            // Updated payment status colors
             if (completed) {
                 statusView.text = "Completed"
                 statusView.setTextColor(
@@ -269,24 +269,34 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 statusView.text = when {
                     days < 0L ->
                         "${-days} days overdue"
+
                     days == 0L ->
                         "Due today"
+
                     days == 1L ->
                         "1 day left"
+
                     else ->
                         "$days days left"
                 }
 
                 statusView.setTextColor(
                     when {
-                        days <= 5L ->
+                        // Overdue or due today
+                        days <= 0L ->
                             0xFFEF4444.toInt()
+
+                        // 1-10 days left
                         days <= 10L ->
                             0xFFF97316.toInt()
+
+                        // 11-20 days left
                         days <= 20L ->
                             0xFF6547ED.toInt()
+
+                        // More than 20 days left
                         else ->
-                            0xFFD4A23C.toInt()
+                            0xFF6B7280.toInt()
                     }
                 )
             } else {
@@ -310,23 +320,6 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
             }
 
             container.addView(itemView)
-        }
-    }
-
-    private fun categoryColors(category: String): Pair<Int, Int> {
-        return when (category) {
-            "Projects" ->
-                0xFFEF4444.toInt() to 0xFFFEE2E2.toInt()
-            "School Supplies" ->
-                0xFF3B82F6.toInt() to 0xFFDBEAFE.toInt()
-            "Tuition" ->
-                0xFFF59E0B.toInt() to 0xFFFEF3C7.toInt()
-            "School Fees" ->
-                0xFF22C55E.toInt() to 0xFFDCFCE7.toInt()
-            "Events" ->
-                0xFF8B5CF6.toInt() to 0xFFEDE9FE.toInt()
-            else ->
-                0xFF64748B.toInt() to 0xFFE2E8F0.toInt()
         }
     }
 
@@ -384,6 +377,62 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
             )
         )
 
+        // Only Others can have a custom payment title.
+        fun updateTitleForCategory(
+            category: String,
+            preserveExistingOtherTitle: Boolean = false
+        ) {
+            val isOthers = category == "Others"
+
+            titleInput.isEnabled = isOthers
+            titleInput.isFocusable = isOthers
+            titleInput.isFocusableInTouchMode = isOthers
+            titleInput.isCursorVisible = isOthers
+            titleInput.isLongClickable = isOthers
+
+            titleLayout.isEnabled = isOthers
+
+            if (isOthers) {
+                if (!preserveExistingOtherTitle) {
+                    titleInput.setText("")
+                }
+
+                titleLayout.hint = "Custom Payment Title"
+            } else {
+                titleInput.setText(
+                    if (category in categories) category else ""
+                )
+
+                titleLayout.hint = "Payment Title"
+            }
+
+            titleLayout.error = null
+        }
+
+        if (existing == null) {
+            updateTitleForCategory("")
+        } else {
+            categoryInput.setText(existing.category, false)
+
+            if (existing.category == "Others") {
+                titleInput.setText(existing.title)
+                updateTitleForCategory(
+                    "Others",
+                    preserveExistingOtherTitle = true
+                )
+            } else {
+                updateTitleForCategory(existing.category)
+            }
+        }
+
+        categoryInput.setOnItemClickListener { parent, _, position, _ ->
+            val selectedCategory = parent
+                .getItemAtPosition(position)
+                .toString()
+
+            updateTitleForCategory(selectedCategory)
+        }
+
         categoryInput.setOnClickListener {
             categoryInput.showDropDown()
         }
@@ -394,10 +443,6 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
         dateButton.text = selectedDate
 
         existing?.let { payment ->
-            titleInput.setText(payment.title)
-
-            categoryInput.setText(payment.category, false)
-
             amountInput.setText(
                 BigDecimal.valueOf(
                     payment.amountCentavos, 2
@@ -437,10 +482,11 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(
-                if (existing == null)
+                if (existing == null) {
                     "Add School Payment"
-                else
+                } else {
                     "Edit School Payment"
+                }
             )
             .setView(dialogView)
             .setNegativeButton("Cancel", null)
@@ -460,11 +506,15 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                 amountLayout.error = null
                 paidLayout.error = null
 
-                val title = titleInput.text
-                    ?.toString()?.trim().orEmpty()
-
                 val category = categoryInput.text
                     ?.toString()?.trim().orEmpty()
+
+                val title = if (category == "Others") {
+                    titleInput.text
+                        ?.toString()?.trim().orEmpty()
+                } else {
+                    category
+                }
 
                 val notes = notesInput.text
                     ?.toString()?.trim().orEmpty()
@@ -481,14 +531,15 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
 
                 var valid = true
 
-                if (title.isBlank()) {
-                    titleLayout.error = "Title is required"
-                    valid = false
-                }
-
                 if (category !in categories) {
                     categoryLayout.error =
                         "Select a valid category"
+                    valid = false
+                }
+
+                if (title.isBlank()) {
+                    titleLayout.error =
+                        "Payment title is required"
                     valid = false
                 }
 
@@ -530,6 +581,7 @@ class PaymentsFragment : Fragment(R.layout.fragment_payments) {
                         } else {
                             paymentDao.updatePayment(payment)
                         }
+
                         dialog.dismiss()
                     } catch (_: Exception) {
                         dialog.getButton(

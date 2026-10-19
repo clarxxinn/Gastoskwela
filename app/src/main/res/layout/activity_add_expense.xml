@@ -69,7 +69,8 @@
                 app:boxCornerRadiusBottomStart="12dp"
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:hintEnabled="false"
-                app:prefixText="₱  ">
+                app:prefixText="₱  "
+                app:prefixTextColor="@color/text_primary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etAddExpenseAmount"
@@ -80,6 +81,8 @@
                     android:inputType="numberDecimal"
                     android:singleLine="true"
                     android:textSize="13sp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
                     android:fontFamily="@font/poppins_medium" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,6 +116,8 @@
                     android:minHeight="52dp"
                     android:inputType="none"
                     android:textSize="13sp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
                     android:fontFamily="@font/poppins_medium" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -174,6 +179,8 @@
                     android:hint="e.g. Lunch at canteen"
                     android:inputType="textCapSentences"
                     android:textSize="12sp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
                     android:fontFamily="@font/poppins_regular" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -206,6 +213,8 @@
                     android:minHeight="52dp"
                     android:inputType="none"
                     android:textSize="13sp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
                     android:fontFamily="@font/poppins_medium" />
             </com.google.android.material.textfield.TextInputLayout>
 
