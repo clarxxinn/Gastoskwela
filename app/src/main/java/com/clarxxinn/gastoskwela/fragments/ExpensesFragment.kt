@@ -308,6 +308,16 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 R.id.tvExpenseCategory
             ).text = displayCategory(expense.category)
 
+            val descriptionView = itemView.findViewById<TextView>(
+                R.id.tvExpenseDescription
+            )
+            if (expense.description.isNotBlank()) {
+                descriptionView.visibility = View.VISIBLE
+                descriptionView.text = expense.description
+            } else {
+                descriptionView.visibility = View.GONE
+            }
+
             itemView.findViewById<TextView>(
                 R.id.tvExpenseDate
             ).text = try {
