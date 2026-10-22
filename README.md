@@ -2,6 +2,16 @@
 
 **Gastoskwela** is a native Android application that helps students manage their daily allowance, track expenses, and monitor school payments in one place. Built with **Kotlin and XML layouts**, it provides a simple way to understand where money goes and stay prepared for upcoming school expenses.
 
+## 📥 Download
+
+**Latest Release: v1.0.0**
+
+[**Download Gastoskwela APK**](https://github.com/clarxxinn/Gastoskwela/releases/latest)
+
+Download the latest available version of Gastoskwela from the official GitHub Releases page.
+
+**Requirements:** Android 8.0 (Oreo) or later.
+
 ## 📖 About the Project
 
 Gastoskwela is a student-focused financial tracker developed as a **Mobile Application Development** project. It works offline and saves records locally using a **Room database**.
@@ -37,10 +47,11 @@ The app includes five main sections:
 
 ## 📱 Installation
 
-1. Download the APK from the project submission or build it from source.
-2. Transfer the APK to an Android device.
-3. Open the APK and allow installation from that source if prompted.
-4. Install and launch **Gastoskwela**.
+1. Visit the [Gastoskwela Releases](https://github.com/clarxxinn/Gastoskwela/releases/latest) page.
+2. Download **`Gastoskwela.apk`** from the Assets section.
+3. Open the downloaded APK on your Android device.
+4. Allow installation from the source if prompted.
+5. Install and launch **Gastoskwela**.
 
 ### Build from Source
 
@@ -56,7 +67,7 @@ Build a debug APK using:
 ./gradlew assembleDebug
 ```
 
-On Windows PowerShell, use `./gradlew.bat :app:assembleDebug`.
+On Windows PowerShell, use `.\gradlew.bat :app:assembleDebug`.
 
 The generated APK is located at `app/build/outputs/apk/debug/app-debug.apk`.
 
