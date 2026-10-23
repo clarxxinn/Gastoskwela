@@ -46,8 +46,8 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     private val categories = listOf(
         "Food",
         "Transportation",
-        "School Supplies",
-        "Projects",
+        "Subscriptions",
+        "Groceries",
         "Load/Internet",
         "Others"
     )
@@ -149,6 +149,8 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 expense.category in listOf(
                     "Load/Internet",
                     "Load/Data",
+                    "Subscriptions",
+                    "Groceries",
                     "Others",
                     "Miscellaneous"
                 )
@@ -162,7 +164,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             "Food" -> "Pagkain"
             "Transportation" -> "Pamasahe"
             "Load/Internet" -> "Load/Data"
-            "Others" -> "Miscellaneous"
+            "Others" -> "Others"
             else -> category
         }
     }
@@ -176,10 +178,10 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             "Transportation", "Pamasahe" ->
                 R.drawable.ic_expense_transport
 
-            "School Supplies", "School" ->
+            "Groceries", "School Supplies", "School" ->
                 R.drawable.ic_expense_supplies
 
-            "Projects" ->
+            "Subscriptions", "Projects" ->
                 R.drawable.ic_expense_projects
 
             "Load/Internet", "Load/Data" ->
@@ -311,6 +313,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             val descriptionView = itemView.findViewById<TextView>(
                 R.id.tvExpenseDescription
             )
+
             if (expense.description.isNotBlank()) {
                 descriptionView.visibility = View.VISIBLE
                 descriptionView.text = expense.description
@@ -489,13 +492,23 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                     valid = false
                 }
 
-                if (category !in categories) {
+                val legacyCategory =
+                    existing != null &&
+                            category == existing.category
+
+                if (
+                    category !in categories &&
+                    !legacyCategory
+                ) {
                     categoryLayout.error =
                         "Select a valid category"
                     valid = false
                 }
 
-                if (description.isBlank()) {
+                if (
+                    category == "Others" &&
+                    description.isBlank()
+                ) {
                     descriptionLayout.error =
                         "Description is required"
                     valid = false
@@ -519,6 +532,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                         } else {
                             expenseDao.updateExpense(expense)
                         }
+
                         dialog.dismiss()
                     } catch (_: Exception) {
                         Toast.makeText(
