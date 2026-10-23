@@ -3,6 +3,7 @@ package com.clarxxinn.gastoskwela.fragments
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -16,6 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.clarxxinn.gastoskwela.MainActivity
 import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.Allowance
+import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import com.google.android.material.textfield.TextInputEditText
@@ -23,8 +25,11 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
 class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
@@ -42,13 +47,19 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
     }
 
     private val frequencies = arrayOf(
-        "Daily",
-        "Weekly",
-        "Monthly",
-        "Custom"
+        "Daily", "Weekly", "Monthly", "Custom"
+    )
+
+    private val periods = arrayOf(
+        "Daily", "Weekly", "Monthly", "Yearly"
     )
 
     private var selectedTab = 0
+    private var selectedPeriod = 0
+    private var selectedDate = LocalDate.now()
+
+    private var allAllowances = emptyList<Allowance>()
+    private var allExpenses = emptyList<Expense>()
 
     override fun onViewCreated(
         view: View,
@@ -59,8 +70,21 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
         selectedTab = savedInstanceState
             ?.getInt("selectedTab") ?: 0
 
-        updateFrequencyLabel(view)
+        selectedPeriod = savedInstanceState
+            ?.getInt("selectedPeriod") ?: 0
+
+        selectedDate = try {
+            LocalDate.parse(
+                savedInstanceState?.getString("selectedDate")
+                    ?: LocalDate.now().toString()
+            )
+        } catch (_: Exception) {
+            LocalDate.now()
+        }
+
         setupTabs(view)
+        setupOverview(view)
+        updateFrequencyLabel(view)
 
         view.findViewById<View>(
             R.id.btnAllowanceBack
@@ -85,51 +109,17 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             viewLifecycleOwner.repeatOnLifecycle(
                 Lifecycle.State.STARTED
             ) {
-                launch {
-                    allowanceDao.getAllAllowances()
-                        .collect { allowances ->
-                            renderAllowances(view, allowances)
-                        }
-                }
+                combine(
+                    allowanceDao.getAllAllowances(),
+                    expenseDao.getAllExpenses()
+                ) { allowances, expenses ->
+                    Pair(allowances, expenses)
+                }.collect { (allowances, expenses) ->
+                    allAllowances = allowances
+                    allExpenses = expenses
 
-                launch {
-                    combine(
-                        allowanceDao.getTotalAllowance(),
-                        expenseDao.getTotalExpenses()
-                    ) { allowance, expenses ->
-                        allowance to expenses
-                    }.collect { (allowance, expenses) ->
-
-                        val balance = allowance - expenses
-
-                        view.findViewById<TextView>(
-                            R.id.tvTotalAllowance
-                        ).text = MoneyUtils.format(allowance)
-
-                        view.findViewById<TextView>(
-                            R.id.tvAllowanceBalance
-                        ).text = MoneyUtils.format(balance)
-
-                        view.findViewById<TextView>(
-                            R.id.tvAllowanceSpent
-                        ).text = MoneyUtils.format(expenses)
-
-                        view.findViewById<TextView>(
-                            R.id.tvAllowanceSummary
-                        ).text = when {
-                            allowance <= 0L ->
-                                "Add your first allowance to get started."
-
-                            balance < 0L ->
-                                "Your expenses have exceeded your allowance."
-
-                            balance == 0L ->
-                                "You have used your available allowance."
-
-                            else ->
-                                "Keep tracking your baon and gastos!"
-                        }
-                    }
+                    renderAllowances(view)
+                    renderOverview(view)
                 }
             }
         }
@@ -137,7 +127,363 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt("selectedTab", selectedTab)
+        outState.putInt("selectedPeriod", selectedPeriod)
+        outState.putString(
+            "selectedDate",
+            selectedDate.toString()
+        )
         super.onSaveInstanceState(outState)
+    }
+
+    private fun setupOverview(view: View) {
+        val periodLabel = view.findViewById<TextView>(
+            R.id.tvOverviewPeriod
+        )
+
+        periodLabel.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Select Overview Period")
+                .setSingleChoiceItems(
+                    periods,
+                    selectedPeriod
+                ) { dialog, which ->
+                    selectedPeriod = which
+                    renderOverview(view)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        view.findViewById<View>(
+            R.id.btnOverviewPrevious
+        ).setOnClickListener {
+            selectedDate = when (selectedPeriod) {
+                0 -> selectedDate.minusDays(1)
+                1 -> selectedDate.minusWeeks(1)
+                2 -> selectedDate.minusMonths(1)
+                else -> selectedDate.minusYears(1)
+            }
+            renderOverview(view)
+        }
+
+        view.findViewById<View>(
+            R.id.btnOverviewNext
+        ).setOnClickListener {
+            selectedDate = when (selectedPeriod) {
+                0 -> selectedDate.plusDays(1)
+                1 -> selectedDate.plusWeeks(1)
+                2 -> selectedDate.plusMonths(1)
+                else -> selectedDate.plusYears(1)
+            }
+            renderOverview(view)
+        }
+
+        view.findViewById<View>(
+            R.id.tvOverviewDate
+        ).setOnClickListener {
+            DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    selectedDate = LocalDate.of(
+                        year, month + 1, day
+                    )
+                    renderOverview(view)
+                },
+                selectedDate.year,
+                selectedDate.monthValue - 1,
+                selectedDate.dayOfMonth
+            ).show()
+        }
+
+        renderOverview(view)
+    }
+
+    private fun getPeriodRange(): Pair<LocalDate, LocalDate> {
+        return when (selectedPeriod) {
+            0 -> Pair(selectedDate, selectedDate)
+
+            1 -> {
+                val start = selectedDate.with(
+                    TemporalAdjusters.previousOrSame(
+                        DayOfWeek.MONDAY
+                    )
+                )
+                Pair(start, start.plusDays(6))
+            }
+
+            2 -> {
+                val month = YearMonth.from(selectedDate)
+                Pair(month.atDay(1), month.atEndOfMonth())
+            }
+
+            else -> {
+                Pair(
+                    selectedDate.withDayOfYear(1),
+                    selectedDate.withDayOfYear(1)
+                        .plusYears(1).minusDays(1)
+                )
+            }
+        }
+    }
+
+    private fun renderOverview(view: View) {
+        val (start, end) = getPeriodRange()
+
+        view.findViewById<TextView>(
+            R.id.tvOverviewPeriod
+        ).text = "${periods[selectedPeriod]}  ▾"
+
+        val formatter = DateTimeFormatter.ofPattern(
+            "MMM d, yyyy",
+            Locale.ENGLISH
+        )
+
+        val dateLabel = when (selectedPeriod) {
+            0 -> start.format(formatter)
+            1 -> "${start.format(formatter)} - ${end.format(formatter)}"
+            2 -> start.format(
+                DateTimeFormatter.ofPattern(
+                    "MMMM yyyy", Locale.ENGLISH
+                )
+            )
+            else -> start.year.toString()
+        }
+
+        view.findViewById<TextView>(
+            R.id.tvOverviewDate
+        ).text = dateLabel
+
+        val periodAllowances = allAllowances.filter {
+            isWithinPeriod(it.date, start, end)
+        }
+
+        val periodExpenses = allExpenses.filter {
+            isWithinPeriod(it.date, start, end)
+        }
+
+        val received = periodAllowances.sumOf {
+            it.amountCentavos
+        }
+
+        val spent = periodExpenses.sumOf {
+            it.amountCentavos
+        }
+
+        // Cumulative balance through the selected period's end.
+        val accumulatedAllowance = allAllowances
+            .filter { isOnOrBefore(it.date, end) }
+            .sumOf { it.amountCentavos }
+
+        val accumulatedExpenses = allExpenses
+            .filter { isOnOrBefore(it.date, end) }
+            .sumOf { it.amountCentavos }
+
+        val balance = accumulatedAllowance -
+                accumulatedExpenses
+
+        val openingBalance = balance - received + spent
+
+        view.findViewById<TextView>(
+            R.id.tvTotalAllowance
+        ).text = MoneyUtils.format(received)
+
+        view.findViewById<TextView>(
+            R.id.tvAllowanceSpent
+        ).text = MoneyUtils.format(spent)
+
+        view.findViewById<TextView>(
+            R.id.tvAllowanceBalance
+        ).text = MoneyUtils.format(balance)
+
+        view.findViewById<TextView>(
+            R.id.tvOpeningBalance
+        ).text = MoneyUtils.format(openingBalance)
+
+        view.findViewById<TextView>(
+            R.id.tvAllowanceSummary
+        ).text = when {
+            periodAllowances.isEmpty() &&
+                    periodExpenses.isEmpty() ->
+                "No transactions recorded for this period."
+
+            balance < 0L ->
+                "Your recorded expenses exceed your allowance."
+
+            balance == 0L ->
+                "You have used your available allowance."
+
+            else ->
+                "Your remaining allowance carries over to the next period."
+        }
+
+        renderExpenseBreakdown(view, periodExpenses)
+    }
+
+    private fun isWithinPeriod(
+        dateText: String,
+        start: LocalDate,
+        end: LocalDate
+    ): Boolean {
+        return try {
+            val date = LocalDate.parse(dateText)
+            !date.isBefore(start) && !date.isAfter(end)
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun isOnOrBefore(
+        dateText: String,
+        end: LocalDate
+    ): Boolean {
+        return try {
+            !LocalDate.parse(dateText).isAfter(end)
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun displayCategory(category: String): String {
+        return when (category) {
+            "Food" -> "Pagkain"
+            "Transportation" -> "Pamasahe"
+            "Load/Internet" -> "Load/Data"
+            "Miscellaneous" -> "Others"
+            else -> category
+        }
+    }
+
+    private fun renderExpenseBreakdown(
+        view: View,
+        expenses: List<Expense>
+    ) {
+        val container = view.findViewById<LinearLayout>(
+            R.id.allowanceExpenseContainer
+        )
+
+        val emptyText = view.findViewById<TextView>(
+            R.id.tvEmptyAllowanceExpenses
+        )
+
+        container.removeAllViews()
+
+        emptyText.visibility =
+            if (expenses.isEmpty()) View.VISIBLE else View.GONE
+
+        if (expenses.isEmpty()) return
+
+        val grouped = expenses.groupBy {
+            displayCategory(it.category)
+        }
+
+        grouped.toSortedMap().forEach { (category, items) ->
+            val total = items.sumOf {
+                it.amountCentavos
+            }
+
+            val header = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, dp(13), 0, dp(7))
+            }
+
+            val categoryText = TextView(requireContext()).apply {
+                text = category
+                textSize = 12f
+                setTextColor(0xFF1F2937.toInt())
+                typeface = resources.getFont(
+                    R.font.poppins_semibold
+                )
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
+            }
+
+            val totalText = TextView(requireContext()).apply {
+                text = "-${MoneyUtils.format(total)}"
+                textSize = 12f
+                setTextColor(0xFFEF4444.toInt())
+                typeface = resources.getFont(
+                    R.font.poppins_semibold
+                )
+            }
+
+            header.addView(categoryText)
+            header.addView(totalText)
+            container.addView(header)
+
+            items.sortedWith(
+                compareByDescending<Expense> { it.date }
+                    .thenByDescending { it.id }
+            ).forEach { expense ->
+
+                val row = LinearLayout(requireContext()).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(dp(10), dp(9), dp(4), dp(9))
+                }
+
+                val details = LinearLayout(requireContext()).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1f
+                    )
+                }
+
+                val description = TextView(requireContext()).apply {
+                    text = expense.description.ifBlank {
+                        category
+                    }
+                    textSize = 11f
+                    setTextColor(0xFF374151.toInt())
+                    typeface = resources.getFont(
+                        R.font.poppins_medium
+                    )
+                }
+
+                val date = TextView(requireContext()).apply {
+                    text = expense.date
+                    textSize = 10f
+                    setTextColor(0xFF929AB2.toInt())
+                    typeface = resources.getFont(
+                        R.font.poppins_regular
+                    )
+                }
+
+                val amount = TextView(requireContext()).apply {
+                    text = "-${MoneyUtils.format(
+                        expense.amountCentavos
+                    )}"
+                    textSize = 11f
+                    setTextColor(0xFFEF4444.toInt())
+                    typeface = resources.getFont(
+                        R.font.poppins_medium
+                    )
+                }
+
+                details.addView(description)
+                details.addView(date)
+
+                row.addView(details)
+                row.addView(amount)
+                container.addView(row)
+
+                val divider = View(requireContext()).apply {
+                    setBackgroundColor(0xFFF0F2F8.toInt())
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        dp(1)
+                    )
+                }
+
+                container.addView(divider)
+            }
+        }
     }
 
     private fun setupTabs(view: View) {
@@ -153,7 +499,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             switchTab(view, 1)
         }
 
-        switchTab(view, selectedTab, animate = false)
+        switchTab(view, selectedTab, false)
     }
 
     private fun switchTab(
@@ -173,40 +519,32 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             R.id.allowanceSettingsSection
         )
 
-        val historyIndicator = view.findViewById<View>(
-            R.id.indicatorAllowanceHistory
-        )
-
-        val settingsIndicator = view.findViewById<View>(
-            R.id.indicatorAllowanceSettings
-        )
-
-        val historyLabel = view.findViewById<TextView>(
-            R.id.tvAllowanceHistoryTab
-        )
-
-        val settingsLabel = view.findViewById<TextView>(
-            R.id.tvAllowanceSettingsTab
-        )
-
         history.visibility =
             if (tab == 0) View.VISIBLE else View.GONE
 
         settings.visibility =
             if (tab == 1) View.VISIBLE else View.GONE
 
-        historyIndicator.visibility =
+        view.findViewById<View>(
+            R.id.indicatorAllowanceHistory
+        ).visibility =
             if (tab == 0) View.VISIBLE else View.INVISIBLE
 
-        settingsIndicator.visibility =
+        view.findViewById<View>(
+            R.id.indicatorAllowanceSettings
+        ).visibility =
             if (tab == 1) View.VISIBLE else View.INVISIBLE
 
-        historyLabel.setTextColor(
+        view.findViewById<TextView>(
+            R.id.tvAllowanceHistoryTab
+        ).setTextColor(
             if (tab == 0) 0xFF6547ED.toInt()
             else 0xFF6B7280.toInt()
         )
 
-        settingsLabel.setTextColor(
+        view.findViewById<TextView>(
+            R.id.tvAllowanceSettingsTab
+        ).setTextColor(
             if (tab == 1) 0xFF6547ED.toInt()
             else 0xFF6B7280.toInt()
         )
@@ -232,14 +570,11 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             Context.MODE_PRIVATE
         )
 
-        val frequency = preferences.getString(
-            "allowance_frequency",
-            "Daily"
-        ) ?: "Daily"
-
         view.findViewById<TextView>(
             R.id.tvAllowanceFrequency
-        ).text = frequency
+        ).text = preferences.getString(
+            "allowance_frequency", "Daily"
+        ) ?: "Daily"
     }
 
     private fun showFrequencyDialog(view: View) {
@@ -249,8 +584,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
         )
 
         val current = preferences.getString(
-            "allowance_frequency",
-            "Daily"
+            "allowance_frequency", "Daily"
         ) ?: "Daily"
 
         var selected = frequencies.indexOf(current)
@@ -278,10 +612,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             .show()
     }
 
-    private fun renderAllowances(
-        view: View,
-        allowances: List<Allowance>
-    ) {
+    private fun renderAllowances(view: View) {
         val container = view.findViewById<LinearLayout>(
             R.id.allowanceListContainer
         )
@@ -296,7 +627,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
         container.removeAllViews()
 
-        val sorted = allowances.sortedWith(
+        val sorted = allAllowances.sortedWith(
             compareByDescending<Allowance> { it.date }
                 .thenByDescending { it.id }
         )
@@ -322,7 +653,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
             val row = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.HORIZONTAL
-                gravity = android.view.Gravity.CENTER_VERTICAL
+                gravity = Gravity.CENTER_VERTICAL
                 setPadding(dp(7), dp(13), dp(7), dp(13))
                 background = android.graphics.drawable
                     .GradientDrawable().apply {
@@ -336,7 +667,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             val circle = TextView(requireContext()).apply {
                 text = "○"
                 textSize = 26f
-                gravity = android.view.Gravity.CENTER
+                gravity = Gravity.CENTER
                 setTextColor(0xFF10B981.toInt())
                 layoutParams = LinearLayout.LayoutParams(
                     dp(35), dp(40)
@@ -362,7 +693,8 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                     R.font.poppins_semibold
                 )
                 maxLines = 1
-                ellipsize = android.text.TextUtils.TruncateAt.END
+                ellipsize =
+                    android.text.TextUtils.TruncateAt.END
             }
 
             val date = TextView(requireContext()).apply {
@@ -388,7 +720,6 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                 text = "+${MoneyUtils.format(
                     allowance.amountCentavos
                 )}"
-
                 textSize = 12f
                 setTextColor(0xFF22C55E.toInt())
                 typeface = resources.getFont(
@@ -420,10 +751,6 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
             container.addView(divider)
         }
-    }
-
-    private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
     }
 
     private fun showAllowanceDialog(
@@ -461,16 +788,15 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
             R.id.btnSelectDate
         )
 
-        var selectedDate =
+        var allowanceDate =
             existing?.date ?: LocalDate.now().toString()
 
-        dateButton.text = selectedDate
+        dateButton.text = allowanceDate
 
         existing?.let { allowance ->
             amountInput.setText(
                 BigDecimal.valueOf(
-                    allowance.amountCentavos,
-                    2
+                    allowance.amountCentavos, 2
                 ).toPlainString()
             )
 
@@ -479,18 +805,16 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
         }
 
         dateButton.setOnClickListener {
-            val date = LocalDate.parse(selectedDate)
+            val date = LocalDate.parse(allowanceDate)
 
             DatePickerDialog(
                 requireContext(),
                 { _, year, month, day ->
-                    selectedDate = LocalDate.of(
-                        year,
-                        month + 1,
-                        day
+                    allowanceDate = LocalDate.of(
+                        year, month + 1, day
                     ).toString()
 
-                    dateButton.text = selectedDate
+                    dateButton.text = allowanceDate
                 },
                 date.year,
                 date.monthValue - 1,
@@ -500,11 +824,8 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(
-                if (existing == null) {
-                    "Add Allowance"
-                } else {
-                    "Edit Allowance"
-                }
+                if (existing == null) "Add Allowance"
+                else "Edit Allowance"
             )
             .setView(dialogView)
             .setNegativeButton("Cancel", null)
@@ -552,7 +873,7 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                     id = existing?.id ?: 0,
                     amountCentavos = centavos!!,
                     source = source,
-                    date = selectedDate,
+                    date = allowanceDate,
                     notes = notes
                 )
 
@@ -563,7 +884,6 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                         } else {
                             allowanceDao.updateAllowance(allowance)
                         }
-
                         dialog.dismiss()
                     } catch (_: Exception) {
                         Toast.makeText(
@@ -600,5 +920,11 @@ class AllowanceFragment : Fragment(R.layout.fragment_allowance) {
                 }
             }
             .show()
+    }
+
+    private fun dp(value: Int): Int {
+        return (
+                value * resources.displayMetrics.density
+                ).toInt()
     }
 }

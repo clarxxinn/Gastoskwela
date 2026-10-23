@@ -128,6 +128,85 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <!-- PERIOD SELECTOR -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Allowance Overview"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/poppins_semibold" />
+
+                    <TextView
+                        android:id="@+id/tvOverviewPeriod"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#F0EEFF"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:paddingTop="9dp"
+                        android:paddingBottom="9dp"
+                        android:text="Daily  ▾"
+                        android:textColor="#6547ED"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <!-- DATE NAVIGATION -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="15dp">
+
+                    <TextView
+                        android:id="@+id/btnOverviewPrevious"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:text="‹"
+                        android:textSize="28sp"
+                        android:textColor="#6547ED"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Previous period" />
+
+                    <TextView
+                        android:id="@+id/tvOverviewDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Oct 23, 2026"
+                        android:textColor="#374151"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/btnOverviewNext"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:text="›"
+                        android:textSize="28sp"
+                        android:textColor="#6547ED"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Next period" />
+                </LinearLayout>
+
+                <!-- BALANCE CARD -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -151,7 +230,7 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Current Balance"
+                                android:text="Remaining Balance"
                                 android:textColor="#374151"
                                 android:textSize="12sp"
                                 android:fontFamily="@font/poppins_medium" />
@@ -165,6 +244,15 @@
                                 android:textColor="#111827"
                                 android:textSize="25sp"
                                 android:fontFamily="@font/poppins_bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Includes previous balance"
+                                android:textColor="#6B7280"
+                                android:textSize="10sp"
+                                android:fontFamily="@font/poppins_regular" />
                         </LinearLayout>
 
                         <FrameLayout
@@ -182,6 +270,35 @@
                         </FrameLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- OPENING BALANCE -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="13dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Previous Balance"
+                        android:textColor="#6B7280"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/poppins_regular" />
+
+                    <TextView
+                        android:id="@+id/tvOpeningBalance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₱0.00"
+                        android:textColor="#374151"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/poppins_semibold" />
+                </LinearLayout>
 
                 <!-- RECEIVED / SPENT -->
                 <LinearLayout
@@ -248,6 +365,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- ADD ALLOWANCE -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAddAllowance"
                     android:layout_width="match_parent"
@@ -261,10 +379,54 @@
                     app:backgroundTint="#6547ED"
                     app:cornerRadius="11dp" />
 
+                <!-- EXPENSE BREAKDOWN -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="19dp"
+                    android:layout_marginTop="23dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Where Your Allowance Went"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/poppins_semibold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Expenses for the selected period"
+                        android:textColor="#8C94AB"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/poppins_regular" />
+
+                    <TextView
+                        android:id="@+id/tvEmptyAllowanceExpenses"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:text="No expenses for this period."
+                        android:textColor="#6B7280"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/poppins_regular" />
+
+                    <LinearLayout
+                        android:id="@+id/allowanceExpenseContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical" />
+                </LinearLayout>
+
+                <!-- ALLOWANCE HISTORY -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -381,8 +543,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>
