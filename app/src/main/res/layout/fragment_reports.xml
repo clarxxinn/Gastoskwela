@@ -31,18 +31,18 @@
             android:paddingEnd="16dp"
             android:paddingBottom="30dp">
 
-            <!-- FILTERS -->
+            <!-- Period and Date Filters -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReportPeriod"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="0dp"
-                    android:layout_height="46dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:text="Monthly  ⌄"
                     android:textAllCaps="false"
@@ -57,20 +57,21 @@
                     android:id="@+id/btnReportMonth"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="0dp"
-                    android:layout_height="46dp"
+                    android:layout_height="48dp"
                     android:layout_marginStart="10dp"
-                    android:layout_weight="1.2"
-                    android:text="October 2026  ⌄"
+                    android:layout_weight="1.35"
+                    android:text="Select date  ⌄"
                     android:textAllCaps="false"
                     android:textColor="#374151"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:fontFamily="@font/poppins_medium"
                     app:cornerRadius="12dp"
                     app:strokeColor="#E6EAF5"
                     app:backgroundTint="#FFFFFF" />
+
             </LinearLayout>
 
-            <!-- TOTAL EXPENSES -->
+            <!-- Total Expenses Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -121,6 +122,7 @@
                             android:textColor="#6B7280"
                             android:textSize="11sp"
                             android:fontFamily="@font/poppins_medium" />
+
                     </LinearLayout>
 
                     <ImageView
@@ -129,10 +131,12 @@
                         android:src="@drawable/ic_nav_reports"
                         android:tint="#6547ED"
                         android:contentDescription="Reports" />
+
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- DONUT CHART -->
+            <!-- Spending by Category -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -162,6 +166,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:orientation="vertical" />
+
             </LinearLayout>
 
             <TextView
@@ -175,7 +180,7 @@
                 android:fontFamily="@font/poppins_regular"
                 android:visibility="gone" />
 
-            <!-- WEEKLY BAR CHART -->
+            <!-- Spending Trend -->
             <TextView
                 android:id="@+id/tvTrendTitle"
                 android:layout_width="match_parent"
@@ -193,6 +198,7 @@
                 android:layout_marginTop="12dp" />
 
         </LinearLayout>
+
     </ScrollView>
 
 </LinearLayout>

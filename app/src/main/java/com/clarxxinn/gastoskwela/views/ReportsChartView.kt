@@ -5,11 +5,17 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.math.ceil
-import kotlin.math.max
+import kotlin.math.floor
+import kotlin.math.log10
+import kotlin.math.min
+import kotlin.math.pow
 
 class ReportsChartView @JvmOverloads constructor(
     context: Context,
@@ -22,22 +28,37 @@ class ReportsChartView @JvmOverloads constructor(
     )
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
     private var chartMode = 0
 
     private var slices: List<Slice> = emptyList()
     private var totalCentavos = 0L
-    private var barValues: List<Long> = List(5) { 0L }
-    private var barLabels: List<String> =
-        listOf("W1", "W2", "W3", "W4", "W5")
+
+    private var barValues: List<Long> = emptyList()
+    private var barLabels: List<String> = emptyList()
 
     private val purple = Color.rgb(101, 71, 237)
-    private val gray = Color.rgb(142, 151, 172)
     private val dark = Color.rgb(31, 41, 55)
+    private val gray = Color.rgb(142, 151, 172)
+    private val gridColor = Color.rgb(232, 235, 246)
+    private val trackColor = Color.rgb(241, 242, 250)
+
+    private val numberFormatter =
+        NumberFormat.getNumberInstance(Locale.US).apply {
+            maximumFractionDigits = 0
+        }
 
     fun setDonutData(data: List<Slice>) {
         chartMode = 0
-        slices = data.filter { it.amount > 0L }
-        totalCentavos = slices.sumOf { it.amount }
+
+        slices = data.filter {
+            it.amount > 0L
+        }
+
+        totalCentavos = slices.sumOf {
+            it.amount
+        }
+
         invalidate()
     }
 
@@ -46,8 +67,13 @@ class ReportsChartView @JvmOverloads constructor(
         labels: List<String>
     ) {
         chartMode = 1
-        barValues = values
+
+        barValues = values.map {
+            it.coerceAtLeast(0L)
+        }
+
         barLabels = labels
+
         invalidate()
     }
 
@@ -55,39 +81,50 @@ class ReportsChartView @JvmOverloads constructor(
         super.onDraw(canvas)
 
         if (chartMode == 0) {
-            drawDonut(canvas)
+            drawDonutChart(canvas)
         } else {
-            drawBars(canvas)
+            drawBarChart(canvas)
         }
     }
 
-    private fun drawDonut(canvas: Canvas) {
-        val cx = width / 2f
-        val cy = height / 2f
-        val radius = minOf(width, height) * 0.41f
-        val stroke = radius * 0.39f
+    private fun drawDonutChart(canvas: Canvas) {
+        val centerX = width / 2f
+        val centerY = height / 2f
+
+        val radius = min(
+            width.toFloat(),
+            height.toFloat()
+        ) * 0.40f
+
+        val strokeWidth = radius * 0.36f
 
         val bounds = RectF(
-            cx - radius + stroke / 2,
-            cy - radius + stroke / 2,
-            cx + radius - stroke / 2,
-            cy + radius - stroke / 2
+            centerX - radius + strokeWidth / 2f,
+            centerY - radius + strokeWidth / 2f,
+            centerX + radius - strokeWidth / 2f,
+            centerY + radius - strokeWidth / 2f
         )
 
+        paint.reset()
+        paint.isAntiAlias = true
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = stroke
+        paint.strokeWidth = strokeWidth
         paint.strokeCap = Paint.Cap.BUTT
-        paint.color = Color.rgb(232, 234, 247)
+        paint.color = trackColor
 
         canvas.drawArc(
-            bounds, 0f, 360f, false, paint
+            bounds,
+            0f,
+            360f,
+            false,
+            paint
         )
 
         if (totalCentavos > 0L) {
-            var angle = -90f
+            var startAngle = -90f
 
             slices.forEach { slice ->
-                val sweep = (
+                val sweepAngle = (
                         slice.amount.toDouble() /
                                 totalCentavos.toDouble() * 360.0
                         ).toFloat()
@@ -96,143 +133,439 @@ class ReportsChartView @JvmOverloads constructor(
 
                 canvas.drawArc(
                     bounds,
-                    angle,
-                    sweep,
+                    startAngle,
+                    sweepAngle,
                     false,
                     paint
                 )
 
-                angle += sweep
+                startAngle += sweepAngle
             }
         }
 
         paint.style = Paint.Style.FILL
-        paint.textAlign = Paint.Align.CENTER
         paint.color = dark
-        paint.typeface = android.graphics.Typeface.create(
+        paint.textAlign = Paint.Align.CENTER
+        paint.typeface = Typeface.create(
             "sans-serif",
-            android.graphics.Typeface.BOLD
+            Typeface.BOLD
         )
         paint.textSize = sp(16f)
 
-        val amount = MoneyUtils.format(totalCentavos)
+        val amountText = MoneyUtils.format(
+            totalCentavos
+        )
+
+        val maxTextWidth = radius * 1.65f
+
+        while (
+            paint.measureText(amountText) > maxTextWidth &&
+            paint.textSize > sp(10f)
+        ) {
+            paint.textSize -= sp(0.5f)
+        }
 
         canvas.drawText(
-            amount,
-            cx,
-            cy + sp(2f),
+            amountText,
+            centerX,
+            centerY + sp(1f),
             paint
         )
 
         paint.color = gray
-        paint.textSize = sp(11f)
-        paint.typeface = android.graphics.Typeface.DEFAULT
+        paint.typeface = Typeface.DEFAULT
+        paint.textSize = sp(10f)
 
         canvas.drawText(
             "Total",
-            cx,
-            cy + sp(18f),
+            centerX,
+            centerY + sp(17f),
             paint
         )
     }
 
-    private fun drawBars(canvas: Canvas) {
-        val left = dp(35f)
-        val right = width - dp(6f)
-        val top = dp(10f)
-        val bottom = height - dp(27f)
-
-        if (right <= left || bottom <= top) return
-
-        val values = barValues
-        if (values.isEmpty()) return
-
-        val maxValue = max(1L, values.maxOrNull() ?: 0L)
-
-        val maxPesos = maxValue / 100.0
-        val rawStep = maxPesos / 4.0
-        val magnitude = when {
-            rawStep <= 1 -> 1.0
-            rawStep <= 10 -> 10.0
-            rawStep <= 100 -> 100.0
-            rawStep <= 1000 -> 1000.0
-            else -> 10000.0
+    private fun drawBarChart(canvas: Canvas) {
+        if (barValues.isEmpty()) {
+            drawEmptyChart(canvas)
+            return
         }
 
-        val niceStep = max(
-            magnitude,
-            ceil(rawStep / magnitude) * magnitude
+        val chartLeft = dp(48f)
+        val chartRight = width.toFloat() - dp(12f)
+        val chartTop = dp(30f)
+        val chartBottom = height.toFloat() - dp(33f)
+
+        if (
+            chartRight <= chartLeft ||
+            chartBottom <= chartTop
+        ) {
+            return
+        }
+
+        val chartHeight = chartBottom - chartTop
+        val chartWidth = chartRight - chartLeft
+
+        // Amounts are stored in centavos.
+        val highestValue = (
+                barValues.maxOrNull() ?: 0L
+                ).toDouble() / 100.0
+
+        // Example: 445 pesos -> axis maximum 500.
+        val axisMaximum = calculateAxisMaximum(
+            highestValue
         )
 
-        val axisMax = niceStep * 4.0
-        val chartHeight = bottom - top
+        drawGridLines(
+            canvas,
+            chartLeft,
+            chartRight,
+            chartTop,
+            chartBottom,
+            axisMaximum
+        )
 
-        paint.style = Paint.Style.FILL
-        paint.typeface = android.graphics.Typeface.DEFAULT
-        paint.textSize = sp(10f)
-        paint.textAlign = Paint.Align.RIGHT
+        val barCount = barValues.size
+        val cellWidth = chartWidth / barCount
 
-        for (i in 0..4) {
-            val y = bottom - chartHeight * i / 4f
-            val tick = niceStep * i
-
-            paint.color = gray
-            canvas.drawText(
-                tick.toLong().toString(),
-                left - dp(7f),
-                y + dp(3f),
-                paint
+        val barWidth = when {
+            barCount <= 1 -> min(
+                dp(52f),
+                cellWidth * 0.25f
             )
 
-            paint.color = Color.rgb(232, 235, 246)
-            paint.strokeWidth = dp(1f)
+            barCount <= 5 -> min(
+                dp(38f),
+                cellWidth * 0.55f
+            )
 
-            canvas.drawLine(
-                left, y, right, y, paint
+            barCount <= 7 -> min(
+                dp(30f),
+                cellWidth * 0.58f
+            )
+
+            else -> min(
+                dp(18f),
+                cellWidth * 0.62f
             )
         }
 
-        val count = values.size
-        val cellWidth = (right - left) / count
-        val barWidth = minOf(dp(25f), cellWidth * 0.55f)
+        barValues.forEachIndexed { index, value ->
+            val centerX = chartLeft +
+                    cellWidth * (index + 0.5f)
 
-        values.forEachIndexed { index, value ->
-            val x = left + cellWidth * (index + 0.5f)
+            val valuePesos = value.toDouble() / 100.0
 
             val fraction = (
-                    value / 100.0 / axisMax
+                    valuePesos / axisMaximum
                     ).toFloat().coerceIn(0f, 1f)
 
             val barHeight = chartHeight * fraction
 
             if (barHeight > 0f) {
-                paint.color = purple
+                drawBar(
+                    canvas,
+                    centerX,
+                    chartBottom,
+                    barWidth,
+                    barHeight
+                )
 
-                canvas.drawRoundRect(
-                    RectF(
-                        x - barWidth / 2f,
-                        bottom - barHeight,
-                        x + barWidth / 2f,
-                        bottom
-                    ),
-                    dp(4f),
-                    dp(4f),
-                    paint
+                drawValueLabel(
+                    canvas,
+                    centerX,
+                    chartBottom - barHeight,
+                    valuePesos,
+                    cellWidth
                 )
             }
 
-            paint.color = gray
-            paint.textAlign = Paint.Align.CENTER
-            paint.textSize = sp(10f)
+            drawBottomLabel(
+                canvas,
+                centerX,
+                chartBottom,
+                index,
+                cellWidth
+            )
+        }
+    }
 
-            canvas.drawText(
-                barLabels.getOrElse(index) {
-                    "W${index + 1}"
-                },
-                x,
-                height - dp(8f),
+    private fun calculateAxisMaximum(
+        highestValue: Double
+    ): Double {
+        if (highestValue <= 0.0) {
+            return 100.0
+        }
+
+        // Round up to a readable maximum without
+        // adding excessive empty space above the bars.
+        val magnitude = 10.0.pow(
+            floor(log10(highestValue))
+        )
+
+        val normalizedValue = highestValue / magnitude
+
+        val multiplier = when {
+            normalizedValue <= 1.0 -> 1.0
+            normalizedValue <= 2.0 -> 2.0
+            normalizedValue <= 2.5 -> 2.5
+            normalizedValue <= 5.0 -> 5.0
+            normalizedValue <= 8.0 -> 8.0
+            else -> 10.0
+        }
+
+        return multiplier * magnitude
+    }
+
+    private fun drawGridLines(
+        canvas: Canvas,
+        left: Float,
+        right: Float,
+        top: Float,
+        bottom: Float,
+        axisMaximum: Double
+    ) {
+        val chartHeight = bottom - top
+
+        for (index in 0..4) {
+            val y = bottom -
+                    chartHeight * index / 4f
+
+            val tickValue = axisMaximum * index / 4.0
+
+            paint.reset()
+            paint.isAntiAlias = true
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = dp(0.8f)
+            paint.color = gridColor
+
+            canvas.drawLine(
+                left,
+                y,
+                right,
+                y,
                 paint
             )
+
+            paint.style = Paint.Style.FILL
+            paint.color = gray
+            paint.textAlign = Paint.Align.RIGHT
+            paint.textSize = sp(9f)
+            paint.typeface = Typeface.DEFAULT
+
+            canvas.drawText(
+                formatAxisValue(tickValue),
+                left - dp(8f),
+                y + dp(3f),
+                paint
+            )
+        }
+    }
+
+    private fun drawBar(
+        canvas: Canvas,
+        centerX: Float,
+        bottom: Float,
+        barWidth: Float,
+        barHeight: Float
+    ) {
+        val left = centerX - barWidth / 2f
+        val right = centerX + barWidth / 2f
+        val top = bottom - barHeight
+
+        val barRect = RectF(
+            left,
+            top,
+            right,
+            bottom
+        )
+
+        val radius = min(
+            dp(6f),
+            barWidth / 3f
+        )
+
+        paint.reset()
+        paint.isAntiAlias = true
+        paint.style = Paint.Style.FILL
+        paint.color = purple
+
+        // Solid purple, no gradient or overlay.
+        canvas.drawRoundRect(
+            barRect,
+            radius,
+            radius,
+            paint
+        )
+    }
+
+    private fun drawValueLabel(
+        canvas: Canvas,
+        centerX: Float,
+        barTop: Float,
+        valuePesos: Double,
+        cellWidth: Float
+    ) {
+        paint.reset()
+        paint.isAntiAlias = true
+        paint.style = Paint.Style.FILL
+        paint.color = dark
+        paint.typeface = Typeface.create(
+            "sans-serif-medium",
+            Typeface.NORMAL
+        )
+        paint.textAlign = Paint.Align.CENTER
+
+        paint.textSize = when {
+            barValues.size >= 12 -> sp(7f)
+            barValues.size >= 7 -> sp(8f)
+            else -> sp(9f)
+        }
+
+        val label = formatBarValue(valuePesos)
+
+        if (
+            paint.measureText(label) >
+            cellWidth * 0.95f
+        ) {
+            paint.textSize = sp(7f)
+        }
+
+        canvas.drawText(
+            label,
+            centerX,
+            barTop - dp(7f),
+            paint
+        )
+    }
+
+    private fun drawBottomLabel(
+        canvas: Canvas,
+        centerX: Float,
+        chartBottom: Float,
+        index: Int,
+        cellWidth: Float
+    ) {
+        val label = barLabels.getOrElse(index) {
+            "${index + 1}"
+        }
+
+        paint.reset()
+        paint.isAntiAlias = true
+        paint.style = Paint.Style.FILL
+        paint.color = gray
+        paint.textAlign = Paint.Align.CENTER
+        paint.typeface = Typeface.DEFAULT
+
+        paint.textSize = when {
+            barValues.size >= 12 -> sp(8f)
+            barValues.size >= 7 -> sp(9f)
+            else -> sp(10f)
+        }
+
+        while (
+            paint.measureText(label) > cellWidth * 0.92f &&
+            paint.textSize > sp(7f)
+        ) {
+            paint.textSize -= sp(0.5f)
+        }
+
+        canvas.drawText(
+            label,
+            centerX,
+            chartBottom + dp(19f),
+            paint
+        )
+    }
+
+    private fun drawEmptyChart(canvas: Canvas) {
+        paint.reset()
+        paint.isAntiAlias = true
+        paint.style = Paint.Style.FILL
+        paint.color = gray
+        paint.textAlign = Paint.Align.CENTER
+        paint.textSize = sp(12f)
+
+        canvas.drawText(
+            "No spending data available",
+            width / 2f,
+            height / 2f,
+            paint
+        )
+    }
+
+    private fun formatAxisValue(
+        value: Double
+    ): String {
+        return when {
+            value >= 1000000.0 -> {
+                String.format(
+                    Locale.US,
+                    "%.1fM",
+                    value / 1000000.0
+                )
+            }
+
+            value >= 1000.0 -> {
+                String.format(
+                    Locale.US,
+                    "%.1fk",
+                    value / 1000.0
+                )
+            }
+
+            value >= 1.0 -> {
+                if (value % 1.0 == 0.0) {
+                    numberFormatter.format(value)
+                } else {
+                    String.format(
+                        Locale.US,
+                        "%.2f",
+                        value
+                    )
+                }
+            }
+
+            else -> {
+                String.format(
+                    Locale.US,
+                    "%.2f",
+                    value
+                )
+            }
+        }
+    }
+
+    private fun formatBarValue(
+        value: Double
+    ): String {
+        return when {
+            value >= 1000000.0 -> {
+                String.format(
+                    Locale.US,
+                    "₱%.1fM",
+                    value / 1000000.0
+                )
+            }
+
+            value >= 1000.0 -> {
+                String.format(
+                    Locale.US,
+                    "₱%.1fk",
+                    value / 1000.0
+                )
+            }
+
+            value >= 1.0 -> {
+                "₱${numberFormatter.format(value)}"
+            }
+
+            else -> {
+                String.format(
+                    Locale.US,
+                    "₱%.2f",
+                    value
+                )
+            }
         }
     }
 
