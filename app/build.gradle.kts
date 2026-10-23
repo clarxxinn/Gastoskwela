@@ -1,4 +1,3 @@
-
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.devtools.ksp")
@@ -24,13 +23,9 @@ android {
 
     buildTypes {
         release {
+            // Temporarily disabled to diagnose release crashes
             optimization {
-                enable = true
-                packageScope = setOf(
-                    "androidx.**",
-                    "kotlin.**",
-                    "kotlinx.**"
-                )
+                enable = false
             }
         }
     }
@@ -42,7 +37,6 @@ android {
 }
 
 dependencies {
-
     // AndroidX
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
