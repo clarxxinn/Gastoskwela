@@ -38,7 +38,15 @@ The app includes four main sections:
 
 Screenshots of **Gastoskwela v1.1.0**, including onboarding, allowance management, expense tracking, and financial reports.
 
-### Splash Screen & Onboarding
+### Final UI Overview
+
+The following overview presents 10 application screens in a single visual collage.
+
+![Gastoskwela Mobile App UI Screenshots](screenshots/Gastoskwela%20Mobile%20App%20UI%20Screenshots.png)
+
+### Individual App Screenshots
+
+#### Splash Screen & Onboarding
 
 | Splash Screen | Expense Tracking |
 |:---:|:---:|
@@ -48,19 +56,19 @@ Screenshots of **Gastoskwela v1.1.0**, including onboarding, allowance managemen
 |:---:|:---:|
 | <img src="screenshots/onboarding-spending-reports.jpg" width="280" alt="Spending reports onboarding"> | <img src="screenshots/onboarding-financial-goals.jpg" width="280" alt="Financial goals onboarding"> |
 
-### Allowance Setup & Home Dashboard
+#### Allowance Setup & Home Dashboard
 
 | Allowance Setup | Home Dashboard |
 |:---:|:---:|
 | <img src="screenshots/allowance-setup.jpg" width="280" alt="Allowance setup"> | <img src="screenshots/home-dashboard.jpg" width="280" alt="Home dashboard"> |
 
-### Expense & Allowance Management
+#### Expense & Allowance Management
 
 | Expenses | Allowance Overview |
 |:---:|:---:|
 | <img src="screenshots/expenses-list.jpg" width="280" alt="Expenses list"> | <img src="screenshots/allowance-overview.jpg" width="280" alt="Allowance overview"> |
 
-### Financial History & Reports
+#### Financial History & Reports
 
 | Allowance History | Financial Reports |
 |:---:|:---:|
