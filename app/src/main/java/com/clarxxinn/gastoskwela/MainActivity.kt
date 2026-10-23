@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import com.clarxxinn.gastoskwela.fragments.AllowanceFragment
 import com.clarxxinn.gastoskwela.fragments.ExpensesFragment
 import com.clarxxinn.gastoskwela.fragments.HomeFragment
-import com.clarxxinn.gastoskwela.fragments.PaymentsFragment
 import com.clarxxinn.gastoskwela.fragments.ReportsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -32,7 +31,9 @@ class MainActivity : AppCompatActivity() {
         )
 
         bottomNavigation.setOnItemSelectedListener { item ->
-            if (item.itemId == currentTabId &&
+
+            if (
+                item.itemId == currentTabId &&
                 supportFragmentManager.findFragmentById(
                     R.id.fragmentContainer
                 ) != null
@@ -61,7 +62,9 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_home
         ) ?: R.id.nav_home
 
-        val validTab = if (createFragment(restoredTab) != null) {
+        val validTab = if (
+            createFragment(restoredTab) != null
+        ) {
             restoredTab
         } else {
             R.id.nav_home
@@ -78,7 +81,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.fragmentContainer
             ) == null
         ) {
-            val fragment = createFragment(validTab) ?: HomeFragment()
+            val fragment = createFragment(
+                validTab
+            ) ?: HomeFragment()
 
             supportFragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
@@ -94,6 +99,7 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
+
                 override fun handleOnBackPressed() {
                     if (currentTabId != R.id.nav_home) {
                         selectTab(R.id.nav_home)
@@ -110,20 +116,25 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_home -> HomeFragment()
             R.id.nav_expenses -> ExpensesFragment()
             R.id.nav_allowance -> AllowanceFragment()
-            R.id.nav_payments -> PaymentsFragment()
             R.id.nav_reports -> ReportsFragment()
             else -> null
         }
     }
 
     fun selectTab(itemId: Int) {
-        if (createFragment(itemId) == null) return
+        if (createFragment(itemId) == null) {
+            return
+        }
 
         bottomNavigation.selectedItemId = itemId
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(KEY_SELECTED_TAB, currentTabId)
+        outState.putInt(
+            KEY_SELECTED_TAB,
+            currentTabId
+        )
+
         super.onSaveInstanceState(outState)
     }
 
