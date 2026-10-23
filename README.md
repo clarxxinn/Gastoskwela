@@ -34,10 +34,20 @@ The app includes four main sections:
 | Coroutines & Flow | Reactive database updates |
 | Material Components | UI components |
 
+## 📸 Screenshots
+
+| Home | Expenses |
+|---|---|
+| ![Home](screenshots/home.png) | ![Expenses](screenshots/expenses.png) |
+
+| Allowance | Reports |
+|---|---|
+| ![Allowance](screenshots/allowance.png) | ![Reports](screenshots/reports.png) |
+
 ## 📱 Installation
 
-1. Download the APK from the project submission or build it from source.
-2. Transfer the APK to an Android device.
+1. Download the APK from the [latest GitHub release](https://github.com/clarxxinn/Gastoskwela/releases/latest).
+2. Transfer the APK to an Android device if necessary.
 3. Open the APK and allow installation from that source if prompted.
 4. Install and launch **Gastoskwela**.
 
@@ -48,7 +58,7 @@ Clone the repository and open it in Android Studio:
 ```bash
 git clone https://github.com/clarxxinn/Gastoskwela.git
 cd Gastoskwela
-git checkout development
+git checkout v1.1.0
 ```
 
 Build a debug APK:
@@ -68,17 +78,27 @@ The generated APK is located at `app/build/outputs/apk/debug/app-debug.apk`.
 ## 📂 Project Structure
 
 ```text
-app/src/main/
-├── java/com/clarxxinn/gastoskwela/
-│   ├── data/          # Room entities, DAOs, and database
-│   ├── fragments/     # Home, Expenses, Allowance, Reports
-│   └── utils/         # Shared utilities
-├── res/
-│   ├── drawable/      # Icons and backgrounds
-│   ├── layout/        # XML layouts
-│   └── values/        # App resources and themes
-└── AndroidManifest.xml
+Gastoskwela/
+├── app/                 # Android application source code
+├── documentation/       # Project documentation and diagrams
+├── screenshots/         # Application screenshots
+├── gradle/              # Gradle wrapper files
+├── README.md
+├── build.gradle.kts
+└── settings.gradle.kts
 ```
+
+## 👨‍💻 Developers
+
+- [clarxxinn](https://github.com/clarxxinn)
+- [raemprz](https://github.com/raemprz)
+
+## 🏷️ Version Information
+
+- **Version:** 1.1.0
+- **Platform:** Android
+- **Project Complexity:** Intermediate
+- **Release:** [Gastoskwela v1.1.0 — Final Release](https://github.com/clarxxinn/Gastoskwela/releases/tag/v1.1.0)
 
 ## 🎯 Project Purpose
 
