@@ -53,6 +53,18 @@
                 android:ellipsize="end" />
 
             <TextView
+                android:id="@+id/tvExpenseDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Description details"
+                android:textColor="#374151"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_regular"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
                 android:id="@+id/tvExpenseDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,14 +73,6 @@
                 android:textColor="#929AB2"
                 android:textSize="10sp"
                 android:fontFamily="@font/poppins_regular" />
-
-            <TextView
-                android:id="@+id/tvExpenseDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:textSize="10sp"
-                android:textColor="#929AB2" />
 
             <TextView
                 android:id="@+id/tvExpenseNotes"

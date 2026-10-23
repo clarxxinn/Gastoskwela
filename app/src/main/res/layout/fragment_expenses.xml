@@ -125,11 +125,43 @@
                     android:textColor="@color/expense_chip_text" />
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chipSchool"
+                    android:id="@+id/chipSubscriptions"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="School"
+                    android:text="Subscriptions"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_medium"
+                    app:chipBackgroundColor="@color/expense_chip_background"
+                    app:chipStrokeWidth="0dp"
+                    app:checkedIconVisible="false"
+                    app:chipMinHeight="32dp"
+                    app:chipCornerRadius="16dp"
+                    app:ensureMinTouchTargetSize="false"
+                    android:textColor="@color/expense_chip_text" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipGroceries"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Groceries"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/poppins_medium"
+                    app:chipBackgroundColor="@color/expense_chip_background"
+                    app:chipStrokeWidth="0dp"
+                    app:checkedIconVisible="false"
+                    app:chipMinHeight="32dp"
+                    app:chipCornerRadius="16dp"
+                    app:ensureMinTouchTargetSize="false"
+                    android:textColor="@color/expense_chip_text" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLoadData"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Load/Data"
                     android:textSize="11sp"
                     android:fontFamily="@font/poppins_medium"
                     app:chipBackgroundColor="@color/expense_chip_background"
@@ -155,6 +187,7 @@
                     app:chipCornerRadius="16dp"
                     app:ensureMinTouchTargetSize="false"
                     android:textColor="@color/expense_chip_text" />
+
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
@@ -199,6 +232,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

@@ -24,8 +24,8 @@ class AddExpenseActivity : AppCompatActivity() {
     private var isSaving = false
 
     private val categories = listOf(
-        "Food", "Transportation", "School Supplies",
-        "Projects", "Load/Internet", "Others"
+        "Food", "Transportation", "Subscriptions",
+        "Groceries", "Load/Internet", "Others"
     )
 
     private val paymentMethods = listOf(
@@ -67,6 +67,14 @@ class AddExpenseActivity : AppCompatActivity() {
             R.id.etAddExpenseDescription
         )
 
+        val descriptionLayout = findViewById<TextInputLayout>(
+            R.id.layoutAddExpenseDescription
+        )
+
+        val descriptionLabel = findViewById<android.widget.TextView>(
+            R.id.tvAddExpenseDescriptionLabel
+        )
+
         val paymentMethod = findViewById<AutoCompleteTextView>(
             R.id.etAddExpensePaymentMethod
         )
@@ -88,7 +96,30 @@ class AddExpenseActivity : AppCompatActivity() {
         )
 
         category.setText("Pagkain", false)
-        category.setOnClickListener { category.showDropDown() }
+        category.setOnClickListener {
+            category.showDropDown()
+        }
+
+        fun updateDescriptionRequirement() {
+            val required = category.text
+                ?.toString()?.trim() == "Others"
+
+            descriptionLabel.text = if (required) {
+                "Description (Required)"
+            } else {
+                "Description (Optional)"
+            }
+
+            if (!required) {
+                descriptionLayout.error = null
+            }
+        }
+
+        category.setOnItemClickListener { _, _, _, _ ->
+            updateDescriptionRequirement()
+        }
+
+        updateDescriptionRequirement()
 
         paymentMethod.setAdapter(
             ArrayAdapter(
@@ -118,7 +149,11 @@ class AddExpenseActivity : AppCompatActivity() {
             DatePickerDialog(
                 this,
                 { _, year, month, day ->
-                    selectedDate = LocalDate.of(year, month + 1, day)
+                    selectedDate = LocalDate.of(
+                        year,
+                        month + 1,
+                        day
+                    )
                     updateDateLabel()
                 },
                 selectedDate.year,
@@ -132,13 +167,14 @@ class AddExpenseActivity : AppCompatActivity() {
 
             amountLayout.error = null
             categoryLayout.error = null
+            descriptionLayout.error = null
 
             val centavos = MoneyUtils.parseCentavos(
                 amount.text?.toString().orEmpty()
             )
 
-            val categoryText = category.text?.toString()
-                ?.trim().orEmpty()
+            val categoryText = category.text
+                ?.toString()?.trim().orEmpty()
 
             val selectedCategory = categories.firstOrNull {
                 displayCategory(it) == categoryText
@@ -157,11 +193,27 @@ class AddExpenseActivity : AppCompatActivity() {
             val descriptionText = description.text
                 ?.toString()?.trim().orEmpty()
 
+            if (
+                selectedCategory == "Others" &&
+                descriptionText.isBlank()
+            ) {
+                descriptionLayout.error =
+                    "Description is required for Others"
+
+                description.requestFocus()
+                return@setOnClickListener
+            }
+
             val method = paymentMethod.text
                 ?.toString()?.trim().orEmpty()
 
-            if (method.isNotEmpty() && method !in paymentMethods) {
-                paymentMethod.error = "Select a valid payment method"
+            if (
+                method.isNotEmpty() &&
+                method !in paymentMethods
+            ) {
+                paymentMethod.error =
+                    "Select a valid payment method"
+
                 return@setOnClickListener
             }
 
@@ -204,13 +256,16 @@ class AddExpenseActivity : AppCompatActivity() {
             "Food" -> "Pagkain"
             "Transportation" -> "Pamasahe"
             "Load/Internet" -> "Load/Data"
-            "Others" -> "Miscellaneous"
+            "Others" -> "Others"
             else -> category
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString("selectedDate", selectedDate.toString())
+        outState.putString(
+            "selectedDate",
+            selectedDate.toString()
+        )
         super.onSaveInstanceState(outState)
     }
 }
