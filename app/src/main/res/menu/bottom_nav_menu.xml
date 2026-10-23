@@ -17,11 +17,6 @@
         android:title="Allowance" />
 
     <item
-        android:id="@+id/nav_payments"
-        android:icon="@drawable/ic_nav_payments"
-        android:title="Payments" />
-
-    <item
         android:id="@+id/nav_reports"
         android:icon="@drawable/ic_nav_reports"
         android:title="Reports" />

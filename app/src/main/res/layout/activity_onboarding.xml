@@ -50,7 +50,7 @@
         android:gravity="center"
         android:includeFontPadding="false"
         android:lineSpacingExtra="2dp"
-        android:text="Monitor your baon, pamasahe,&#10;pagkain, school payments&#10;and more."
+        android:text="Track your baon, pamasahe,&#10;pagkain, and daily expenses."
         android:textColor="#727B99"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@id/onboardingIndicators"

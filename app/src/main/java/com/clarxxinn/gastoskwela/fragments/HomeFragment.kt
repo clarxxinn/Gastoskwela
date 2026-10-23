@@ -6,7 +6,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -17,12 +16,10 @@ import com.clarxxinn.gastoskwela.R
 import com.clarxxinn.gastoskwela.data.Allowance
 import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
-import com.clarxxinn.gastoskwela.data.SchoolPayment
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -31,8 +28,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private val database by lazy {
         GastoskwelaDatabase.getDatabase(requireContext())
     }
-
-    private var latestPayments: List<SchoolPayment> = emptyList()
 
     private fun money(value: Long): String {
         return MoneyUtils.format(value)
@@ -61,13 +56,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             ) {
                 combine(
                     database.allowanceDao().getAllAllowances(),
-                    database.expenseDao().getAllExpenses(),
-                    database.schoolPaymentDao().getAllPayments()
-                ) { allowances, expenses, payments ->
+                    database.expenseDao().getAllExpenses()
+                ) { allowances, expenses ->
                     DashboardData(
                         allowances = allowances,
-                        expenses = expenses,
-                        payments = payments
+                        expenses = expenses
                     )
                 }.collect { data ->
                     updateDashboard(view, data)
@@ -76,82 +69,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
-    private fun showPaymentReminders() {
-        val today = LocalDate.now()
-
-        val reminders = latestPayments.mapNotNull { payment ->
-            if (
-                payment.remainingCentavos <= 0L ||
-                payment.status.equals("Paid", ignoreCase = true)
-            ) {
-                return@mapNotNull null
-            }
-
-            val dueDate = runCatching {
-                LocalDate.parse(payment.dueDate)
-            }.getOrNull() ?: return@mapNotNull null
-
-            val daysLeft = ChronoUnit.DAYS.between(today, dueDate)
-
-            if (daysLeft > 7L) {
-                return@mapNotNull null
-            }
-
-            val dueMessage = when {
-                daysLeft < 0L ->
-                    "${-daysLeft} day(s) overdue"
-
-                daysLeft == 0L ->
-                    "Due today"
-
-                daysLeft == 1L ->
-                    "Due tomorrow"
-
-                daysLeft <= 3L ->
-                    "$daysLeft days left"
-
-                else ->
-                    "Upcoming · $daysLeft days left"
-            }
-
-            payment to dueMessage
-        }.sortedBy { it.first.dueDate }
-
-        if (reminders.isEmpty()) {
-            AlertDialog.Builder(requireContext())
-                .setTitle("School Payment Reminders")
-                .setMessage(
-                    "You're all caught up! No payments due within 7 days."
-                )
-                .setPositiveButton("OK", null)
-                .show()
-
-            return
-        }
-
-        val message = reminders.joinToString("\n\n") { (payment, status) ->
-            "${payment.title}\n" +
-                    "$status\n" +
-                    "Remaining: ${money(payment.remainingCentavos)}"
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("School Payment Reminders (${reminders.size})")
-            .setMessage(message)
-            .setNegativeButton("Close", null)
-            .setPositiveButton("View Payments") { _, _ ->
-                openTab(R.id.nav_payments)
-            }
-            .show()
-    }
-
     private fun setupNavigation(view: View) {
-        view.findViewById<View>(
-            R.id.btnHomeNotifications
-        ).setOnClickListener {
-            showPaymentReminders()
-        }
-
         view.findViewById<View>(
             R.id.btnHomeExpenses
         ).setOnClickListener {
@@ -165,12 +83,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         view.findViewById<View>(
-            R.id.btnHomePayments
-        ).setOnClickListener {
-            openTab(R.id.nav_payments)
-        }
-
-        view.findViewById<View>(
             R.id.btnHomeReports
         ).setOnClickListener {
             openTab(R.id.nav_reports)
@@ -181,12 +93,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         ).setOnClickListener {
             openTab(R.id.nav_expenses)
         }
-
-        view.findViewById<View>(
-            R.id.btnSeeAllPayments
-        ).setOnClickListener {
-            openTab(R.id.nav_payments)
-        }
     }
 
     private fun openTab(tabId: Int) {
@@ -195,16 +101,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private data class DashboardData(
         val allowances: List<Allowance>,
-        val expenses: List<Expense>,
-        val payments: List<SchoolPayment>
+        val expenses: List<Expense>
     )
 
     private fun updateDashboard(
         view: View,
         data: DashboardData
     ) {
-        latestPayments = data.payments
-
         val totalAllowance = data.allowances.sumOf {
             it.amountCentavos
         }
@@ -213,16 +116,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             it.amountCentavos
         }
 
-        // Paid school payments count as spending.
-        // Do not also record the same payment as a regular expense.
-        val totalPaidSchoolPayments = data.payments.sumOf {
-            it.paidCentavos
-        }
-
-        val totalSpending =
-            totalExpenses + totalPaidSchoolPayments
-
-        val remaining = totalAllowance - totalSpending
+        val remaining = totalAllowance - totalExpenses
 
         val today = LocalDate.now().toString()
 
@@ -236,7 +130,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         balanceView.text = money(remaining)
 
-        // Keep the balance readable on the purple card.
         balanceView.setTextColor(
             ContextCompat.getColor(
                 requireContext(),
@@ -255,17 +148,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         updateBudgetProgress(
             view = view,
             allowance = totalAllowance,
-            spending = totalSpending
+            spending = totalExpenses
         )
 
         updateRecentExpenses(
             view = view,
             expenses = data.expenses
-        )
-
-        updateUpcomingPayments(
-            view = view,
-            payments = data.payments
         )
     }
 
@@ -406,7 +294,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 false
             )
 
-            // Use the same category icons as the Expenses screen.
             val iconView = itemView.findViewById<ImageView>(
                 R.id.ivTransactionIcon
             )
@@ -440,83 +327,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     R.color.expense_red
                 )
             )
-
-            container.addView(itemView)
-        }
-    }
-
-    private fun updateUpcomingPayments(
-        view: View,
-        payments: List<SchoolPayment>
-    ) {
-        val container = view.findViewById<LinearLayout>(
-            R.id.homePaymentsContainer
-        )
-
-        val emptyView = view.findViewById<TextView>(
-            R.id.tvHomeEmptyPayments
-        )
-
-        container.removeAllViews()
-
-        val today = LocalDate.now().toString()
-
-        val upcoming = payments
-            .filter { it.remainingCentavos > 0L }
-            .sortedBy { it.dueDate }
-            .take(3)
-
-        emptyView.visibility =
-            if (upcoming.isEmpty()) View.VISIBLE else View.GONE
-
-        emptyView.text =
-            "No outstanding school payments. You're all caught up!"
-
-        upcoming.forEach { payment ->
-            val itemView = layoutInflater.inflate(
-                R.layout.item_home_payment,
-                container,
-                false
-            )
-
-            itemView.findViewById<TextView>(
-                R.id.tvHomePaymentTitle
-            ).text = payment.title
-
-            itemView.findViewById<TextView>(
-                R.id.tvHomePaymentAmount
-            ).text = money(payment.remainingCentavos)
-
-            val isOverdue = payment.dueDate < today
-
-            val dueView = itemView.findViewById<TextView>(
-                R.id.tvHomePaymentDue
-            )
-
-            dueView.text = if (isOverdue) {
-                "Overdue: ${payment.dueDate}"
-            } else {
-                "Due: ${payment.dueDate}"
-            }
-
-            dueView.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    if (isOverdue) {
-                        R.color.expense_red
-                    } else {
-                        R.color.text_secondary
-                    }
-                )
-            )
-
-            itemView.findViewById<TextView>(
-                R.id.tvHomePaymentStatus
-            ).text = if (isOverdue) {
-                "Overdue · ${payment.status}"
-            } else {
-                payment.status
-            }
 
             container.addView(itemView)
         }

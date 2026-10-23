@@ -67,16 +67,6 @@
 
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/btnHomeNotifications"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:contentDescription="School payment reminders"
-                android:src="@drawable/ic_home_bell"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless" />
-
         </LinearLayout>
 
         <!-- Date -->
@@ -357,98 +347,45 @@
 
         </LinearLayout>
 
-        <!-- Quick Actions Second Row -->
-        <LinearLayout
+        <!-- View Reports -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnHomeReports"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="17dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E9ECF5"
+            app:strokeWidth="1dp">
 
-            <!-- Add Payment -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnHomePayments"
-                android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="17dp"
-                app:cardElevation="0dp"
-                app:strokeColor="#E9ECF5"
-                app:strokeWidth="1dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="View Reports"
+                    android:src="@drawable/ic_quick_reports" />
 
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:contentDescription="Add Payment"
-                        android:src="@drawable/ic_quick_payment" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="View Reports"
+                    android:textColor="#1F2937"
+                    android:textSize="12sp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:text="Add Payment"
-                        android:textColor="#1F2937"
-                        android:textSize="12sp" />
+            </LinearLayout>
 
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <Space
-                android:layout_width="10dp"
-                android:layout_height="1dp" />
-
-            <!-- View Reports -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnHomeReports"
-                android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="17dp"
-                app:cardElevation="0dp"
-                app:strokeColor="#E9ECF5"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:contentDescription="View Reports"
-                        android:src="@drawable/ic_quick_reports" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:text="View Reports"
-                        android:textColor="#1F2937"
-                        android:textSize="12sp" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Recent Expenses -->
         <LinearLayout
@@ -494,53 +431,6 @@
 
         <LinearLayout
             android:id="@+id/homeTransactionsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-
-        <!-- Upcoming Payments -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/poppins_bold"
-                android:text="Upcoming Payments"
-                android:textColor="#1F2937"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/btnSeeAllPayments"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:fontFamily="@font/poppins_semibold"
-                android:gravity="center"
-                android:text="See all"
-                android:textColor="#5B3FD9"
-                android:textSize="12sp" />
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvHomeEmptyPayments"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="10dp"
-            android:fontFamily="@font/poppins_regular"
-            android:text="No upcoming school payments."
-            android:textColor="#6B7280"
-            android:textSize="12sp" />
-
-        <LinearLayout
-            android:id="@+id/homePaymentsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />

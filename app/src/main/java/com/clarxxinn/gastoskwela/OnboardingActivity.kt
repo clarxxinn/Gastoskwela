@@ -26,7 +26,7 @@ class OnboardingActivity : AppCompatActivity() {
     )
 
     private val descriptions = listOf(
-        "Monitor your baon, pamasahe,\npagkain, school payments\nand more.",
+        "Track your baon, pamasahe,\npagkain, and daily expenses.",
         "View reports and charts to see\nwhere your money goes.",
         "Set budgets, save for your goals,\nand manage your gastos wisely."
     )

@@ -1,38 +1,27 @@
 # 🎓 Gastoskwela
 
-**Gastoskwela** is a native Android application that helps students manage their daily allowance, track expenses, and monitor school payments in one place. Built with **Kotlin and XML layouts**, it provides a simple way to understand where money goes and stay prepared for upcoming school expenses.
-
-## 📥 Download
-
-**Latest Release: v1.0.0**
-
-[**Download Gastoskwela APK**](https://github.com/clarxxinn/Gastoskwela/releases/latest)
-
-Download the latest available version of Gastoskwela from the official GitHub Releases page.
-
-**Requirements:** Android 8.0 (Oreo) or later.
+**Gastoskwela** is a native Android application designed to help students manage their daily allowance, track expenses, and monitor their spending habits in one place. Built with **Kotlin and XML layouts**, it provides a simple way to manage personal finances and develop better budgeting habits.
 
 ## 📖 About the Project
 
-Gastoskwela is a student-focused financial tracker developed as a **Mobile Application Development** project. It works offline and saves records locally using a **Room database**.
+Gastoskwela is a student-focused financial tracker developed as a **Mobile Application Development** project. It works offline and stores financial records locally using a **Room database**.
 
-The app includes five main sections:
+The app includes four main sections:
 
-- 🏠 **Home** — View remaining allowance, spending summaries, budget progress, recent expenses, and upcoming school payments.
-- 💸 **Expenses** — Add, edit, delete, search, and filter expenses by category.
+- 🏠 **Home** — View remaining allowance, spending summaries, budget progress, and recent expenses.
+- 💸 **Expenses** — Add, edit, delete, search, and filter daily expenses by category.
 - 💰 **Allowance** — Record and manage allowance entries and view the total allowance.
-- 📚 **School Payments** — Track tuition, projects, supplies, school fees, events, and other payments, including partial payments and due dates.
-- 📊 **Reports** — Review financial summaries and charts.
+- 📊 **Reports** — Review financial summaries and charts to understand spending habits.
 
 ## ✨ Key Features
 
-- **Allowance and expense tracking** with Philippine peso (₱) formatting
-- **School payment management** with upcoming, overdue, and completed payment statuses
-- **Payment reminders** accessible from the notification bell on the Home screen
-- **Partial payment tracking** with remaining balances
-- **Dashboard calculations** that include paid school payments in total spending
-- **Local data storage** — no internet connection required for core features
-- **Custom icons and a clean, student-friendly interface**
+- **Allowance tracking** — Record and manage allowance entries.
+- **Expense management** — Add, edit, delete, search, and categorize personal expenses.
+- **Financial dashboard** — View total allowance, total expenses, remaining balance, and budget progress.
+- **Spending reports** — Visualize financial summaries and expense trends through charts.
+- **Philippine peso formatting** — Display amounts in Philippine pesos (₱).
+- **Local data storage** — Use core features offline with Room database.
+- **Student-friendly interface** — Simple navigation with custom icons and XML layouts.
 
 ## 🛠️ Built With
 
@@ -47,11 +36,10 @@ The app includes five main sections:
 
 ## 📱 Installation
 
-1. Visit the [Gastoskwela Releases](https://github.com/clarxxinn/Gastoskwela/releases/latest) page.
-2. Download **`Gastoskwela.apk`** from the Assets section.
-3. Open the downloaded APK on your Android device.
-4. Allow installation from the source if prompted.
-5. Install and launch **Gastoskwela**.
+1. Download the APK from the project submission or build it from source.
+2. Transfer the APK to an Android device.
+3. Open the APK and allow installation from that source if prompted.
+4. Install and launch **Gastoskwela**.
 
 ### Build from Source
 
@@ -59,15 +47,21 @@ Clone the repository and open it in Android Studio:
 
 ```bash
 git clone https://github.com/clarxxinn/Gastoskwela.git
+cd Gastoskwela
+git checkout development
 ```
 
-Build a debug APK using:
+Build a debug APK:
 
 ```bash
-./gradlew assembleDebug
+./gradlew :app:assembleDebug
 ```
 
-On Windows PowerShell, use `.\gradlew.bat :app:assembleDebug`.
+On Windows PowerShell:
+
+```powershell
+.\gradlew.bat :app:assembleDebug
+```
 
 The generated APK is located at `app/build/outputs/apk/debug/app-debug.apk`.
 
@@ -77,7 +71,7 @@ The generated APK is located at `app/build/outputs/apk/debug/app-debug.apk`.
 app/src/main/
 ├── java/com/clarxxinn/gastoskwela/
 │   ├── data/          # Room entities, DAOs, and database
-│   ├── fragments/     # Home, Expenses, Allowance, Payments, Reports
+│   ├── fragments/     # Home, Expenses, Allowance, Reports
 │   └── utils/         # Shared utilities
 ├── res/
 │   ├── drawable/      # Icons and backgrounds
@@ -88,7 +82,7 @@ app/src/main/
 
 ## 🎯 Project Purpose
 
-Gastoskwela aims to help students build better budgeting habits by keeping allowance, expenses, and school payment obligations organized in a single offline Android app.
+Gastoskwela aims to help students develop better financial management and budgeting habits by organizing their allowance and daily expenses in a single offline Android application.
 
 ---
 
