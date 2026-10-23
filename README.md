@@ -34,19 +34,37 @@ The app includes four main sections:
 | Coroutines & Flow | Reactive database updates |
 | Material Components | UI components |
 
-## 📸 Screenshots
+## 📸 App Screenshots
 
-Application screenshots will be added to the `screenshots/` folder.
+Screenshots of **Gastoskwela v1.1.0**, including onboarding, allowance management, expense tracking, and financial reports.
 
-<!-- After adding the actual image files, uncomment this section:
-| Home | Expenses |
-|---|---|
-| ![Home](screenshots/home.png) | ![Expenses](screenshots/expenses.png) |
+### Splash Screen & Onboarding
 
-| Allowance | Reports |
-|---|---|
-| ![Allowance](screenshots/allowance.png) | ![Reports](screenshots/reports.png) |
--->
+| Splash Screen | Expense Tracking |
+|:---:|:---:|
+| <img src="screenshots/splash-screen.jpg" width="280" alt="Splash screen"> | <img src="screenshots/onboarding-expense-tracking.jpg" width="280" alt="Expense tracking onboarding"> |
+
+| Spending Reports | Financial Goals |
+|:---:|:---:|
+| <img src="screenshots/onboarding-spending-reports.jpg" width="280" alt="Spending reports onboarding"> | <img src="screenshots/onboarding-financial-goals.jpg" width="280" alt="Financial goals onboarding"> |
+
+### Allowance Setup & Home Dashboard
+
+| Allowance Setup | Home Dashboard |
+|:---:|:---:|
+| <img src="screenshots/allowance-setup.jpg" width="280" alt="Allowance setup"> | <img src="screenshots/home-dashboard.jpg" width="280" alt="Home dashboard"> |
+
+### Expense & Allowance Management
+
+| Expenses | Allowance Overview |
+|:---:|:---:|
+| <img src="screenshots/expenses-list.jpg" width="280" alt="Expenses list"> | <img src="screenshots/allowance-overview.jpg" width="280" alt="Allowance overview"> |
+
+### Financial History & Reports
+
+| Allowance History | Financial Reports |
+|:---:|:---:|
+| <img src="screenshots/allowance-history.jpg" width="280" alt="Allowance history"> | <img src="screenshots/financial-reports.jpg" width="280" alt="Financial reports"> |
 
 ## 📱 Installation
 
@@ -100,9 +118,9 @@ Gastoskwela is a group final project for Mobile Application Development.
 |---|---|
 | Rainier James Rodiel | [@clarxxinn](https://github.com/clarxxinn) |
 | Raeven Perez | [@raemprz](https://github.com/raemprz) |
-| John Erick Eugenio |
-| Catherine Talucud |
-| Maxwell Alfaro |
+| John Erick Eugenio | — |
+| Catherine Talucud | — |
+| Maxwell Alfaro | — |
 
 ### GitHub Contributors
 
