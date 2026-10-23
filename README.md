@@ -36,6 +36,9 @@ The app includes four main sections:
 
 ## 📸 Screenshots
 
+Application screenshots will be added to the `screenshots/` folder.
+
+<!-- After adding the actual image files, uncomment this section:
 | Home | Expenses |
 |---|---|
 | ![Home](screenshots/home.png) | ![Expenses](screenshots/expenses.png) |
@@ -43,6 +46,7 @@ The app includes four main sections:
 | Allowance | Reports |
 |---|---|
 | ![Allowance](screenshots/allowance.png) | ![Reports](screenshots/reports.png) |
+-->
 
 ## 📱 Installation
 
@@ -53,7 +57,7 @@ The app includes four main sections:
 
 ### Build from Source
 
-Clone the repository and open it in Android Studio:
+Clone the repository and check out the final release:
 
 ```bash
 git clone https://github.com/clarxxinn/Gastoskwela.git
@@ -61,7 +65,7 @@ cd Gastoskwela
 git checkout v1.1.0
 ```
 
-Build a debug APK:
+Open the project in Android Studio, or build a debug APK:
 
 ```bash
 ./gradlew :app:assembleDebug
@@ -80,7 +84,7 @@ The generated APK is located at `app/build/outputs/apk/debug/app-debug.apk`.
 ```text
 Gastoskwela/
 ├── app/                 # Android application source code
-├── documentation/       # Project documentation and diagrams
+├── documentation/       # Project documentation
 ├── screenshots/         # Application screenshots
 ├── gradle/              # Gradle wrapper files
 ├── README.md
@@ -88,10 +92,24 @@ Gastoskwela/
 └── settings.gradle.kts
 ```
 
-## 👨‍💻 Developers
+## 👨‍💻 Project Team Members
 
-- [clarxxinn](https://github.com/clarxxinn)
-- [raemprz](https://github.com/raemprz)
+Gastoskwela is a group final project for Mobile Application Development.
+
+| Team Member | GitHub Account |
+|---|---|
+| Rainier James Rodiel | [@clarxxinn](https://github.com/clarxxinn) |
+| Raeven Perez | [@raemprz](https://github.com/raemprz) |
+| John Erick Eugenio |
+| Catherine Talucud |
+| Maxwell Alfaro |
+
+### GitHub Contributors
+
+The following team members have recorded contributions in the repository's Git history:
+
+- [Rainier James Rodiel (@clarxxinn)](https://github.com/clarxxinn)
+- [Raeven Perez (@raemprz)](https://github.com/raemprz)
 
 ## 🏷️ Version Information
 
