@@ -2,6 +2,7 @@ package com.clarxxinn.gastoskwela.fragments
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -79,7 +80,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val today = LocalDate.now()
 
         val reminders = latestPayments.mapNotNull { payment ->
-            if (payment.remainingCentavos <= 0L ||
+            if (
+                payment.remainingCentavos <= 0L ||
                 payment.status.equals("Paid", ignoreCase = true)
             ) {
                 return@mapNotNull null
@@ -327,6 +329,47 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+    private fun categoryIcon(category: String): Int {
+        return when (category) {
+
+            "Food", "Pagkain" ->
+                R.drawable.ic_expense_food
+
+            "Transportation", "Pamasahe" ->
+                R.drawable.ic_expense_transport
+
+            "Groceries" ->
+                R.drawable.ic_expense_groceries
+
+            "Subscriptions" ->
+                R.drawable.ic_expense_subscriptions
+
+            "School Supplies", "School" ->
+                R.drawable.ic_expense_supplies
+
+            "Projects" ->
+                R.drawable.ic_expense_projects
+
+            "Load/Internet", "Load/Data" ->
+                R.drawable.ic_expense_load
+
+            "Others", "Miscellaneous" ->
+                R.drawable.ic_expense_misc
+
+            else ->
+                R.drawable.ic_expense_misc
+        }
+    }
+
+    private fun displayCategory(category: String): String {
+        return when (category) {
+            "Food" -> "Pagkain"
+            "Transportation" -> "Pamasahe"
+            "Load/Internet" -> "Load/Data"
+            else -> category
+        }
+    }
+
     private fun updateRecentExpenses(
         view: View,
         expenses: List<Expense>
@@ -363,55 +406,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 false
             )
 
-            val category = expense.category.lowercase(
-                Locale.ROOT
+            // Use the same category icons as the Expenses screen.
+            val iconView = itemView.findViewById<ImageView>(
+                R.id.ivTransactionIcon
             )
 
-            val iconView = itemView.findViewById<TextView>(
-                R.id.tvTransactionIcon
+            iconView.setImageResource(
+                categoryIcon(expense.category)
             )
-
-            val icon: String
-            val background: Int
-
-            when (category) {
-                "food", "pagkain" -> {
-                    icon = "🍴"
-                    background = R.drawable.bg_home_quick_allowance
-                }
-
-                "transportation", "pamasahe" -> {
-                    icon = "▣"
-                    background = R.drawable.bg_home_transaction_transport
-                }
-
-                "school supplies", "school" -> {
-                    icon = "✎"
-                    background = R.drawable.bg_home_quick_expense
-                }
-
-                "projects" -> {
-                    icon = "▤"
-                    background = R.drawable.bg_home_quick_payment
-                }
-
-                "load/internet" -> {
-                    icon = "▥"
-                    background = R.drawable.bg_home_quick_reports
-                }
-
-                else -> {
-                    icon = "•"
-                    background = R.drawable.bg_home_quick_expense
-                }
-            }
-
-            iconView.text = icon
-            iconView.setBackgroundResource(background)
 
             itemView.findViewById<TextView>(
                 R.id.tvTransactionTitle
-            ).text = expense.category
+            ).text = displayCategory(expense.category)
 
             itemView.findViewById<TextView>(
                 R.id.tvTransactionDetails

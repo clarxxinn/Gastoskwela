@@ -178,10 +178,16 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             "Transportation", "Pamasahe" ->
                 R.drawable.ic_expense_transport
 
-            "Groceries", "School Supplies", "School" ->
+            "Groceries" ->
+                R.drawable.ic_expense_groceries
+
+            "Subscriptions" ->
+                R.drawable.ic_expense_subscriptions
+
+            "School Supplies", "School" ->
                 R.drawable.ic_expense_supplies
 
-            "Subscriptions", "Projects" ->
+            "Projects" ->
                 R.drawable.ic_expense_projects
 
             "Load/Internet", "Load/Data" ->
