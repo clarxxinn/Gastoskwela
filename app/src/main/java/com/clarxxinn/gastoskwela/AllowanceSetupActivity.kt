@@ -10,6 +10,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.clarxxinn.gastoskwela.data.Allowance
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
@@ -44,6 +46,8 @@ class AllowanceSetupActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = ContextCompat.getColor(this, android.R.color.white)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
         setContentView(R.layout.activity_allowance_setup)
 
         selectedFrequency = savedInstanceState

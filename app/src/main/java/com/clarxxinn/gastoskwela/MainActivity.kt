@@ -1,9 +1,11 @@
 package com.clarxxinn.gastoskwela
 
-import android.os.Bundle
+import  android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.clarxxinn.gastoskwela.fragments.AllowanceFragment
 import com.clarxxinn.gastoskwela.fragments.ExpensesFragment
@@ -23,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = ContextCompat.getColor(this, android.R.color.white)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
 
         setContentView(R.layout.activity_main)
 
