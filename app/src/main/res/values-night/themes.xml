@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Keep Gastoskwela light even when the phone uses dark mode. -->
     <style name="Theme.Gastoskwela"
-        parent="Theme.MaterialComponents.Light.NoActionBar" />
+        parent="Theme.MaterialComponents.Light.NoActionBar">
+
+        <item name="colorPrimary">@color/purple_primary</item>
+        <item name="colorPrimaryVariant">@color/purple_light</item>
+        <item name="colorSecondary">@color/purple_light</item>
+
+        <item name="android:colorAccent">@color/purple_primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <item name="android:windowBackground">@color/background</item>
+
+        <item name="materialButtonStyle">
+            @style/Widget.MaterialComponents.Button
+        </item>
+
+    </style>
 </resources>

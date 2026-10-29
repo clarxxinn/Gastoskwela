@@ -6,6 +6,8 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import com.google.android.material.button.MaterialButton
 
 class OnboardingActivity : AppCompatActivity() {
@@ -39,6 +41,8 @@ class OnboardingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = ContextCompat.getColor(this, android.R.color.white)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
         setContentView(R.layout.activity_onboarding)
 
         illustration = findViewById(R.id.imgOnboarding)

@@ -6,6 +6,8 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
@@ -34,6 +36,8 @@ class AddExpenseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = ContextCompat.getColor(this, android.R.color.white)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
         setContentView(R.layout.activity_add_expense)
 
         selectedDate = savedInstanceState

@@ -1,6 +1,8 @@
 package com.clarxxinn.gastoskwela.fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -17,6 +19,7 @@ import com.clarxxinn.gastoskwela.data.Allowance
 import com.clarxxinn.gastoskwela.data.Expense
 import com.clarxxinn.gastoskwela.data.GastoskwelaDatabase
 import com.clarxxinn.gastoskwela.utils.MoneyUtils
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -28,6 +31,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private val database by lazy {
         GastoskwelaDatabase.getDatabase(requireContext())
     }
+
+    private var currentAvailableBalance: Long = 0L
+    private var calcTextWatcher: TextWatcher? = null
 
     private fun money(value: Long): String {
         return MoneyUtils.format(value)
@@ -49,6 +55,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         ).text = LocalDate.now().format(dateFormatter)
 
         setupNavigation(view)
+        setupCalculator(view)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(
@@ -99,6 +106,96 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         (requireActivity() as MainActivity).selectTab(tabId)
     }
 
+    private fun setupCalculator(view: View) {
+        val plannedInput = view.findViewById<TextInputEditText>(
+            R.id.etCalcPlannedAmount
+        )
+        val dailyInput = view.findViewById<TextInputEditText>(
+            R.id.etCalcDailySpending
+        )
+        val resultView = view.findViewById<TextView>(
+            R.id.tvCalcResult
+        )
+        val clearButton = view.findViewById<TextView>(
+            R.id.btnClearCalculator
+        )
+
+        calcTextWatcher?.let {
+            plannedInput.removeTextChangedListener(it)
+            dailyInput.removeTextChangedListener(it)
+        }
+
+        calcTextWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                updateCalculatorResult(
+                    plannedInput.text?.toString().orEmpty(),
+                    dailyInput.text?.toString().orEmpty(),
+                    resultView
+                )
+            }
+        }
+        plannedInput.addTextChangedListener(calcTextWatcher)
+        dailyInput.addTextChangedListener(calcTextWatcher)
+
+        clearButton.setOnClickListener {
+            plannedInput.setText("")
+            dailyInput.setText("")
+            resultView.text = "Enter an amount to simulate purchase."
+        }
+    }
+
+    private fun updateCalculatorResult(
+        plannedInputStr: String,
+        dailyInputStr: String,
+        resultView: TextView
+    ) {
+        val trimmedPlanned = plannedInputStr.trim()
+        val trimmedDaily = dailyInputStr.trim()
+
+        if (trimmedPlanned.isEmpty()) {
+            resultView.text = "Enter an amount to simulate purchase."
+            return
+        }
+
+        val plannedCentavos = MoneyUtils.parseCentavos(trimmedPlanned, allowZero = true)
+        if (plannedCentavos == null) {
+            resultView.text = "Please enter a valid amount."
+            return
+        }
+
+        val projected = currentAvailableBalance - plannedCentavos
+
+        val statusMessage = when {
+            projected > 0L -> {
+                if (plannedCentavos == currentAvailableBalance) {
+                    "This purchase would use your entire available balance."
+                } else {
+                    "You will have ${money(projected)} left."
+                }
+            }
+            projected == 0L -> {
+                "This purchase would use your entire available balance."
+            }
+            else -> {
+                val shortfall = Math.abs(projected)
+                "This purchase exceeds your available balance by ${money(shortfall)}."
+            }
+        }
+
+        var survivalMessage = ""
+        if (trimmedDaily.isNotEmpty() && projected > 0L) {
+            val dailyCentavos = MoneyUtils.parseCentavos(trimmedDaily, allowZero = false)
+            if (dailyCentavos != null && dailyCentavos > 0L) {
+                val days = projected / dailyCentavos
+                survivalMessage = "\nYour remaining money could cover approximately $days more full days at your usual spending rate."
+            }
+        }
+
+        resultView.text = statusMessage + survivalMessage
+    }
+
     private data class DashboardData(
         val allowances: List<Allowance>,
         val expenses: List<Expense>
@@ -117,6 +214,28 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         val remaining = totalAllowance - totalExpenses
+
+        currentAvailableBalance = remaining
+        view.findViewById<TextView>(
+            R.id.tvCalcCurrentBalance
+        ).text = "Current Available Balance: ${money(remaining)}"
+
+        val plannedInput = view.findViewById<TextInputEditText>(
+            R.id.etCalcPlannedAmount
+        )
+        val dailyInput = view.findViewById<TextInputEditText>(
+            R.id.etCalcDailySpending
+        )
+        val resultView = view.findViewById<TextView>(
+            R.id.tvCalcResult
+        )
+        if (!plannedInput.text.isNullOrBlank() || !dailyInput.text.isNullOrBlank()) {
+            updateCalculatorResult(
+                plannedInput.text?.toString().orEmpty(),
+                dailyInput.text?.toString().orEmpty(),
+                resultView
+            )
+        }
 
         val today = LocalDate.now().toString()
 
