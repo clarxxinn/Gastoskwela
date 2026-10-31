@@ -60,7 +60,7 @@ The following overview presents 10 application screens in a single visual collag
 
 | Allowance Setup | Home Dashboard |
 |:---:|:---:|
-| <img src="screenshots/allowance-setup.jpg" width="280" alt="Allowance setup"> | <img src="screenshots/home-dashboard.jpg" width="280" alt="Home dashboard"> |
+| <img src="screenshots/allowance-setup.jpg" width="280" alt="Allowance setup"> | <img src="screenshots/home-dashboard.png" width="280" alt="Home dashboard"> |
 
 #### Expense & Allowance Management
 
