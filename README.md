@@ -142,7 +142,7 @@ The following team members have recorded contributions in the repository's Git h
 - **Version:** 1.1.0
 - **Platform:** Android
 - **Project Complexity:** Intermediate
-- **Release:** [Gastoskwela v1.1.0 — Final Release](https://github.com/clarxxinn/Gastoskwela/releases/tag/v1.1.0)
+- **Release:** [Gastoskwela v1.1.0 — Final Release]([https://github.com/clarxxinn/Gastoskwela/releases/tag/v1.1.0](https://github.com/clarxxinn/Gastoskwela/releases/tag/v1.2.0))
 
 ## 🎯 Project Purpose
 
