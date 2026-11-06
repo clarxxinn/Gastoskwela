@@ -146,7 +146,7 @@ The following team members have recorded contributions in the repository's Git h
 
 ## 🎯 Project Purpose
 
-Gastoskwela aims to help students develop better financial management and budgeting habits by organizing their allowance and daily expenses in a single offline Android application.
+Gastoskwela aims to help students develop better financial management and budgeting habits by organizing their allowance and daily expenses in single offline Android application.
 
 ---
 
